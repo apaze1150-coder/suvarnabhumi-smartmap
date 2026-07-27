@@ -1,0 +1,9 @@
+gate_zone,walk_time_mins,description
+A,5,Concourse A Left Wing
+B,5,Concourse B Left Wing
+C,7,Concourse C Left Wing
+D,4,Concourse D Center Zone
+E,6,Concourse E Right Wing
+F,8,Concourse F Far Right
+G,10,Concourse G End of Terminal
+SAT-1,15,Satellite Terminal 1 including APM Train

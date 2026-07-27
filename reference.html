@@ -1,0 +1,476 @@
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PAÑPURI | Royal Horizon Boutique</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#44474d",
+                        "inverse-surface": "#2e3132",
+                        "on-background": "#191c1e",
+                        "surface-container-low": "#f3f4f6",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "secondary": "#725c10",
+                        "primary-fixed-dim": "#bac7e2",
+                        "secondary-container": "#ffe088",
+                        "on-secondary-container": "#786216",
+                        "background": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface-bright": "#f8f9fb",
+                        "on-primary-fixed-variant": "#3b475d",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-tint": "#525f76",
+                        "primary-fixed": "#d6e3ff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f8f9fb",
+                        "error-container": "#ffdad6",
+                        "outline": "#75777d",
+                        "primary-container": "#0f1c30",
+                        "on-primary-fixed": "#0f1c30",
+                        "surface-variant": "#e1e2e4",
+                        "tertiary-container": "#1c1b1b",
+                        "on-tertiary-container": "#858383",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#edeef0",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-secondary-fixed": "#241a00",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "tertiary": "#000000",
+                        "status-gold": "#735C00",
+                        "secondary-fixed-dim": "#e1c46f",
+                        "on-surface": "#191c1e",
+                        "on-primary-container": "#78849d",
+                        "outline-variant": "#c5c6cd",
+                        "on-secondary-fixed-variant": "#574500",
+                        "inverse-primary": "#bac7e2",
+                        "secondary-fixed": "#ffe088",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "surface-dim": "#d9dadc",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-error": "#ffffff",
+                        "charcoal-surface": "#1A1A1A",
+                        "on-error-container": "#93000a",
+                        "primary": "#000000",
+                        "navy-luxury": "#000a1e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "baseline": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "headline-xl": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "headline-xl-mobile": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .ripple-gold:active {
+            background-image: radial-gradient(circle, #ffe088 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transition: background 0.5s;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e1e2e4;
+            border-radius: 10px;
+        }
+        .drawer-transition {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .haptic-active:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease-out;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container">
+<!-- Desktop SideNavBar -->
+<aside class="hidden lg:flex fixed left-0 top-0 h-full w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-40 overflow-hidden">
+<div class="mb-xl px-4">
+<h1 class="font-headline-md text-headline-md text-navy-luxury tracking-tight">Collections</h1>
+<p class="text-label-sm text-on-surface-variant">Royal Horizon Boutique</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs overflow-y-auto custom-scrollbar px-2">
+<!-- FINE FRAGRANCES -->
+<details class="group">
+<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
+<span class="font-label-md text-label-md tracking-wider uppercase">Fine Fragrances</span>
+<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">EXTRACT Perfume Oil</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Care Eau de Parfum</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Accessories</a>
+</div>
+</details>
+<!-- BATH & BODY -->
+<details class="group" open="">
+<summary class="flex items-center justify-between bg-secondary-container text-navy-luxury rounded-lg px-4 py-3 cursor-pointer list-none transition-all shadow-sm">
+<span class="font-label-md text-label-md tracking-wider uppercase">Bath &amp; Body</span>
+<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
+<a class="text-body-sm text-navy-luxury font-medium py-2 border-l-2 border-secondary pl-3" href="#">Bath &amp; Body Oil</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body &amp; Hand Lotion</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body Polish</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hand Care</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hair Care</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Bath &amp; Body Accessories</a>
+</div>
+</details>
+<!-- FACE -->
+<details class="group">
+<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
+<span class="font-label-md text-label-md tracking-wider uppercase">Face</span>
+<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Natural Face Oil &amp; Serum</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Face &amp; Eye Cream</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gentle Cleanser &amp; Toner</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Lip Care</a>
+</div>
+</details>
+<!-- HOME -->
+<details class="group">
+<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
+<span class="font-label-md text-label-md tracking-wider uppercase">Home</span>
+<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Candles</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Reed Diffusers &amp; Refills</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Room Sprays &amp; Pillow Mists</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Essential Oils</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Electric Diffusers</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Home Accessories</a>
+</div>
+</details>
+<!-- GIFT -->
+<details class="group">
+<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
+<span class="font-label-md text-label-md tracking-wider uppercase">Gift</span>
+<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift of Fine Fragrances</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift for Face</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Bath &amp; Body</a>
+<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Home</a>
+</div>
+</details>
+</nav>
+<div class="pt-md mt-auto border-t border-outline-variant flex flex-col gap-xs">
+<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="font-label-md text-label-md">Exit</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
+<!-- Top Navigation -->
+<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
+<div class="flex items-center gap-4">
+<button class="lg:hidden p-2 text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</div>
+</div>
+<div class="flex items-center gap-sm">
+<div class="hidden md:flex bg-surface-container rounded-full px-4 py-2 items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search collection..." type="text"/>
+</div>
+<button class="p-2 relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="p-2 hidden md:block">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+</div>
+</header>
+<!-- Product Listing Container -->
+<div class="px-margin-mobile lg:px-margin-desktop py-lg max-w-7xl mx-auto">
+<!-- Category Pills -->
+<div class="flex gap-sm overflow-x-auto pb-md no-scrollbar mb-lg">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md whitespace-nowrap">All Items</button>
+<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Bath &amp; Body</button>
+<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Face Care</button>
+<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Hair Care</button>
+<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Home Fragrance</button>
+</div>
+<!-- Bento Grid Product Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
+<!-- Product Card 1 -->
+<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SIAMESE WATER')">
+<div class="relative aspect-square bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close-up artistic shot of a PAÑPURI Siamese Water Body Wash bottle placed on a minimalist black marble surface. Soft ambient lighting creates subtle highlights on the golden bottle cap. The background is a clean, neutral tone consistent with luxury light-mode UI design. A single jasmine flower petal rests nearby to suggest the scent's delicate floral profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbhV4Lh5V1liSMwJef8MPQVftzkjD7b_tFp0fod6IlHuIMCBk6UcFPK-cI5WvKMbRTLPS7yiLChZkS015oWAv51wYqeaz1FZ_YlHPgLtN3a1n5PPlZHFrFoqA-4RU4nw9LJgBXPsoekiZKPYXj5asTqAOilbtso_EY14sUbkGIJTvg8AJeMpM9prOApJTMlUcRKUw3-q4hBbTj0pLGGn5g__uK9l-Be_szt6IBvAOysrBF53SpBwHqy3J348t1IqifVrcm5d2UHYE"/>
+<div class="absolute top-4 left-4 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container text-label-sm font-bold">BESTSELLER</div>
+</div>
+<div class="p-md">
+<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Siamese Water Body Wash</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Deeply cleanse and moisturize with Jasmine, Ylang Ylang, and Thai Mint.</p>
+<div class="flex items-center justify-between mt-auto">
+<span class="font-headline-md text-headline-md text-primary">฿1,450</span>
+<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ANDAMAN SAILS')">
+<div class="relative aspect-square bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Premium lifestyle photography of a PAÑPURI Andaman Sails candle. The candle sits on a sleek teak wood tray in a bright, modern interior setting. Sunlight filters through a nearby window, casting soft shadows. The overall aesthetic is serene and sophisticated, highlighting the rich blue and gold color scheme of the Royal Horizon project." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs4GHNWhBB0G5j9Azyi3yr7vQE-6uXgXIA6p5Ed4lrKsR9Q_tbz4fEuwuFHQm-2S_eZOJXEBuqIZdLWB3IAPwzjCBVMo4PwGMG9HtVe82xj9av7ItE0BO-3hPFSVE7mvgWp49QrfDRMm30VT2IGmRmifxnjVkrzQcSoc9ChhjC6sOAFdCQcKDkpWlr7SRDEaKvKFSd5NBeHv95jvC1PiP57aozC3q0PH5dcVOeOuFZUA29UDqYP-95N9Gl8rIjXP9OK-o2PBx8WL4"/>
+</div>
+<div class="p-md">
+<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Home Fragrance</p>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Andaman Sails Candle</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Evoke the spirit of the Andaman sea with notes of Bergamot and Green Tea.</p>
+<div class="flex items-center justify-between mt-auto">
+<span class="font-headline-md text-headline-md text-primary">฿1,800</span>
+<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SACRED SANTAL')">
+<div class="relative aspect-square bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An elegant presentation of PAÑPURI Sacred Santal Diffuser. The glass vessel is displayed against a backdrop of dark, textured charcoal, emphasizing its golden accents. Refined lighting from above focuses on the brand logo. This image captures the prestigious and disciplined essence of the luxury brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAK181nzyfhW4z77RnfHEO3fVfu6rzmOUQvJDSrgZnOCiM60uuNQ8-tHHHSUxRutghU6UtHuDUT_AaCfB3wDTRS3F7qHsxbUYeGiXkPZkiAwNt8k7grNl6bBQ2ZhZsmiHttR-m-6epzC_RRQcUbBPlSkDtCyHZeqWP0hJrYHt8dglh5G8-XwaZk7-JICpBe5geZkm6R8BHtuymn5VAu0l8PYbifsnCRnWiq4LBgX7p5fbInmbqWTMm3EuXeUS0KGjI2JHSYQn_W-E"/>
+<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-sm font-bold">LIMITED EDITION</div>
+</div>
+<div class="p-md">
+<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Essential Oils</p>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Sacred Santal Extract</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Warm sandalwood blended with earthy orris for spiritual tranquility.</p>
+<div class="flex items-center justify-between mt-auto">
+<span class="font-headline-md text-headline-md text-primary">฿2,250</span>
+<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ETERNAL SUNSHINE')">
+<div class="relative aspect-square bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, minimalist studio shot of the PAÑPURI Eternal Sunshine Hand Cream. The product is placed on a smooth, off-white surface with a single orange zest curl to represent the citrus scent profile. High-contrast lighting highlights the sharp 2px corner design of the packaging, reflecting the modern precision-focused brand philosophy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF3fTFogLeG5VmfUAEedmVSEMjIq_ohEiINGLI5L9iNQIi63uT2PO8_B9KIqshyuTrb1ImgRim74mMCWCpGzs7Kjcghq_7WL76WqZarQs_HK9c6pdJsRa-i2C0KQSZ4lqauSUs4avEZedWj_WeoUx5E8E91fcmDt5xIpXl5FzeNCPKvyrliUJdTbPJRvsA7FE4lFb0neC7yjXn1wXDRFv1ok9na1lduqG2dZnJY5Npvdj44eIpvtJq0Ag8u3H10ztfhOMSDAUcmm0"/>
+</div>
+<div class="p-md">
+<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Eternal Sunshine Cream</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Radiant hydration with Lemongrass, Mandarin, and Bergamot oils.</p>
+<div class="flex items-center justify-between mt-auto">
+<span class="font-headline-md text-headline-md text-primary">฿850</span>
+<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation Bar -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-50">
+<a class="flex flex-col items-center gap-1 text-on-primary-fixed" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-sm uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-label-sm uppercase">Orders</span>
+</a>
+<div class="relative -top-6">
+<button class="bg-secondary text-secondary-container w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-label-sm uppercase">Stock</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm uppercase">Profile</span>
+</a>
+</nav>
+<!-- Interactive Product Detail Drawer -->
+<div class="fixed inset-0 z-[60] invisible overflow-hidden" id="productDrawer">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<!-- Drawer Panel -->
+<div class="absolute right-0 top-0 h-full w-full max-w-lg bg-surface-container-lowest drawer-transition translate-x-full shadow-2xl flex flex-col" id="drawerPanel">
+<div class="p-md flex items-center justify-between border-b border-outline-variant">
+<button class="p-2 haptic-active" onclick="closeDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="font-headline-md text-headline-md tracking-wider">DETAILS</div>
+<button class="p-2 haptic-active">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<div class="aspect-square bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A luxurious high-resolution detail shot of a PAÑPURI aromatherapy product." id="drawerImage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFOkqgiKd4TsY0BzFSC6WOU4d5It2GSUVJwCqSYoUJZAJN0Y6PItcZV8Yf0qTUE9EB7aDhnu0XpXxwN5TEo4Cid4JdzG2yDd1oL6KkIbWAHWveCnIG4I2xTff0iZ4wp_mEbKn08wZrDKIwjL93Y3W0s0c7Ae7nQeokNCgrDmB7TAhndUOIr0RDmeKlxiK3domCHLsyJJq7XSrWYPJ8zgDK83XKGAsHVOHKQbrw9MB5sZIKsCgmSjEIHjxMIN7FPebu5H4TQe-2BB0"/>
+</div>
+<div class="p-margin-desktop space-y-lg">
+<div>
+<p class="text-label-sm text-secondary uppercase tracking-widest mb-2" id="drawerCategory">Bath &amp; Body</p>
+<h2 class="font-headline-xl text-headline-xl text-primary" id="drawerTitle">Product Title</h2>
+<div class="flex items-center gap-4 mt-4">
+<span class="text-headline-md font-bold text-primary" id="drawerPrice">฿1,450</span>
+<span class="text-body-sm text-on-surface-variant">Inclusive of taxes</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-md border-y border-outline-variant">
+<div class="flex flex-col">
+<span class="text-label-sm text-on-surface-variant mb-1">SIZE</span>
+<span class="font-headline-md">330 ml</span>
+</div>
+<div class="flex items-center bg-surface-container rounded-full px-2">
+<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">remove</span></button>
+<span class="w-10 text-center font-bold">1</span>
+<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+<!-- Accordions -->
+<div class="space-y-sm">
+<details class="group border-b border-outline-variant pb-sm">
+<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
+<span class="font-label-md text-label-md">DESCRIPTION</span>
+<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<p class="text-body-sm text-on-surface-variant pt-xs">A sophisticated blend of botanical extracts designed to rejuvenate the skin while providing a calming sensory experience. Free from sulfates and parabens.</p>
+</details>
+<details class="group border-b border-outline-variant pb-sm">
+<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
+<span class="font-label-md text-label-md">SCENT NOTES</span>
+<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<p class="text-body-sm text-on-surface-variant pt-xs">Top: Thai Jasmine, Mint. Heart: Ylang Ylang, Damask Rose. Base: Sandalwood, Cedarwood.</p>
+</details>
+<details class="group border-b border-outline-variant pb-sm">
+<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
+<span class="font-label-md text-label-md">HOW TO USE</span>
+<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<p class="text-body-sm text-on-surface-variant pt-xs">Apply to wet skin, massage gently to create a rich lather, then rinse thoroughly. Suitable for daily use.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl">
+<span class="material-symbols-outlined">shopping_cart</span>
+                    ADD TO CART
+                </button>
+</div>
+</div>
+</div>
+<script>
+        function openDrawer(productTitle) {
+            const drawer = document.getElementById('productDrawer');
+            const panel = document.getElementById('drawerPanel');
+            const backdrop = document.getElementById('drawerBackdrop');
+            const titleElem = document.getElementById('drawerTitle');
+
+            titleElem.innerText = productTitle;
+            
+            drawer.classList.remove('invisible');
+            setTimeout(() => {
+                panel.classList.remove('translate-x-full');
+                backdrop.classList.add('opacity-100');
+            }, 10);
+        }
+
+        function closeDrawer() {
+            const panel = document.getElementById('drawerPanel');
+            const backdrop = document.getElementById('drawerBackdrop');
+            const drawer = document.getElementById('productDrawer');
+
+            panel.classList.add('translate-x-full');
+            backdrop.classList.remove('opacity-100');
+            
+            setTimeout(() => {
+                drawer.classList.add('invisible');
+            }, 400);
+        }
+
+        document.querySelectorAll('.overflow-x-auto button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.overflow-x-auto button').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('border', 'border-outline-variant', 'text-on-surface');
+                });
+                this.classList.remove('border', 'border-outline-variant', 'text-on-surface');
+                this.classList.add('bg-primary', 'text-on-primary');
+            });
+        });
+    </script>
+</body></html>

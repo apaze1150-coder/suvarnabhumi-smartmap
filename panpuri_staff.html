@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PAÑPURI Staff Portal - Royal Horizon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "secondary": "#725c10",
+                    "charcoal-surface": "#1A1A1A",
+                    "on-secondary-container": "#786216",
+                    "tertiary": "#000000",
+                    "inverse-on-surface": "#f0f1f3",
+                    "on-primary": "#ffffff",
+                    "background": "#f3f4f6", // Off-White
+                    "error": "#ba1a1a",
+                    "primary-container": "#000a1e", // Royal Horizon Navy
+                    "surface-container-lowest": "#ffffff",
+                    "status-gold": "#735C00",
+                    "on-primary-container": "#78849d",
+                    "secondary-fixed-dim": "#e1c46f",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#3b475d",
+                    "on-background": "#191c1e",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "surface-dim": "#d9dadc",
+                    "surface": "#f8f9fb",
+                    "on-surface": "#191c1e",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#c5c6cd",
+                    "primary-fixed": "#d6e3ff",
+                    "on-surface-variant": "#44474d",
+                    "tertiary-container": "#1c1b1b",
+                    "outline": "#75777d",
+                    "on-primary-fixed": "#0f1c30",
+                    "on-tertiary-container": "#858383",
+                    "surface-container-low": "#f3f4f6",
+                    "inverse-primary": "#bac7e2",
+                    "surface-variant": "#e1e2e4",
+                    "on-secondary-fixed": "#241a00",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "on-error-container": "#93000a",
+                    "primary": "#000a1e", // Navy
+                    "primary-fixed-dim": "#bac7e2",
+                    "secondary-fixed": "#ffe088", // Gold
+                    "surface-container-highest": "#e1e2e4",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-tint": "#525f76",
+                    "tertiary-fixed": "#e5e2e1",
+                    "surface-bright": "#f8f9fb",
+                    "secondary-container": "#ffe088",
+                    "surface-container": "#edeef0",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "baseline": "4px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "label-md": ["Manrope"],
+                    "headline-xl": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-sm": ["Manrope"],
+                    "body-lg": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .haptic-press:active {
+            transform: scale(0.96);
+            transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #000a1e;
+            border-radius: 10px;
+        }
+        .bento-card {
+            background: #ffffff;
+            border: 1px solid rgba(117, 119, 125, 0.1);
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+        .modal-overlay {
+            background-color: rgba(0, 10, 30, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        dialog::backdrop {
+            background: rgba(0, 10, 30, 0.4);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Sidebar Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-primary-container border-r border-outline-variant/10 flex flex-col py-lg z-50">
+<div class="px-lg mb-xl">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 bg-secondary-fixed flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-secondary-fixed leading-tight">PAÑPURI</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container">Royal Horizon</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-md">
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:bg-on-primary-fixed-variant/10 transition-all rounded-lg haptic-press" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-secondary-fixed border-r-4 border-secondary-fixed bg-on-primary-fixed-variant/20 transition-all rounded-l-lg haptic-press" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:bg-on-primary-fixed-variant/10 transition-all rounded-lg haptic-press" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-label-md text-label-md">Orders</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:bg-on-primary-fixed-variant/10 transition-all rounded-lg haptic-press" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:bg-on-primary-fixed-variant/10 transition-all rounded-lg haptic-press" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-md">
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:text-secondary-fixed transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Exit</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar Shell -->
+<header class="flex justify-between items-center px-lg w-full sticky top-0 z-40 bg-white shadow-sm h-16 border-b border-outline-variant/10">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary">PAÑPURI Branch Portal</span>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input id="searchInput" class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full w-64 text-body-sm focus:ring-2 focus:ring-secondary-fixed transition-all" placeholder="Search inventory..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-sm">
+<button class="p-2 text-primary hover:bg-surface-container-high transition-colors rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-primary hover:bg-surface-container-high transition-colors rounded-full">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-md">
+<div class="text-right">
+<p class="font-label-md text-label-md text-primary leading-none">Ariyasit P.</p>
+<select id="branchSelector" onchange="window.location.href='?branch='+this.value" class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider bg-transparent border-none cursor-pointer outline-none p-0 focus:ring-0">
+      <option value="Branch1">Branch 1 (DE40)</option>
+      <option value="Branch2">Branch 2 (DE12)</option>
+      <option value="Branch3">Branch 3 (DW41)</option>
+  </select>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-secondary-fixed object-cover" data-alt="Portrait of branch manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxHj6qQSNrBYsIStDcyU5qlNyAUh0TIcuGKpmWaxj51Dlajl04CPjA5DgbScCUjvA6-r236aevUN2kkzbm9RAajmoJ29sE6-XV1cXLjoaL3A9GCFGwipsuSUPXK93CB5jYAuYeFD6hJpxyqC-VSvNY9qIUEYN4l2Ef1i6Fg3bjOXwuvtFjWdTgnlVgSa2slitNMmMZnEtoVBU1Fqb-kTqrhDDO3EoJ05t71nQEU0zxOPVZ8pduoiArcou3hCCKi3_gv97UUVwC-WA"/>
+</div>
+</div>
+</header>
+<!-- Content -->
+<div class="p-lg max-w-7xl mx-auto animate-in fade-in duration-700">
+<!-- Page Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-lg">
+<div>
+<nav class="flex text-on-surface-variant font-label-sm text-label-sm mb-2 uppercase tracking-widest">
+<span id="branchTitle">Branch 1 (DE40)</span>
+<span class="mx-2">/</span>
+<span class="text-secondary-fixed font-bold bg-primary px-2 py-0.5 rounded">Inventory Management</span>
+</nav>
+<h2 class="font-headline-xl text-headline-xl text-primary">Product Database</h2>
+<p class="text-body-md text-on-surface-variant mt-1">Real-time inventory for <span id="branchSubtitle">Branch 1 (DE40)</span> and regional visibility.</p>
+</div>
+<div class="flex gap-md">
+<button onclick="openTransactionModal('receipt')" class="flex items-center gap-md px-8 py-3 bg-primary text-secondary-fixed font-label-md rounded-lg shadow-xl shadow-primary/20 hover:opacity-90 transition-all haptic-press">
+<span class="material-symbols-outlined">call_received</span>
+    Goods Receipt
+</button>
+<button onclick="openTransactionModal('transfer')" class="flex items-center gap-md px-8 py-3 border-2 border-primary text-primary font-label-md rounded-lg hover:bg-primary/5 transition-all haptic-press">
+<span class="material-symbols-outlined">call_made</span>
+    Stock Transfer Out
+</button>
+</div>
+</div>
+<!-- Inventory Table Container -->
+<div class="bento-card rounded-xl overflow-hidden shadow-sm border border-outline-variant/20 bg-white">
+<div class="flex items-center justify-between px-lg py-md border-b border-outline-variant/10">
+<h3 class="font-headline-md text-headline-md text-primary">Stock List</h3>
+<button onclick="openLogsModal()" class="p-2 text-primary hover:bg-surface-container-low rounded-full transition-colors haptic-press" title="View History">
+<span class="material-symbols-outlined">history</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-primary uppercase font-label-sm text-[11px] tracking-widest border-b border-outline-variant/10">
+<th class="px-lg py-md">Image</th>
+<th class="px-lg py-md">Product Code</th>
+<th class="px-lg py-md">Product Name</th>
+<th class="px-lg py-md">Scent</th>
+<th class="px-lg py-md">Price (฿)</th>
+<th class="px-lg py-md text-center">DE40</th>
+<th class="px-lg py-md text-center">DE12</th>
+<th class="px-lg py-md text-center">DW41</th>
+<th class="px-lg py-md">Status</th>
+</tr>
+</thead>
+<tbody id="productsTableBody" class="divide-y divide-outline-variant/10">
+    <!-- Dynamic rows -->
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-lg py-md flex items-center justify-between bg-surface-container-low/50">
+    <p id="paginationInfo" class="text-body-sm text-on-surface-variant">Showing 0 products</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Transaction Modal UI -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-md modal-overlay hidden" id="stockModal">
+<div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+<!-- Modal Header -->
+<div class="bg-primary-container px-lg py-md flex justify-between items-center">
+<h3 id="modalTitle" class="text-secondary-fixed font-headline-md">Stock Management</h3>
+<button class="text-on-primary-container hover:text-white transition-colors" onclick="closeTransactionModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Form Section -->
+<div class="space-y-lg">
+<div>
+<label class="block text-label-sm text-on-surface-variant uppercase mb-2">Reference Number (Optional)</label>
+<input id="refNoInput" class="w-full border-outline-variant/30 rounded-lg focus:ring-secondary-fixed focus:border-secondary-fixed py-3" placeholder="e.g. PO-88293-24" type="text"/>
+</div>
+<div class="relative">
+<label class="block text-label-sm text-on-surface-variant uppercase mb-2">Barcode Scan</label>
+<div class="relative border-2 border-dashed border-primary/20 rounded-xl p-8 flex flex-col items-center justify-center bg-surface-container-low group hover:border-primary/40 transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary/40 mb-2">barcode_scanner</span>
+<p id="scanFeedback" class="text-body-sm text-on-surface-variant font-mono">Scan or Type code here...</p>
+<!-- Scanner visual frame overlay -->
+<div class="absolute inset-4 border-2 border-secondary-fixed opacity-20 rounded-lg pointer-events-none"></div>
+</div>
+<input id="scanInput" class="absolute inset-0 opacity-0 cursor-pointer" type="text"/>
+</div>
+<div class="flex items-center justify-between p-lg bg-surface-container-low rounded-xl">
+<div>
+<p id="qtyLabel" class="font-label-md text-primary">Quantity</p>
+<p class="text-xs text-on-surface-variant">Adjust units</p>
+</div>
+<div class="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden bg-white">
+<button onclick="adjustQty(-1)" class="px-4 py-2 hover:bg-surface-container-low text-primary"><span class="material-symbols-outlined">remove</span></button>
+<input id="qtyInput" class="w-16 text-center border-none focus:ring-0 font-bold" type="number" min="1" value="1"/>
+<button onclick="adjustQty(1)" class="px-4 py-2 hover:bg-surface-container-low text-primary"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+<button onclick="addScanItem()" class="w-full mt-2 px-lg py-3 bg-surface-container-high text-primary rounded-lg font-bold haptic-press hover:bg-surface-dim transition-colors flex items-center justify-center gap-sm">
+    <span class="material-symbols-outlined">add</span> Add to List
+</button>
+</div>
+<!-- Staged Grid Section -->
+<div class="flex flex-col h-full border-l border-outline-variant/10 pl-xl">
+<div class="flex justify-between items-center mb-md">
+<h4 class="font-label-md text-primary uppercase">Scanned Items Staging</h4>
+<span id="stagedCount" class="bg-secondary-fixed text-primary px-2 py-0.5 rounded text-[10px] font-bold">0 ITEMS</span>
+</div>
+<div class="flex-1 overflow-y-auto max-h-[300px]">
+<table class="w-full text-body-sm">
+<thead class="border-b border-outline-variant/10 sticky top-0 bg-white">
+<tr class="text-left text-on-surface-variant font-label-sm text-[10px] uppercase">
+<th class="pb-2">SKU</th>
+<th class="pb-2">Qty</th>
+<th class="pb-2 text-right">Action</th>
+</tr>
+</thead>
+<tbody id="scanTableBody" class="divide-y divide-outline-variant/10">
+    <!-- Dynamic scan items -->
+</tbody>
+</table>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant/10">
+<div class="flex justify-between items-center text-primary font-bold">
+<span>Total Units</span>
+<span id="stagedTotal">0</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="bg-surface-container-low px-lg py-md flex justify-end gap-md">
+<button class="px-6 py-2 text-primary font-label-md hover:bg-surface-container-high rounded-lg transition-all" onclick="closeTransactionModal()">Cancel</button>
+<button id="submitTransactionBtn" class="px-8 py-2 bg-primary text-secondary-fixed font-label-md rounded-lg shadow-lg hover:opacity-90 transition-all haptic-press" onclick="submitTransaction()">Confirm Transaction</button>
+</div>
+</div>
+</div>
+
+<!-- Logs Modal -->
+<dialog id="logsModal" class="bg-white rounded-xl shadow-2xl p-0 w-[900px] max-w-[95vw] border border-outline-variant/30">
+    <div class="p-lg border-b border-outline-variant/20 flex justify-between items-center bg-primary-container">
+        <h3 class="font-headline-md text-secondary-fixed flex items-center gap-2"><span class="material-symbols-outlined">history</span> DE40 Transaction History</h3>
+        <button onclick="document.getElementById('logsModal').close()" class="text-on-primary-container hover:text-white transition-colors p-1">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <div class="p-lg bg-surface max-h-[60vh] overflow-y-auto">
+        <div class="border border-outline-variant/30 rounded-lg overflow-hidden bg-white">
+            <table class="w-full text-left">
+                <thead class="bg-surface-container-low border-b border-outline-variant/20">
+                    <tr>
+                        <th class="px-md py-sm font-label-sm uppercase text-primary">Date</th>
+                        <th class="px-md py-sm font-label-sm uppercase text-primary">Type</th>
+                        <th class="px-md py-sm font-label-sm uppercase text-primary">Ref No</th>
+                        <th class="px-md py-sm font-label-sm uppercase text-primary">Product Code</th>
+                        <th class="px-md py-sm font-label-sm uppercase text-primary text-right">Qty</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody" class="divide-y divide-outline-variant/10">
+                    <!-- Log items -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</dialog>
+
+<script>
+    let allProducts = [];
+    let scannedItems = [];
+    let currentTransactionType = 'receipt';
+    const urlParams = new URLSearchParams(window.location.search);
+      const BRANCH = urlParams.get('branch') || 'Branch1';
+      document.getElementById('branchSelector').value = BRANCH;
+      const BRANCH_NAMES = { 'Branch1': 'Branch 1 (DE40)', 'Branch2': 'Branch 2 (DE12)', 'Branch3': 'Branch 3 (DW41)' };
+      document.getElementById('branchTitle').innerText = BRANCH_NAMES[BRANCH];
+      document.getElementById('branchSubtitle').innerText = BRANCH_NAMES[BRANCH];
+      const QTY_KEY = 'Qty_' + BRANCH;
+
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/admin/products?password=6515');
+            allProducts = await res.json();
+            renderTable();
+        } catch(e) {
+            console.error('Error loading products', e);
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('productsTableBody');
+        tbody.innerHTML = '';
+        
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        
+        let filtered = allProducts.filter(log => {
+            if (!search) return true;
+            return (
+                (log.product_code && log.product_code.toLowerCase().includes(search)) ||
+                (log.product_name && log.product_name.toLowerCase().includes(search)) ||
+                (log.scent && log.scent.toLowerCase().includes(search))
+            );
+        });
+
+        filtered.forEach((p, index) => {
+            let qtyBranch = parseInt(p[QTY_KEY]) || 0;
+
+            const price = parseFloat(p.Price || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-surface-container-low/30 transition-colors group';
+            
+            // Subtle fade-in for table rows
+            tr.style.opacity = '0';
+            tr.style.transform = 'translateY(8px)';
+            setTimeout(() => {
+                tr.style.transition = 'all 0.3s ease';
+                tr.style.opacity = '1';
+                tr.style.transform = 'translateY(0)';
+            }, 50 + (index * 40));
+
+            let statusHtml = '';
+            if (qtyDE40 >= 10) {
+                statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">In Stock</span>';
+            } else if (qtyDE40 > 0) {
+                statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Low Stock</span>';
+            } else {
+                statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Out of Stock</span>';
+            }
+
+            tr.innerHTML = `
+                <td class="px-lg py-md">
+                    <img class="w-12 h-12 rounded border border-outline-variant/20 object-cover" src="${p.Image || 'https://via.placeholder.com/150'}"/>
+                </td>
+                <td class="px-lg py-md font-mono text-body-sm text-on-surface-variant">${p.Code || '-'}</td>
+                <td class="px-lg py-md font-semibold text-primary">${p.Description || '-'}</td>
+                <td class="px-lg py-md text-status-gold font-label-sm text-xs italic">${p.scent || '-'}</td>
+                <td class="px-lg py-md font-semibold text-primary">฿ ${price}</td>
+                <td class="px-lg py-md text-center font-bold text-primary text-lg ${qtyDE40 === 0 ? 'text-error' : ''}">${qtyDE40}</td>
+                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyDE12}</td>
+                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyDW41}</td>
+                <td class="px-lg py-md">${statusHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('paginationInfo').innerText = `Showing ${filtered.length} products`;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    
+    // Modal Logic
+    function openTransactionModal(type) {
+        currentTransactionType = type;
+        const isReceipt = type === 'receipt';
+        document.getElementById('modalTitle').innerText = isReceipt ? 'Stock Management - Goods Receipt' : 'Stock Management - Transfer Out';
+        document.getElementById('qtyLabel').innerText = isReceipt ? 'Quantity to Receipt' : 'Quantity to Transfer Out';
+        scannedItems = [];
+        renderScanTable();
+        document.getElementById('scanInput').value = '';
+        document.getElementById('scanFeedback').innerText = 'Scan or Type code here...';
+        document.getElementById('qtyInput').value = '1';
+        document.getElementById('refNoInput').value = '';
+        document.getElementById('stockModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('scanInput').focus(), 100);
+    }
+
+    function closeTransactionModal() {
+        document.getElementById('stockModal').classList.add('hidden');
+    }
+
+    function adjustQty(amount) {
+        const input = document.getElementById('qtyInput');
+        let val = parseInt(input.value) || 0;
+        val += amount;
+        if (val < 1) val = 1;
+        input.value = val;
+    }
+
+    document.getElementById('scanInput').addEventListener('input', function(e) {
+        if(e.target.value.trim() !== '') {
+            document.getElementById('scanFeedback').innerHTML = `<span class="text-primary font-bold">${e.target.value}</span>`;
+        } else {
+            document.getElementById('scanFeedback').innerText = 'Scan or Type code here...';
+        }
+    });
+
+    document.getElementById('scanInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') addScanItem();
+    });
+
+    function addScanItem() {
+        const code = document.getElementById('scanInput').value.trim();
+        const qty = parseInt(document.getElementById('qtyInput').value);
+        
+        if (!code || isNaN(qty) || qty < 1) {
+            alert('Please enter a valid product code and quantity');
+            return;
+        }
+
+        const product = allProducts.find(p => p.Code === code);
+        if (!product) {
+            alert('Product code not found in database');
+            return;
+        }
+
+        if (currentTransactionType === 'transfer') {
+            const currentStock = parseInt(product[QTY_KEY]) || 0;
+            const alreadyStaged = scannedItems.find(s => s.product_code === code)?.qty || 0;
+            if (qty + alreadyStaged > currentStock) {
+                alert(`Insufficient stock! Only ${currentStock} available in DE40.`);
+                return;
+            }
+        }
+
+        const existing = scannedItems.find(s => s.product_code === code);
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            scannedItems.push({
+                product_code: code,
+                product_name: product.Description,
+                qty: qty
+            });
+        }
+        
+        renderScanTable();
+        document.getElementById('scanInput').value = '';
+        document.getElementById('scanFeedback').innerText = 'Scan or Type code here...';
+        document.getElementById('qtyInput').value = '1';
+        document.getElementById('scanInput').focus();
+    }
+
+    function removeScanItem(code) {
+        scannedItems = scannedItems.filter(s => s.product_code !== code);
+        renderScanTable();
+    }
+
+    function renderScanTable() {
+        const tbody = document.getElementById('scanTableBody');
+        tbody.innerHTML = '';
+        
+        let totalQty = 0;
+        
+        if (scannedItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-on-surface-variant text-body-sm italic">No items scanned yet</td></tr>';
+            document.getElementById('submitTransactionBtn').disabled = true;
+            document.getElementById('submitTransactionBtn').classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            document.getElementById('submitTransactionBtn').disabled = false;
+            document.getElementById('submitTransactionBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            scannedItems.forEach(item => {
+                totalQty += item.qty;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-3">${item.product_code}</td>
+                    <td class="py-3 font-bold">${item.qty}</td>
+                    <td class="py-3 text-right">
+                        <button onclick="removeScanItem('${item.product_code}')" class="text-error hover:opacity-70"><span class="material-symbols-outlined text-sm">delete</span></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        document.getElementById('stagedCount').innerText = `${scannedItems.length} ITEMS`;
+        document.getElementById('stagedTotal').innerText = totalQty;
+    }
+
+    async function submitTransaction() {
+        if (scannedItems.length === 0) return;
+        
+        const refNo = document.getElementById('refNoInput').value.trim();
+        
+        try {
+            const res = await fetch('/api/staff/stock-transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: scannedItems,
+                    type: currentTransactionType,
+                    branch: BRANCH,
+                    ref_no: refNo
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Transaction completed successfully!');
+                closeTransactionModal();
+                loadProducts(); 
+            } else {
+                alert('Transaction failed: ' + data.error);
+            }
+        } catch(e) {
+            alert('Error connecting to server');
+        }
+    }
+
+    async function openLogsModal() {
+        const tbody = document.getElementById('logsTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center p-md">Loading...</td></tr>';
+        document.getElementById('logsModal').showModal();
+        
+        try {
+            const res = await fetch(`/api/staff/stock-logs?branch=${BRANCH}`);
+            const logs = await res.json();
+            
+            tbody.innerHTML = '';
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-md py-md text-center text-on-surface-variant text-body-sm">No transaction history found.</td></tr>';
+                return;
+            }
+            
+            // In reality, API would filter. We filter here to ensure we only show Staff User for this branch demo.
+            const myLogs = logs.filter(l => l.performed_by === 'Staff User');
+            
+            if (myLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-md py-md text-center text-on-surface-variant text-body-sm">No transaction history found.</td></tr>';
+                return;
+            }
+
+            myLogs.forEach(log => {
+                const tr = document.createElement('tr');
+                const isReceipt = (log.transaction_type || '').includes('RECEIPT');
+                const tColor = isReceipt ? 'text-green-600 bg-green-50' : 'text-amber-600 bg-amber-50';
+                const qtyColor = isReceipt ? 'text-green-700' : 'text-amber-700';
+                
+                tr.innerHTML = `
+                    <td class="px-md py-sm text-body-sm text-on-surface-variant">${log.timestamp}</td>
+                    <td class="px-md py-sm">
+                        <span class="px-2 py-1 text-[10px] rounded uppercase font-bold ${tColor}">${log.transaction_type}</span>
+                    </td>
+                    <td class="px-md py-sm text-body-sm">${log.ref_no || '-'}</td>
+                    <td class="px-md py-sm font-mono text-body-sm">${log.product_code}</td>
+                    <td class="px-md py-sm text-right font-bold ${qtyColor} text-lg">${isReceipt ? '+' : ''}${log.qty}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch(e) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-md text-error">Failed to load logs</td></tr>';
+        }
+    }
+
+    loadProducts();
+</script>
+</body></html>

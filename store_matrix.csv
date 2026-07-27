@@ -1,0 +1,4 @@
+shop_number,shop_name,shop_image,category,brands_available,graph_node_id,x,y,parent_node_id,store_id,AI_KEYWORDS,TOP_HERO_PRODUCTS,PROMOTION_TAGS
+DE40,"PANPURI","1783484420656-404489505.jpg","Thai Product","PANPURI","Node_Shop_DE40",321,216,"Node_Passport_Control","PANPURI","souvenir, gift, skincare, spa, fragrance, luxury","Extract Perfume Oil, Lotus Defense Face Oil","10% Duty Free Discount"
+DE12,"TOUCH OF THAILAND EAST","1783484658834-936969808.jpg","Thai Product","PANPURI","Node_Shop_DE12",235,214,"Node_Passport_Control","PANPURI","thai souvenir, silk, local craft, gift","Thai Silk Scarf, Handmade Soap","Buy 2 Get 1 Free"
+DW41,"Sents of Thailand","1783484828814-840131804.jpg","Thai Product","PANPURI","Node_Shop_DW41",738,228,"Node_Passport_Control","PANPURI","fragrance, aroma, essential oils, diffusers, skincare","Andaman Sails Diffuser, Siamese Water Massage Oil","Free Gift over 3000 THB"

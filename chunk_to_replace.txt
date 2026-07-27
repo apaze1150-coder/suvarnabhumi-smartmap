@@ -1,0 +1,32 @@
+        function toggleAdminMode() {
+            if (isAdminMode) {
+                exitAdminMode();
+                return;
+            }
+
+            const pass = prompt("Enter Admin Password:");
+            if (pass === "6515") {
+                pin.style.left = `${Math.round(pctX)}px`;
+                pin.style.top = `${Math.round(pctY)}px`;
+            }
+        }
+
+        // Click handler on map-image-container for mapping coordinate directly by clicking empty space
+        document.addEventListener('DOMContentLoaded', () => {
+            const mapContainer = document.getElementById('map-image-container');
+            if (mapContainer) {
+                mapContainer.addEventListener('click', (e) => {
+                    if (!isAdminMode) return;
+                    
+                    // ONLY trigger if they click directly on the container background (not a pin or SVG path)
+                    if (e.target !== mapContainer) return;
+
+                    const rect = mapContainer.getBoundingClientRect();
+                    const clickX = Math.round((e.clientX - rect.left) / (rect.width / 1000));
+                    const clickY = Math.round((e.clientY - rect.top) / (rect.height / 500));
+            preorderStoreName = '';
+            currentProductCategory = 'all';
+            showPreorderStep('store');
+            await loadStoreList();
+        }
+

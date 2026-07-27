@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PAÑPURI | Product Database</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Shared Style & Theme Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0f1c30",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "surface-container": "#edeef0",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f3f4f6",
+                        "tertiary-container": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-primary-container": "#78849d",
+                        "inverse-primary": "#bac7e2",
+                        "surface-container-high": "#e7e8ea",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "surface-bright": "#f8f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "on-primary-fixed-variant": "#3b475d",
+                        "secondary-container": "#ffe088",
+                        "charcoal-surface": "#1A1A1A",
+                        "on-primary-fixed": "#0f1c30",
+                        "primary": "#000000",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#858383",
+                        "outline-variant": "#c5c6cd",
+                        "on-surface": "#191c1e",
+                        "surface-tint": "#525f76",
+                        "surface": "#f8f9fb",
+                        "primary-fixed-dim": "#bac7e2",
+                        "on-secondary-container": "#786216",
+                        "surface-dim": "#d9dadc",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#e1c46f",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "error": "#ba1a1a",
+                        "status-gold": "#735C00",
+                        "inverse-on-surface": "#f0f1f3",
+                        "surface-variant": "#e1e2e4",
+                        "secondary-fixed": "#ffe088",
+                        "inverse-surface": "#2e3132",
+                        "secondary": "#725c10",
+                        "primary-fixed": "#d6e3ff",
+                        "outline": "#75777d",
+                        "background": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "on-secondary-fixed": "#241a00",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-surface-variant": "#44474d",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "baseline": "4px",
+                        "md": "16px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "headline-xl-mobile": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "headline-xl": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .royal-gradient {
+            background: linear-gradient(135deg, #0f1c30 0%, #1a1a1a 100%);
+        }
+        .bento-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 10, 30, 0.05);
+        }
+        tr:hover { background-color: rgba(255, 224, 136, 0.05); transition: background 0.2s; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Wrapper -->
+<div class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-primary-container dark:bg-charcoal-surface h-screen w-64 shadow-md">
+<div class="mb-xl flex items-center gap-sm px-xs">
+<div class="w-10 h-10 bg-secondary-fixed flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary-container font-bold">spa</span>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-secondary-fixed leading-none">PAÑPURI</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container uppercase tracking-widest mt-1">Royal Horizon Admin</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:text-secondary-fixed hover:bg-on-primary-fixed-variant/20 transition-all font-label-md text-label-md rounded-lg" href="panpuri_admin.html">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:text-secondary-fixed hover:bg-on-primary-fixed-variant/20 transition-all font-label-md text-label-md rounded-lg" href="panpuri_admin_orders.html">
+<span class="material-symbols-outlined">shopping_cart</span> Orders
+</a>
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold font-label-md text-label-md scale-[0.98] duration-150 ease-in-out" href="panpuri_admin_products.html">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">database</span> Product Database
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:text-secondary-fixed hover:bg-on-primary-fixed-variant/20 transition-all font-label-md text-label-md rounded-lg" href="panpuri_admin_stock.html">
+<span class="material-symbols-outlined">inventory_2</span> Stock Logs
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary-container hover:text-secondary-fixed hover:bg-on-primary-fixed-variant/20 transition-all font-label-md text-label-md rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span> Store Settings
+</a>
+</nav>
+</aside>
+
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col min-w-0">
+<header class="w-full h-16 flex justify-between items-center px-lg bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-30">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input id="searchInput" class="w-full pl-10 pr-md py-1.5 bg-surface-container-low border-none rounded-full font-body-sm text-body-sm focus:ring-1 focus:ring-secondary" placeholder="Quick search catalog..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-md">
+<div class="text-right">
+<p class="font-label-md text-label-md font-bold text-primary">Administrator</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Royal Horizon Lead</p>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBbbKKY0tahSUcgno1ZgceNzsUoxbSeWfLneTyjUU6TLW_Wg1XUXFtx7Ng2vQkI0RMdfm3DlPtcZDNQ8GHUVDv2Qg-7-rf3evbZzOJofEUiaUJeicK4Y3mE5H6dOfVbAwWO72B9Mr-QA3SSPj5sscGKxA_56oyL31FXFQ6WM0qKHEtHyYbtmtA6O8PhaeAhZj9_isGPqqbgZL4Vn5mpK-Zr5zZVXtDNr7e9gKzuRPQjcg2ED-DMLJ7Bt0neyf9fDHXHXusrqqPuTk"/>
+</div>
+</div>
+</div>
+</header>
+
+<div class="p-lg space-y-lg overflow-y-auto">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-xl text-headline-xl text-primary tracking-tight">Product Database</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your premium fragrance and skincare inventory.</p>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="bg-surface-container-lowest p-lg rounded-xl bento-shadow border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-primary-container text-secondary-fixed rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory</span>
+</div>
+</div>
+<div class="mt-xl">
+<p class="text-on-surface-variant font-label-md uppercase tracking-wider">Total SKUs</p>
+<h3 id="totalSKUs" class="text-[32px] font-bold text-primary mt-xs">0</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl bento-shadow border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-error-container text-error rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<span class="text-error font-bold text-label-sm">Requires Action</span>
+</div>
+<div class="mt-xl">
+<p class="text-on-surface-variant font-label-md uppercase tracking-wider">Low Stock items</p>
+<h3 id="lowStockCount" class="text-[32px] font-bold text-primary mt-xs">0</h3>
+</div>
+</div>
+<div class="bg-primary-container p-lg rounded-xl shadow-lg flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[120px] text-on-primary">air</span>
+</div>
+<div class="flex justify-between items-start relative z-10">
+<div class="p-2 bg-secondary-container text-on-secondary-container rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">scuba_diving</span>
+</div>
+</div>
+<div class="mt-xl relative z-10">
+<p class="text-on-primary-container font-label-md uppercase tracking-wider">Active Scents</p>
+<h3 id="activeScentsCount" class="text-[32px] font-bold text-secondary-fixed mt-xs">0</h3>
+</div>
+</div>
+</div>
+
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden bento-shadow">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Image</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider">Product Code</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider">Product Name</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider">Scent</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider">Category</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider">How to Use</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Price (THB)</th>
+<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+</tr>
+</thead>
+<tbody id="productsTableBody" class="divide-y divide-outline-variant/20">
+<!-- Dynamic Rows -->
+</tbody>
+</table>
+<div class="px-lg py-md bg-surface-container-low flex justify-between items-center">
+<p id="paginationInfo" class="font-body-sm text-body-sm text-on-surface-variant">Showing 0 entries</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<script>
+    let allProducts = [];
+
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/admin/products?password=6515');
+            allProducts = await res.json();
+            
+            // Calculate Stats
+            document.getElementById('totalSKUs').innerText = allProducts.length;
+            
+            let lowStock = 0;
+            let uniqueScents = new Set();
+            
+            allProducts.forEach(p => {
+                let qty1 = parseInt(p.qty_de40) || 0;
+                let qty2 = parseInt(p.qty_de12) || 0;
+                let qty3 = parseInt(p.qty_dw41) || 0;
+                if ((qty1 + qty2 + qty3) < 10) lowStock++;
+                if (p.scent) uniqueScents.add(p.scent);
+            });
+            
+            document.getElementById('lowStockCount').innerText = lowStock;
+            document.getElementById('activeScentsCount').innerText = uniqueScents.size;
+
+            renderTable();
+        } catch(e) {
+            console.error('Error loading products', e);
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('productsTableBody');
+        tbody.innerHTML = '';
+        
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        
+        let filtered = allProducts.filter(p => {
+            if (!search) return true;
+            return (
+                (p.product_code && p.product_code.toLowerCase().includes(search)) ||
+                (p.product_name && p.product_name.toLowerCase().includes(search)) ||
+                (p.scent && p.scent.toLowerCase().includes(search)) ||
+                (p.category && p.category.toLowerCase().includes(search))
+            );
+        });
+
+        document.getElementById('paginationInfo').innerText = `Showing ${filtered.length} of ${allProducts.length} entries`;
+
+        filtered.forEach(p => {
+            const price = parseFloat(p.price || 0).toLocaleString('en-US', {minimumFractionDigits:2});
+            let isActive = p.is_active !== 'false';
+            
+            let statusBadge = isActive 
+                ? `<div class="flex items-center gap-2"><div class="w-2 h-2 bg-status-gold rounded-full"></div><span class="font-label-sm text-status-gold uppercase">Active</span></div>`
+                : `<div class="flex items-center gap-2"><div class="w-2 h-2 bg-error rounded-full"></div><span class="font-label-sm text-error uppercase">Inactive</span></div>`;
+
+            // Use provided image or default placeholder
+            const imgUrl = p.image || "https://lh3.googleusercontent.com/aida-public/AB6AXuAFDlL6bvFBwt9BcWdcrRJAHKKeyzmpqPmmYjOkkW9q1Mm7n2vF-UAobPgPGFDclBTCV7pbv5gsKz4uBIl7rdHz29ZqeVLQyG2zoZlKOs2kcPAxZIDpPboHrBp59Uo77tCqUTwceASh8LHbXB1BX84qYfqJ7MXn1Msi4KvF2oQTPiOxvO8STsqfToCUJ-uzn2eUct-KrWWGhC-tMlSli8Bbvu4h5VmZK9nqeyZkul1hD0w_XvuvFfq8LtvixVI-lNHwUFGxy9w00Lk";
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-lg py-md">
+                    <div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden border border-outline-variant/20">
+                        <img class="w-full h-full object-cover" src="${imgUrl}" />
+                    </div>
+                </td>
+                <td class="px-md py-md font-body-sm font-bold text-primary">${p.product_code}</td>
+                <td class="px-md py-md font-body-sm font-medium text-primary">${p.product_name}</td>
+                <td class="px-md py-md font-body-sm text-on-surface-variant">${p.scent || '-'}</td>
+                <td class="px-md py-md">
+                    <span class="px-2 py-1 bg-surface-container text-on-surface-variant rounded-full text-[10px] font-bold uppercase tracking-wider">${p.category}</span>
+                </td>
+                <td class="px-md py-md font-body-sm text-on-surface-variant max-w-[150px] truncate" title="${p.how_to_use || ''}">${p.how_to_use || '-'}</td>
+                <td class="px-md py-md font-body-sm text-primary font-bold text-right">${price}</td>
+                <td class="px-lg py-md">${statusBadge}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    
+    loadProducts();
+</script>
+</body></html>

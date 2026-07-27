@@ -1,0 +1,217 @@
+        function toggleAdminMode() {
+            if (isAdminMode) {
+                exitAdminMode();
+                return;
+            }
+
+            const pass = prompt("Enter Admin Password:");
+            if (pass === "6515") {
+                isAdminMode = true;
+                adminPassword = pass;
+                document.getElementById('admin-status-bar').classList.remove('hidden');
+                document.getElementById('admin-toggle-btn').classList.add('bg-red-600', 'text-white');
+                document.getElementById('admin-toggle-btn').classList.remove('bg-white/90', 'text-primary');
+                document.getElementById('admin-toggle-btn').querySelector('span').innerText = "lock_open";
+                document.getElementById('map-image-container').style.cursor = 'crosshair';
+                alert("Admin Mode activated! \n\n👉 Click and drag any Shop Pin on the map to reposition it! \n👉 Or click anywhere on the empty map to place a new pin.");
+            } else if (pass !== null) {
+                alert("Incorrect password.");
+            }
+        }
+
+        function exitAdminMode() {
+            isAdminMode = false;
+            adminPassword = "";
+            document.getElementById('admin-status-bar').classList.add('hidden');
+            document.getElementById('admin-toggle-btn').classList.remove('bg-red-600', 'text-white');
+            document.getElementById('admin-toggle-btn').classList.add('bg-white/90', 'text-primary');
+            document.getElementById('admin-toggle-btn').querySelector('span').innerText = "lock";
+            document.getElementById('map-image-container').style.cursor = '';
+            
+            // Re-render pins without drag handles
+            if (activeStores.length > 0) {
+                renderStoreRoutes(activeStores);
+            }
+        }
+
+        // Show all 49 pins for easy mapping
+        async function adminShowAllPins() {
+            try {
+                const response = await fetch('/api/search-store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: "", from_node: "Node_Intersection_D" })
+                });
+                const result = await response.json();
+
+                if (result && result.results && result.results.length > 0) {
+                    activeStores = result.results;
+                    selectedShopNumber = null;
+
+                    renderResultsCards(activeStores);
+                    renderStoreRoutes(activeStores);
+                    document.getElementById('results-container').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Failed to show all pins:", error);
+                alert("Failed to load shop pins.");
+            }
+        }
+
+        // Mouse/Touch dragging logic for Shop Pins using Pointer Events
+        function makePinDraggable(pin, shopNumber, container) {
+            let active = false;
+
+            pin.addEventListener("pointerdown", dragStart);
+            document.addEventListener("pointerup", dragEnd);
+            document.addEventListener("pointermove", drag);
+
+            function dragStart(e) {
+                if (!isAdminMode) return;
+                
+                // CRITICAL: Stop propagation of pointerdown so Panzoom doesn't receive it!
+                e.stopPropagation();
+                // Prevent text highlight / browser default dragging
+                e.preventDefault();
+
+                // Set pointer capture to ensure we receive events even if cursor leaves the pin
+                pin.setPointerCapture(e.pointerId);
+
+                // Temporarily disable panzoom
+                if (mapPanzoom) {
+                    mapPanzoom.destroy();
+                    mapPanzoom = null;
+                }
+
+                active = true;
+                pin.classList.add('cursor-grabbing');
+            }
+
+            function dragEnd(e) {
+                if (!active) return;
+                active = false;
+                pin.classList.remove('cursor-grabbing');
+
+                try {
+                    pin.releasePointerCapture(e.pointerId);
+                } catch(err) {}
+
+                // Re-enable panzoom
+                const mapElem = document.getElementById('map-image-container');
+                if (!mapPanzoom) {
+                    mapPanzoom = Panzoom(mapElem, { maxScale: 5, minScale: 0.5, contain: false, step: 0.3 });
+                    mapElem.parentElement.addEventListener('wheel', mapPanzoom.zoomWithWheel);
+                }
+
+                // Calculate final coordinates relative to 1000x500 container
+                const rect = container.getBoundingClientRect();
+                const finalX = Math.round((e.clientX - rect.left) / (rect.width / 1000));
+                const finalY = Math.round((e.clientY - rect.top) / (rect.height / 500));
+
+                if (finalX >= 0 && finalX <= 1000 && finalY >= 0 && finalY <= 500) {
+                    const confirmSave = confirm(`Move Shop ${shopNumber} to coordinates (${finalX}, ${finalY})?`);
+                    if (confirmSave) {
+                        saveShopCoordinates(shopNumber, finalX, finalY);
+                    } else {
+                        // Reset pin back to its original position
+                        const store = activeStores.find(s => s.shop_number === shopNumber);
+                        if (store) {
+                            pin.style.left = `${store.coordinates.x}px`;
+                            pin.style.top = `${store.coordinates.y}px`;
+                        }
+                    }
+                }
+            }
+
+            function drag(e) {
+                if (!active) return;
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rect = container.getBoundingClientRect();
+                const posX = e.clientX - rect.left;
+                const posY = e.clientY - rect.top;
+
+                // Scale it back to container dimensions so style.left matches pixels
+                const pctX = (posX / rect.width) * 1000;
+                const pctY = (posY / rect.height) * 500;
+
+                pin.style.left = `${Math.round(pctX)}px`;
+                pin.style.top = `${Math.round(pctY)}px`;
+            }
+        }
+
+        // Click handler on map-image-container for mapping coordinate directly by clicking empty space
+        document.addEventListener('DOMContentLoaded', () => {
+            const mapContainer = document.getElementById('map-image-container');
+            if (mapContainer) {
+                mapContainer.addEventListener('click', (e) => {
+                    if (!isAdminMode) return;
+                    
+                    // ONLY trigger if they click directly on the container background (not a pin or SVG path)
+                    if (e.target !== mapContainer) return;
+
+                    const rect = mapContainer.getBoundingClientRect();
+                    const clickX = Math.round((e.clientX - rect.left) / (rect.width / 1000));
+                    const clickY = Math.round((e.clientY - rect.top) / (rect.height / 500));
+
+                    if (clickX < 0 || clickX > 1000 || clickY < 0 || clickY > 500) return;
+
+                    const shopNum = (prompt(`Selected coordinates: (${clickX}, ${clickY})\nEnter Shop Number (e.g. DE1, DW1) to map to this point:`) || '').trim();
+                    if (shopNum) {
+                        saveShopCoordinates(shopNum, clickX, clickY);
+                    }
+                });
+            }
+        });
+
+        async function saveShopCoordinates(shopNumber, x, y) {
+            try {
+                const response = await fetch('/api/admin/update-coordinates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: adminPassword, shop_number: shopNumber, x: x, y: y })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`Successfully mapped Shop ${shopNumber} to coordinates (${x}, ${y})!`);
+                    
+                    // Dynamically update active search result pins if currently displayed
+                    const storeIdx = activeStores.findIndex(s => s.shop_number === shopNumber);
+                    if (storeIdx !== -1) {
+                        activeStores[storeIdx].coordinates.x = x;
+                        activeStores[storeIdx].coordinates.y = y;
+                    }
+                    
+                    // Re-render pins in new position
+                    renderResultsCards(activeStores);
+                    renderStoreRoutes(activeStores);
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (err) {
+                console.error("Save coordinate error:", err);
+                alert("Failed to save coordinates to database.");
+            }
+        }
+
+        // =============================================
+        // PANPURI PRE-ORDER SYSTEM
+        // =============================================
+        let preorderCart = {};
+        let allProducts = [];
+        let preorderStoreId = '';
+        let preorderStoreName = '';
+        let currentProductCategory = 'all';
+        let currentProductSubCategory = null;
+        let lastCompletedOrderNumber = '';
+
+        async function initPreorder() {
+            preorderCart = {};
+            preorderStoreId = '';
+            preorderStoreName = '';
+            currentProductCategory = 'all';
+            currentProductSubCategory = null;
+            showPreorderStep('store');
+            await loadStoreList();
+        }

@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>King Power - Store Selection</title>
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Font: Manrope as specified in Design System -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kingpower: {
+              navy: '#000a1e',
+              surface: '#f8f9fb',
+              accent: '#f3f4f6',
+              gold: '#c4a46d', // Representative gold for luxury branding
+              status: '#e6f4ea',
+              statusText: '#1e7e34'
+            }
+          },
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+          },
+          borderRadius: {
+            'custom': '12px',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    /* Haptic feedback simulation for the premium back button */
+    .haptic-btn:active {
+      transform: scale(0.96);
+      transition: transform 0.1s ease-out;
+    }
+    
+    /* Smooth transition for hover states */
+    .haptic-btn {
+      transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+    }
+
+    /* Subtle shadow for the cards */
+    .store-card {
+      box-shadow: 0 4px 20px rgba(0, 10, 30, 0.04);
+    }
+
+    /* Background styling to match the snapshot feel */
+    body {
+      background-color: #f8f9fb;
+    }
+
+    /* Gradient overlay for footer shadow effect */
+    .footer-shadow {
+      box-shadow: 0 -10px 40px -5px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body class="font-sans text-kingpower-navy antialiased">
+<!-- BEGIN: MainHeader -->
+<header class="bg-[#3d4458] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="p-1" data-purpose="mobile-menu-trigger">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<h1 class="text-xl font-bold tracking-widest">KING POWER</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 bg-[#4a5166] rounded-md">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="bg-[#4a5166] px-3 py-1.5 rounded-md text-xs flex items-center gap-2" onclick="window.location.href='panpuri_admin.html'">
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+        Admin Panel
+      </button>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="max-w-md mx-auto px-6 py-8 pb-32 min-h-screen">
+<!-- BEGIN: Premium Back Navigation -->
+<nav class="mb-10" data-purpose="navigation-area">
+<button class="haptic-btn flex items-center gap-3 group text-kingpower-navy hover:bg-white/50 px-3 py-2 -ml-3 rounded-full" onclick="window.history.back()">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-kingpower-navy/10 bg-white group-hover:border-kingpower-navy/30">
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<span class="text-sm font-semibold tracking-tight uppercase">BACK</span>
+</button>
+</nav>
+<!-- END: Premium Back Navigation -->
+<!-- BEGIN: Brand Header -->
+<section class="mb-8" data-purpose="brand-info">
+<h2 class="text-3xl font-extrabold tracking-[0.15em] mb-1">PAÑPURI</h2>
+<h3 class="text-xl font-bold tracking-wider mb-4">PRE-ORDER</h3>
+<p class="text-gray-500 text-sm font-medium">เลือกร้านค้าที่ต้องการรับสินค้า</p>
+</section>
+<!-- END: Brand Header -->
+<!-- BEGIN: Store Selection List -->
+<div class="space-y-4" data-purpose="store-list">
+<!-- Store Item 1 -->
+<div class="store-card haptic-btn flex items-center justify-between p-4 bg-white rounded-2xl cursor-pointer" onclick="selectStore('DE40')">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#fff8e1] rounded-xl flex items-center justify-center">
+<svg class="h-6 w-6 text-[#b0892c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h4 class="font-bold text-sm">PANPURI Concourse D East</h4>
+<p class="text-xs text-gray-400">บริเวณ <span class="text-gray-500 font-medium">Gate D1-D4</span></p>
+</div>
+</div>
+<span class="bg-kingpower-status text-kingpower-statusText text-[10px] font-bold px-2.5 py-1 rounded-md">เปิดรับ</span>
+</div>
+<!-- Store Item 2 -->
+<div class="store-card haptic-btn flex items-center justify-between p-4 bg-white rounded-2xl cursor-pointer" onclick="selectStore('DE12')">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#fff8e1] rounded-xl flex items-center justify-center">
+<svg class="h-6 w-6 text-[#b0892c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h4 class="font-bold text-sm">PANPURI Concourse D East 2</h4>
+<p class="text-xs text-gray-400">บริเวณ <span class="text-gray-500 font-medium">Gate D1-D2</span></p>
+</div>
+</div>
+<span class="bg-kingpower-status text-kingpower-statusText text-[10px] font-bold px-2.5 py-1 rounded-md">เปิดรับ</span>
+</div>
+<!-- Store Item 3 -->
+<div class="store-card haptic-btn flex items-center justify-between p-4 bg-white rounded-2xl cursor-pointer" onclick="selectStore('DW41')">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#fff8e1] rounded-xl flex items-center justify-center">
+<svg class="h-6 w-6 text-[#b0892c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h4 class="font-bold text-sm">PANPURI Concourse D West</h4>
+<p class="text-xs text-gray-400">บริเวณ <span class="text-gray-500 font-medium">Gate D5-D8</span></p>
+</div>
+</div>
+<span class="bg-kingpower-status text-kingpower-statusText text-[10px] font-bold px-2.5 py-1 rounded-md">เปิดรับ</span>
+</div>
+</div>
+<!-- END: Store Selection List -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: BottomNavigation -->
+<footer class="fixed bottom-0 left-0 right-0 bg-[#1c2233] text-gray-400 px-4 py-4 rounded-t-3xl footer-shadow z-50">
+<div class="flex items-center justify-around">
+<div class="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors" onclick="window.location.href='smartmap.html'">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] uppercase font-bold tracking-tight">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+<span class="text-[10px] uppercase font-bold tracking-tight">Navigate</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer text-white">
+<div class="text-white">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-[10px] uppercase font-bold tracking-tight">Pre-Order</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] uppercase font-bold tracking-tight">AI Assist</span>
+</div>
+</div>
+</footer>
+<!-- END: BottomNavigation -->
+
+<script>
+  function selectStore(storeId) {
+      // Logic for selecting a store
+      console.log('Selected store:', storeId);
+      // Example: redirect to a specific store's pre-order catalog or save to localStorage
+      localStorage.setItem('selectedStore', storeId);
+      alert('คุณได้เลือกร้านค้า: ' + storeId);
+      
+      // Navigate to the store page
+      window.location.href = 'store.html';
+  }
+</script>
+</body></html>
