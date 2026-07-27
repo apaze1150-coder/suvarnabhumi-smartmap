@@ -130,7 +130,9 @@
     </script>
 </head>
 <body class="bg-background text-on-surface font-body-md overflow-hidden">
-<aside class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-primary-container dark:bg-charcoal-surface h-screen w-64 shadow-md transition-all">
+<!-- Sidebar -->
+<div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleAdminSidebar()"></div>
+<aside id="adminSidebar" class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-primary-container dark:bg-charcoal-surface h-screen w-64 shadow-md transition-transform duration-300 -translate-x-full lg:translate-x-0">
 <div class="flex items-center gap-sm mb-xl">
 <div class="w-10 h-10 bg-secondary-fixed flex items-center justify-center rounded-lg">
 <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">spa</span>
@@ -163,10 +165,13 @@
 </button>
 </div>
 </aside>
-
-<main class="ml-64 flex flex-col min-h-screen">
+<!-- Main Content -->
+<main class="lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
 <header class="w-full h-16 flex justify-between items-center px-lg bg-surface-container-lowest dark:bg-charcoal-surface border-b border-outline-variant dark:border-on-tertiary-fixed-variant z-30">
 <div class="flex items-center gap-md flex-1">
+<button onclick="toggleAdminSidebar()" class="lg:hidden p-2 -ml-4 text-outline hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
 <div class="relative w-full max-w-md">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
 <input id="searchInput" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-body-sm focus:ring-2 focus:ring-secondary-container transition-all" placeholder="Search by SKU, Product or ID..." type="text"/>
@@ -174,7 +179,7 @@
 </div>
 <div class="flex items-center gap-lg">
 <div class="flex items-center gap-sm">
-<div class="text-right">
+<div class="text-right hidden sm:block">
 <p class="text-label-md font-bold text-primary leading-none">Admin User</p>
 <p class="text-xs text-on-surface-variant">Headquarters (DE40)</p>
 </div>
@@ -350,4 +355,19 @@
     
     loadLogs();
 </script>
+
+<script>
+function toggleAdminSidebar() {
+    const sidebar = document.getElementById("adminSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar.classList.contains("-translate-x-full")) {
+        sidebar.classList.remove("-translate-x-full");
+        backdrop.classList.remove("hidden");
+    } else {
+        sidebar.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+    }
+}
+</script>
 </body></html>
+

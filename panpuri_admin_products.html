@@ -126,9 +126,10 @@
 <body class="bg-background text-on-background selection:bg-secondary-container selection:text-on-secondary-container">
 <!-- Wrapper -->
 <div class="flex min-h-screen overflow-hidden">
-<!-- SideNavBar -->
-<aside class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-primary-container dark:bg-charcoal-surface h-screen w-64 shadow-md">
-<div class="mb-xl flex items-center gap-sm px-xs">
+  <!-- SideNavBar -->
+  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleAdminSidebar()"></div>
+  <aside id="adminSidebar" class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-primary-container dark:bg-charcoal-surface h-screen w-64 shadow-md transition-transform duration-300 -translate-x-full lg:translate-x-0">
+  <div class="mb-xl flex items-center gap-sm px-xs">
 <div class="w-10 h-10 bg-secondary-fixed flex items-center justify-center rounded-lg">
 <span class="material-symbols-outlined text-primary-container font-bold">spa</span>
 </div>
@@ -154,20 +155,23 @@
 <span class="material-symbols-outlined">settings</span> Store Settings
 </a>
 </nav>
-</aside>
+  </aside>
 
-<!-- Main Content Area -->
-<main class="ml-64 flex-1 flex flex-col min-w-0">
-<header class="w-full h-16 flex justify-between items-center px-lg bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-30">
-<div class="flex items-center gap-md flex-1">
-<div class="relative w-64">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input id="searchInput" class="w-full pl-10 pr-md py-1.5 bg-surface-container-low border-none rounded-full font-body-sm text-body-sm focus:ring-1 focus:ring-secondary" placeholder="Quick search catalog..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-lg">
-<div class="flex items-center gap-md">
-<div class="text-right">
+  <!-- Main Content Area -->
+  <main class="lg:ml-64 flex-1 flex flex-col min-w-0 transition-all duration-300">
+  <header class="w-full h-16 flex justify-between items-center px-lg bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-30">
+  <div class="flex items-center gap-md flex-1">
+  <button onclick="toggleAdminSidebar()" class="lg:hidden p-2 -ml-4 text-outline hover:bg-surface-container rounded-full">
+  <span class="material-symbols-outlined">menu</span>
+  </button>
+  <div class="relative w-full max-w-[256px]">
+  <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+  <input id="searchInput" class="w-full pl-10 pr-md py-1.5 bg-surface-container-low border-none rounded-full font-body-sm text-body-sm focus:ring-1 focus:ring-secondary" placeholder="Quick search catalog..." type="text"/>
+  </div>
+  </div>
+  <div class="flex items-center gap-lg">
+  <div class="flex items-center gap-md">
+  <div class="text-right hidden sm:block">
 <p class="font-label-md text-label-md font-bold text-primary">Administrator</p>
 <p class="font-label-sm text-label-sm text-on-surface-variant">Royal Horizon Lead</p>
 </div>
@@ -227,6 +231,7 @@
 </div>
 
 <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden bento-shadow">
+<div class="overflow-x-auto custom-scrollbar">
 <table class="w-full text-left border-collapse">
 <thead class="bg-surface-container-low">
 <tr>
@@ -244,6 +249,7 @@
 <!-- Dynamic Rows -->
 </tbody>
 </table>
+</div>
 <div class="px-lg py-md bg-surface-container-low flex justify-between items-center">
 <p id="paginationInfo" class="font-body-sm text-body-sm text-on-surface-variant">Showing 0 entries</p>
 </div>
@@ -337,4 +343,18 @@
     
     loadProducts();
 </script>
+<script>
+function toggleAdminSidebar() {
+    const sidebar = document.getElementById("adminSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar.classList.contains("-translate-x-full")) {
+        sidebar.classList.remove("-translate-x-full");
+        backdrop.classList.remove("hidden");
+    } else {
+        sidebar.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+    }
+}
+</script>
 </body></html>
+

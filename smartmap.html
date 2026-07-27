@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 
 <head>
@@ -272,7 +272,7 @@
     <!-- TopAppBar (ถอดปุ่ม Staff Mode ออกแล้ว) -->
     <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-[#3B465A] z-50 shadow-md">
         <div class="flex items-center gap-4">
-            <button
+            <button onclick="toggleMainSidebar()"
                 class="text-white hover:bg-white/10 transition-colors p-2 rounded-full active:scale-95 duration-200">
                 <span class="material-symbols-outlined">menu</span>
             </button>
@@ -302,13 +302,55 @@
                     <div id="google_translate_element"></div>
                 </div>
             </div>
-            <a href="/admin"
-                class="text-xs bg-white/10 text-white hover:bg-white/20 font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95">
-                <span class="material-symbols-outlined text-sm">admin_panel_settings</span>
-                Admin Panel
-            </a>
         </div>
     </header>
+
+    <!-- Main Sidebar Drawer -->
+    <div id="main-sidebar-backdrop" onclick="toggleMainSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden transition-opacity"></div>
+    <div id="main-sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[100] transform -translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="p-6 border-b flex justify-between items-center bg-[#3B465A] text-white">
+            <h2 class="font-bold text-xl">Menu</h2>
+            <button onclick="toggleMainSidebar()" class="text-white hover:bg-white/20 p-2 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex-grow overflow-y-auto p-4 space-y-2">
+            <!-- Add other menu items here in the future -->
+        </div>
+        <div class="p-4 border-t mt-auto">
+            <a href="/admin" class="block p-3 text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                สำหรับเจ้าหน้าที่ (Staff Login)
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleMainSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('main-sidebar-backdrop');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function toggleBoutiqueSidebar() {
+            const sidebar = document.getElementById('boutique-sidebar');
+            const backdrop = document.getElementById('boutique-sidebar-backdrop');
+            if (sidebar && backdrop) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                    backdrop.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    backdrop.classList.add('hidden');
+                }
+            }
+        }
+    </script>
 
     <!-- MAIN CONTENT AREA -->
     <main class="flex-grow relative w-full h-full overflow-hidden">
@@ -607,8 +649,10 @@
 
         <!-- PANPURI BOUTIQUE VIEW -->
         <div id="view-panpuri-boutique" class="page-section absolute top-20 right-0 bottom-0 left-0 z-[100] bg-background text-on-background font-body-md overflow-y-auto custom-scrollbar">
-<!-- Desktop SideNavBar -->
-<aside class="hidden lg:flex fixed left-0 top-20 h-[calc(100%-5rem)] w-72 flex-col pt-lg pb-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-40 overflow-hidden">
+<!-- Mobile Sidebar Backdrop -->
+<div id="boutique-sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleBoutiqueSidebar()"></div>
+<!-- Desktop/Mobile SideNavBar -->
+<aside id="boutique-sidebar" class="flex fixed left-0 top-0 lg:top-20 h-full lg:h-[calc(100%-5rem)] w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-50 overflow-hidden transform -translate-x-full transition-transform duration-300 lg:translate-x-0">
 <div class="mb-xl px-4">
 <div onclick="showPage('home-view')" class="flex items-center gap-3 group text-[#000a1e] hover:bg-white/50 px-3 py-2 -ml-3 rounded-full cursor-pointer transition-all mb-4">
     <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30">
@@ -640,7 +684,7 @@
 <!-- Top Navigation -->
 <header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
 <div class="flex items-center gap-4">
-<button class="lg:hidden p-2 text-on-surface">
+<button class="lg:hidden p-2 text-on-surface" onclick="toggleBoutiqueSidebar()">
 <span class="material-symbols-outlined">menu</span>
 </button>
 <div class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</div>
@@ -666,14 +710,14 @@
 <!-- Dynamic Pills Rendered Here -->
 </div>
 <!-- Bento Grid Product Layout -->
-<div id="boutique-product-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
+<div id="boutique-product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-lg">
     <!-- Products will be dynamically rendered here -->
 </div>
 </div>
 </main>
 <!-- Mobile Bottom Navigation Bar -->
-<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-50">
-<a class="flex flex-col items-center gap-1 text-on-primary-fixed cursor-pointer" onclick="exitBoutique()">
+<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-[55]">
+<a class="flex flex-col items-center gap-1 text-on-primary-container hover:text-white transition-colors cursor-pointer" onclick="exitBoutique()">
 <span class="material-symbols-outlined">home</span>
 <span class="text-label-sm uppercase">Home</span>
 </a>
@@ -688,12 +732,12 @@
 </button>
 </div>
 <a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">inventory_2</span>
-<span class="text-label-sm uppercase">Stock</span>
+<span class="material-symbols-outlined">local_offer</span>
+<span class="text-[10px] uppercase">Promotion</span>
 </a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="text-label-sm uppercase">Profile</span>
+<a class="flex flex-col items-center gap-1 text-on-primary-container" href="https://onepass.kingpower.com/u/signup/identifier?state=hqFo2SBaVWhLeDAyY0FpM0toUm83TzVoTmxoQkhJT2tmY3cyQaFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIGJGM21NMXEyRUNEdzJvWFlta1AtcE9DeHNocmZoZVIxo2NpZNkgMDFuVkNjRk44bWFudWpjQ1hhdTI3TXVqMmlrN3I3bjKlb3JnaWS0b3JnX3NoY2Fybk4za2tHNkxyTDWnb3JnbmFtZaNnd2w&ui_locales=en" target="_blank">
+<span class="material-symbols-outlined">person_add</span>
+<span class="text-[10px] uppercase">สมัครสมาชิก</span>
 </a>
 </nav>
 <!-- Interactive Product Detail Drawer -->
@@ -712,19 +756,21 @@
 </button>
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar">
-<div class="aspect-square bg-surface-container">
+<div class="aspect-square bg-surface-container relative">
+<button class="absolute top-4 left-4 bg-white/80 backdrop-blur-md rounded-full w-10 h-10 flex items-center justify-center text-primary shadow-md z-10 haptic-active lg:hidden" onclick="closeDrawer()">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
 <img class="w-full h-full object-cover" data-alt="A luxurious high-resolution detail shot of a PAÑPURI aromatherapy product." id="drawerImage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFOkqgiKd4TsY0BzFSC6WOU4d5It2GSUVJwCqSYoUJZAJN0Y6PItcZV8Yf0qTUE9EB7aDhnu0XpXxwN5TEo4Cid4JdzG2yDd1oL6KkIbWAHWveCnIG4I2xTff0iZ4wp_mEbKn08wZrDKIwjL93Y3W0s0c7Ae7nQeokNCgrDmB7TAhndUOIr0RDmeKlxiK3domCHLsyJJq7XSrWYPJ8zgDK83XKGAsHVOHKQbrw9MB5sZIKsCgmSjEIHjxMIN7FPebu5H4TQe-2BB0"/>
 </div>
 <div class="p-margin-desktop space-y-lg">
 <div>
 <p class="text-label-sm text-secondary uppercase tracking-widest mb-2" id="drawerCategory">Bath &amp; Body</p>
 <h2 class="font-headline-xl text-headline-xl text-primary" id="drawerTitle">Product Title</h2>
-<div class="flex items-center gap-4 mt-4">
-<div class="flex items-center justify-between">
-<span class="text-headline-md font-bold text-primary" id="drawerPrice">฿1,450</span>
-<span class="text-sm font-bold text-gray-500" id="drawerStock">คงเหลือ: 0</span>
+<div class="flex items-center justify-between w-full mt-4">
+<div class="flex items-end gap-2">
+<span class="text-headline-md font-bold text-pink-600" id="drawerPrice">฿1,450</span>
 </div>
-<span class="text-body-sm text-on-surface-variant">Inclusive of taxes</span>
+<span class="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full" id="drawerStock">คงเหลือ: 0</span>
 </div>
 <div class="mt-2 text-body-sm text-on-surface-variant font-bold tracking-widest">SKU : <span id="drawerSKU"></span></div>
 </div>
@@ -776,601 +822,6 @@
         </div>
 
 
-        <!-- PANPURI BOUTIQUE VIEW -->
-        <div id="view-panpuri-boutique" class="page-section absolute inset-0 z-[100] bg-background text-on-background font-body-md overflow-hidden">
-<!-- Desktop SideNavBar -->
-<aside class="hidden lg:flex fixed left-0 top-0 h-full w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-40 overflow-hidden">
-<div class="mb-xl px-4">
-<h1 class="font-headline-md text-headline-md text-navy-luxury tracking-tight">Collections</h1>
-<p class="text-label-sm text-on-surface-variant">Royal Horizon Boutique</p>
-</div>
-<nav class="flex-1 flex flex-col gap-xs overflow-y-auto custom-scrollbar px-2">
-<!-- FINE FRAGRANCES -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Fine Fragrances</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">EXTRACT Perfume Oil</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Care Eau de Parfum</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Accessories</a>
-</div>
-</details>
-<!-- BATH & BODY -->
-<details class="group" open="">
-<summary class="flex items-center justify-between bg-secondary-container text-navy-luxury rounded-lg px-4 py-3 cursor-pointer list-none transition-all shadow-sm">
-<span class="font-label-md text-label-md tracking-wider uppercase">Bath &amp; Body</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-navy-luxury font-medium py-2 border-l-2 border-secondary pl-3" href="#">Bath &amp; Body Oil</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body &amp; Hand Lotion</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body Polish</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hand Care</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hair Care</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Bath &amp; Body Accessories</a>
-</div>
-</details>
-<!-- FACE -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Face</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Natural Face Oil &amp; Serum</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Face &amp; Eye Cream</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gentle Cleanser &amp; Toner</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Lip Care</a>
-</div>
-</details>
-<!-- HOME -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Home</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Candles</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Reed Diffusers &amp; Refills</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Room Sprays &amp; Pillow Mists</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Essential Oils</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Electric Diffusers</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Home Accessories</a>
-</div>
-</details>
-<!-- GIFT -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Gift</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift of Fine Fragrances</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift for Face</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Bath &amp; Body</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Home</a>
-</div>
-</details>
-</nav>
-<div class="pt-md mt-auto border-t border-outline-variant flex flex-col gap-xs">
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">help</span>
-<span class="font-label-md text-label-md">Support</span>
-</a>
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-error transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">logout</span>
-<span class="font-label-md text-label-md">Exit</span>
-</a>
-</div>
-</aside>
-<!-- Main Content Canvas -->
-<main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
-<!-- Top Navigation -->
-<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
-<div class="flex items-center gap-4">
-<button class="lg:hidden p-2 text-on-surface">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<div class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</div>
-</div>
-<div class="flex items-center gap-sm">
-<div class="hidden md:flex bg-surface-container rounded-full px-4 py-2 items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search collection..." type="text"/>
-</div>
-<button class="p-2 relative">
-<span class="material-symbols-outlined">shopping_bag</span>
-<span class="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
-</button>
-<button class="p-2 hidden md:block">
-<span class="material-symbols-outlined">location_on</span>
-</button>
-</div>
-</header>
-<!-- Product Listing Container -->
-<div class="px-margin-mobile lg:px-margin-desktop py-lg max-w-7xl mx-auto">
-<!-- Category Pills -->
-<div class="flex gap-sm overflow-x-auto pb-md no-scrollbar mb-lg">
-<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md whitespace-nowrap">All Items</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Bath &amp; Body</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Face Care</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Hair Care</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Home Fragrance</button>
-</div>
-<!-- Bento Grid Product Layout -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
-<!-- Product Card 1 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SIAMESE WATER')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close-up artistic shot of a PAÑPURI Siamese Water Body Wash bottle placed on a minimalist black marble surface. Soft ambient lighting creates subtle highlights on the golden bottle cap. The background is a clean, neutral tone consistent with luxury light-mode UI design. A single jasmine flower petal rests nearby to suggest the scent's delicate floral profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbhV4Lh5V1liSMwJef8MPQVftzkjD7b_tFp0fod6IlHuIMCBk6UcFPK-cI5WvKMbRTLPS7yiLChZkS015oWAv51wYqeaz1FZ_YlHPgLtN3a1n5PPlZHFrFoqA-4RU4nw9LJgBXPsoekiZKPYXj5asTqAOilbtso_EY14sUbkGIJTvg8AJeMpM9prOApJTMlUcRKUw3-q4hBbTj0pLGGn5g__uK9l-Be_szt6IBvAOysrBF53SpBwHqy3J348t1IqifVrcm5d2UHYE"/>
-<div class="absolute top-4 left-4 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container text-label-sm font-bold">BESTSELLER</div>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Siamese Water Body Wash</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Deeply cleanse and moisturize with Jasmine, Ylang Ylang, and Thai Mint.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿1,450</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 2 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ANDAMAN SAILS')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Premium lifestyle photography of a PAÑPURI Andaman Sails candle. The candle sits on a sleek teak wood tray in a bright, modern interior setting. Sunlight filters through a nearby window, casting soft shadows. The overall aesthetic is serene and sophisticated, highlighting the rich blue and gold color scheme of the Royal Horizon project." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs4GHNWhBB0G5j9Azyi3yr7vQE-6uXgXIA6p5Ed4lrKsR9Q_tbz4fEuwuFHQm-2S_eZOJXEBuqIZdLWB3IAPwzjCBVMo4PwGMG9HtVe82xj9av7ItE0BO-3hPFSVE7mvgWp49QrfDRMm30VT2IGmRmifxnjVkrzQcSoc9ChhjC6sOAFdCQcKDkpWlr7SRDEaKvKFSd5NBeHv95jvC1PiP57aozC3q0PH5dcVOeOuFZUA29UDqYP-95N9Gl8rIjXP9OK-o2PBx8WL4"/>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Home Fragrance</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Andaman Sails Candle</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Evoke the spirit of the Andaman sea with notes of Bergamot and Green Tea.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿1,800</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 3 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SACRED SANTAL')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An elegant presentation of PAÑPURI Sacred Santal Diffuser. The glass vessel is displayed against a backdrop of dark, textured charcoal, emphasizing its golden accents. Refined lighting from above focuses on the brand logo. This image captures the prestigious and disciplined essence of the luxury brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAK181nzyfhW4z77RnfHEO3fVfu6rzmOUQvJDSrgZnOCiM60uuNQ8-tHHHSUxRutghU6UtHuDUT_AaCfB3wDTRS3F7qHsxbUYeGiXkPZkiAwNt8k7grNl6bBQ2ZhZsmiHttR-m-6epzC_RRQcUbBPlSkDtCyHZeqWP0hJrYHt8dglh5G8-XwaZk7-JICpBe5geZkm6R8BHtuymn5VAu0l8PYbifsnCRnWiq4LBgX7p5fbInmbqWTMm3EuXeUS0KGjI2JHSYQn_W-E"/>
-<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-sm font-bold">LIMITED EDITION</div>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Essential Oils</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Sacred Santal Extract</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Warm sandalwood blended with earthy orris for spiritual tranquility.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿2,250</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 4 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ETERNAL SUNSHINE')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, minimalist studio shot of the PAÑPURI Eternal Sunshine Hand Cream. The product is placed on a smooth, off-white surface with a single orange zest curl to represent the citrus scent profile. High-contrast lighting highlights the sharp 2px corner design of the packaging, reflecting the modern precision-focused brand philosophy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF3fTFogLeG5VmfUAEedmVSEMjIq_ohEiINGLI5L9iNQIi63uT2PO8_B9KIqshyuTrb1ImgRim74mMCWCpGzs7Kjcghq_7WL76WqZarQs_HK9c6pdJsRa-i2C0KQSZ4lqauSUs4avEZedWj_WeoUx5E8E91fcmDt5xIpXl5FzeNCPKvyrliUJdTbPJRvsA7FE4lFb0neC7yjXn1wXDRFv1ok9na1lduqG2dZnJY5Npvdj44eIpvtJq0Ag8u3H10ztfhOMSDAUcmm0"/>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Eternal Sunshine Cream</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Radiant hydration with Lemongrass, Mandarin, and Bergamot oils.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿850</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Mobile Bottom Navigation Bar -->
-<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-50">
-<a class="flex flex-col items-center gap-1 text-on-primary-fixed" href="#">
-<span class="material-symbols-outlined">home</span>
-<span class="text-label-sm uppercase">Home</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="text-label-sm uppercase">Orders</span>
-</a>
-<div class="relative -top-6">
-<button class="bg-secondary text-secondary-container w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-<span class="material-symbols-outlined text-[32px]">add</span>
-</button>
-</div>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">inventory_2</span>
-<span class="text-label-sm uppercase">Stock</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="text-label-sm uppercase">Profile</span>
-</a>
-</nav>
-<!-- Interactive Product Detail Drawer -->
-<div class="fixed inset-0 z-[60] invisible overflow-hidden" id="productDrawer">
-<!-- Backdrop -->
-<div class="absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300" id="drawerBackdrop" onclick="closeDrawer()"></div>
-<!-- Drawer Panel -->
-<div class="absolute right-0 top-0 h-full w-full max-w-lg bg-surface-container-lowest drawer-transition translate-x-full shadow-2xl flex flex-col" id="drawerPanel">
-<div class="p-md flex items-center justify-between border-b border-outline-variant">
-<button class="p-2 haptic-active" onclick="closeDrawer()">
-<span class="material-symbols-outlined">close</span>
-</button>
-<div class="font-headline-md text-headline-md tracking-wider">DETAILS</div>
-<button class="p-2 haptic-active">
-<span class="material-symbols-outlined">share</span>
-</button>
-</div>
-<div class="flex-1 overflow-y-auto custom-scrollbar">
-<div class="aspect-square bg-surface-container">
-<img class="w-full h-full object-cover" data-alt="A luxurious high-resolution detail shot of a PAÑPURI aromatherapy product." id="drawerImage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFOkqgiKd4TsY0BzFSC6WOU4d5It2GSUVJwCqSYoUJZAJN0Y6PItcZV8Yf0qTUE9EB7aDhnu0XpXxwN5TEo4Cid4JdzG2yDd1oL6KkIbWAHWveCnIG4I2xTff0iZ4wp_mEbKn08wZrDKIwjL93Y3W0s0c7Ae7nQeokNCgrDmB7TAhndUOIr0RDmeKlxiK3domCHLsyJJq7XSrWYPJ8zgDK83XKGAsHVOHKQbrw9MB5sZIKsCgmSjEIHjxMIN7FPebu5H4TQe-2BB0"/>
-</div>
-<div class="p-margin-desktop space-y-lg">
-<div>
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-2" id="drawerCategory">Bath &amp; Body</p>
-<h2 class="font-headline-xl text-headline-xl text-primary" id="drawerTitle">Product Title</h2>
-<div class="flex items-center gap-4 mt-4">
-<span class="text-headline-md font-bold text-primary" id="drawerPrice">฿1,450</span>
-<span class="text-body-sm text-on-surface-variant">Inclusive of taxes</span>
-</div>
-</div>
-<div class="flex items-center justify-between py-md border-y border-outline-variant">
-<div class="flex flex-col">
-<span class="text-label-sm text-on-surface-variant mb-1">SIZE</span>
-<span class="font-headline-md">330 ml</span>
-</div>
-<div class="flex items-center bg-surface-container rounded-full px-2">
-<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">remove</span></button>
-<span class="w-10 text-center font-bold">1</span>
-<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">add</span></button>
-</div>
-</div>
-<!-- Accordions -->
-<div class="space-y-sm">
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">DESCRIPTION</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">A sophisticated blend of botanical extracts designed to rejuvenate the skin while providing a calming sensory experience. Free from sulfates and parabens.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">SCENT NOTES</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">Top: Thai Jasmine, Mint. Heart: Ylang Ylang, Damask Rose. Base: Sandalwood, Cedarwood.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">HOW TO USE</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">Apply to wet skin, massage gently to create a rich lather, then rinse thoroughly. Suitable for daily use.</p>
-</details>
-</div>
-</div>
-</div>
-<div class="p-md bg-surface-container-lowest border-t border-outline-variant">
-<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl">
-<span class="material-symbols-outlined">shopping_cart</span>
-                    ADD TO CART
-                </button>
-</div>
-</div>
-</div>
-        </div>
-
-
-        <!-- PANPURI BOUTIQUE VIEW -->
-        <div id="view-panpuri-boutique" class="page-section absolute inset-0 z-[100] bg-background text-on-background font-body-md overflow-hidden">
-<!-- Desktop SideNavBar -->
-<aside class="hidden lg:flex fixed left-0 top-0 h-full w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-40 overflow-hidden">
-<div class="mb-xl px-4">
-<h1 class="font-headline-md text-headline-md text-navy-luxury tracking-tight">Collections</h1>
-<p class="text-label-sm text-on-surface-variant">Royal Horizon Boutique</p>
-</div>
-<nav class="flex-1 flex flex-col gap-xs overflow-y-auto custom-scrollbar px-2">
-<!-- FINE FRAGRANCES -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Fine Fragrances</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">EXTRACT Perfume Oil</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Care Eau de Parfum</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Accessories</a>
-</div>
-</details>
-<!-- BATH & BODY -->
-<details class="group" open="">
-<summary class="flex items-center justify-between bg-secondary-container text-navy-luxury rounded-lg px-4 py-3 cursor-pointer list-none transition-all shadow-sm">
-<span class="font-label-md text-label-md tracking-wider uppercase">Bath &amp; Body</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-navy-luxury font-medium py-2 border-l-2 border-secondary pl-3" href="#">Bath &amp; Body Oil</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body &amp; Hand Lotion</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Body Polish</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hand Care</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Hair Care</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2 pl-3" href="#">Bath &amp; Body Accessories</a>
-</div>
-</details>
-<!-- FACE -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Face</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Natural Face Oil &amp; Serum</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Face &amp; Eye Cream</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gentle Cleanser &amp; Toner</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Lip Care</a>
-</div>
-</details>
-<!-- HOME -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Home</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Candles</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Reed Diffusers &amp; Refills</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Room Sprays &amp; Pillow Mists</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Essential Oils</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Electric Diffusers</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Home Accessories</a>
-</div>
-</details>
-<!-- GIFT -->
-<details class="group">
-<summary class="flex items-center justify-between text-navy-luxury hover:bg-surface-container rounded-lg px-4 py-3 cursor-pointer list-none transition-all">
-<span class="font-label-md text-label-md tracking-wider uppercase">Gift</span>
-<span class="material-symbols-outlined text-[20px] group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="flex flex-col gap-1 pl-6 pr-4 py-2">
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift of Fine Fragrances</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gift for Face</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Bath &amp; Body</a>
-<a class="text-body-sm text-on-surface-variant hover:text-navy-luxury py-2" href="#">Gifts for Home</a>
-</div>
-</details>
-</nav>
-<div class="pt-md mt-auto border-t border-outline-variant flex flex-col gap-xs">
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">help</span>
-<span class="font-label-md text-label-md">Support</span>
-</a>
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-error transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">logout</span>
-<span class="font-label-md text-label-md">Exit</span>
-</a>
-</div>
-</aside>
-<!-- Main Content Canvas -->
-<main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
-<!-- Top Navigation -->
-<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
-<div class="flex items-center gap-4">
-<button class="lg:hidden p-2 text-on-surface">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<div class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</div>
-</div>
-<div class="flex items-center gap-sm">
-<div class="hidden md:flex bg-surface-container rounded-full px-4 py-2 items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search collection..." type="text"/>
-</div>
-<button class="p-2 relative">
-<span class="material-symbols-outlined">shopping_bag</span>
-<span class="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
-</button>
-<button class="p-2 hidden md:block">
-<span class="material-symbols-outlined">location_on</span>
-</button>
-</div>
-</header>
-<!-- Product Listing Container -->
-<div class="px-margin-mobile lg:px-margin-desktop py-lg max-w-7xl mx-auto">
-<!-- Category Pills -->
-<div class="flex gap-sm overflow-x-auto pb-md no-scrollbar mb-lg">
-<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md whitespace-nowrap">All Items</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Bath &amp; Body</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Face Care</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Hair Care</button>
-<button class="px-6 py-2 border border-outline-variant text-on-surface hover:bg-surface-container rounded-full font-label-md text-label-md transition-all whitespace-nowrap">Home Fragrance</button>
-</div>
-<!-- Bento Grid Product Layout -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
-<!-- Product Card 1 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SIAMESE WATER')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close-up artistic shot of a PAÑPURI Siamese Water Body Wash bottle placed on a minimalist black marble surface. Soft ambient lighting creates subtle highlights on the golden bottle cap. The background is a clean, neutral tone consistent with luxury light-mode UI design. A single jasmine flower petal rests nearby to suggest the scent's delicate floral profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbhV4Lh5V1liSMwJef8MPQVftzkjD7b_tFp0fod6IlHuIMCBk6UcFPK-cI5WvKMbRTLPS7yiLChZkS015oWAv51wYqeaz1FZ_YlHPgLtN3a1n5PPlZHFrFoqA-4RU4nw9LJgBXPsoekiZKPYXj5asTqAOilbtso_EY14sUbkGIJTvg8AJeMpM9prOApJTMlUcRKUw3-q4hBbTj0pLGGn5g__uK9l-Be_szt6IBvAOysrBF53SpBwHqy3J348t1IqifVrcm5d2UHYE"/>
-<div class="absolute top-4 left-4 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container text-label-sm font-bold">BESTSELLER</div>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Siamese Water Body Wash</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Deeply cleanse and moisturize with Jasmine, Ylang Ylang, and Thai Mint.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿1,450</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 2 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ANDAMAN SAILS')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Premium lifestyle photography of a PAÑPURI Andaman Sails candle. The candle sits on a sleek teak wood tray in a bright, modern interior setting. Sunlight filters through a nearby window, casting soft shadows. The overall aesthetic is serene and sophisticated, highlighting the rich blue and gold color scheme of the Royal Horizon project." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs4GHNWhBB0G5j9Azyi3yr7vQE-6uXgXIA6p5Ed4lrKsR9Q_tbz4fEuwuFHQm-2S_eZOJXEBuqIZdLWB3IAPwzjCBVMo4PwGMG9HtVe82xj9av7ItE0BO-3hPFSVE7mvgWp49QrfDRMm30VT2IGmRmifxnjVkrzQcSoc9ChhjC6sOAFdCQcKDkpWlr7SRDEaKvKFSd5NBeHv95jvC1PiP57aozC3q0PH5dcVOeOuFZUA29UDqYP-95N9Gl8rIjXP9OK-o2PBx8WL4"/>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Home Fragrance</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Andaman Sails Candle</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Evoke the spirit of the Andaman sea with notes of Bergamot and Green Tea.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿1,800</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 3 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('SACRED SANTAL')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An elegant presentation of PAÑPURI Sacred Santal Diffuser. The glass vessel is displayed against a backdrop of dark, textured charcoal, emphasizing its golden accents. Refined lighting from above focuses on the brand logo. This image captures the prestigious and disciplined essence of the luxury brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAK181nzyfhW4z77RnfHEO3fVfu6rzmOUQvJDSrgZnOCiM60uuNQ8-tHHHSUxRutghU6UtHuDUT_AaCfB3wDTRS3F7qHsxbUYeGiXkPZkiAwNt8k7grNl6bBQ2ZhZsmiHttR-m-6epzC_RRQcUbBPlSkDtCyHZeqWP0hJrYHt8dglh5G8-XwaZk7-JICpBe5geZkm6R8BHtuymn5VAu0l8PYbifsnCRnWiq4LBgX7p5fbInmbqWTMm3EuXeUS0KGjI2JHSYQn_W-E"/>
-<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-sm font-bold">LIMITED EDITION</div>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Essential Oils</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Sacred Santal Extract</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Warm sandalwood blended with earthy orris for spiritual tranquility.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿2,250</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Product Card 4 -->
-<div class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden cursor-pointer haptic-active shadow-sm hover:shadow-md transition-all" onclick="openDrawer('ETERNAL SUNSHINE')">
-<div class="relative aspect-square bg-surface-container-low">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, minimalist studio shot of the PAÑPURI Eternal Sunshine Hand Cream. The product is placed on a smooth, off-white surface with a single orange zest curl to represent the citrus scent profile. High-contrast lighting highlights the sharp 2px corner design of the packaging, reflecting the modern precision-focused brand philosophy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF3fTFogLeG5VmfUAEedmVSEMjIq_ohEiINGLI5L9iNQIi63uT2PO8_B9KIqshyuTrb1ImgRim74mMCWCpGzs7Kjcghq_7WL76WqZarQs_HK9c6pdJsRa-i2C0KQSZ4lqauSUs4avEZedWj_WeoUx5E8E91fcmDt5xIpXl5FzeNCPKvyrliUJdTbPJRvsA7FE4lFb0neC7yjXn1wXDRFv1ok9na1lduqG2dZnJY5Npvdj44eIpvtJq0Ag8u3H10ztfhOMSDAUcmm0"/>
-</div>
-<div class="p-md">
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-1">Bath &amp; Body</p>
-<h3 class="font-headline-md text-headline-md text-primary mb-2">Eternal Sunshine Cream</h3>
-<p class="text-body-sm text-on-surface-variant line-clamp-2 mb-md">Radiant hydration with Lemongrass, Mandarin, and Bergamot oils.</p>
-<div class="flex items-center justify-between mt-auto">
-<span class="font-headline-md text-headline-md text-primary">฿850</span>
-<button class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Mobile Bottom Navigation Bar -->
-<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-50">
-<a class="flex flex-col items-center gap-1 text-on-primary-fixed" href="#">
-<span class="material-symbols-outlined">home</span>
-<span class="text-label-sm uppercase">Home</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="text-label-sm uppercase">Orders</span>
-</a>
-<div class="relative -top-6">
-<button class="bg-secondary text-secondary-container w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-<span class="material-symbols-outlined text-[32px]">add</span>
-</button>
-</div>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">inventory_2</span>
-<span class="text-label-sm uppercase">Stock</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="text-label-sm uppercase">Profile</span>
-</a>
-</nav>
-<!-- Interactive Product Detail Drawer -->
-<div class="fixed inset-0 z-[60] invisible overflow-hidden" id="productDrawer">
-<!-- Backdrop -->
-<div class="absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300" id="drawerBackdrop" onclick="closeDrawer()"></div>
-<!-- Drawer Panel -->
-<div class="absolute right-0 top-0 h-full w-full max-w-lg bg-surface-container-lowest drawer-transition translate-x-full shadow-2xl flex flex-col" id="drawerPanel">
-<div class="p-md flex items-center justify-between border-b border-outline-variant">
-<button class="p-2 haptic-active" onclick="closeDrawer()">
-<span class="material-symbols-outlined">close</span>
-</button>
-<div class="font-headline-md text-headline-md tracking-wider">DETAILS</div>
-<button class="p-2 haptic-active">
-<span class="material-symbols-outlined">share</span>
-</button>
-</div>
-<div class="flex-1 overflow-y-auto custom-scrollbar">
-<div class="aspect-square bg-surface-container">
-<img class="w-full h-full object-cover" data-alt="A luxurious high-resolution detail shot of a PAÑPURI aromatherapy product." id="drawerImage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFOkqgiKd4TsY0BzFSC6WOU4d5It2GSUVJwCqSYoUJZAJN0Y6PItcZV8Yf0qTUE9EB7aDhnu0XpXxwN5TEo4Cid4JdzG2yDd1oL6KkIbWAHWveCnIG4I2xTff0iZ4wp_mEbKn08wZrDKIwjL93Y3W0s0c7Ae7nQeokNCgrDmB7TAhndUOIr0RDmeKlxiK3domCHLsyJJq7XSrWYPJ8zgDK83XKGAsHVOHKQbrw9MB5sZIKsCgmSjEIHjxMIN7FPebu5H4TQe-2BB0"/>
-</div>
-<div class="p-margin-desktop space-y-lg">
-<div>
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-2" id="drawerCategory">Bath &amp; Body</p>
-<h2 class="font-headline-xl text-headline-xl text-primary" id="drawerTitle">Product Title</h2>
-<div class="flex items-center gap-4 mt-4">
-<span class="text-headline-md font-bold text-primary" id="drawerPrice">฿1,450</span>
-<span class="text-body-sm text-on-surface-variant">Inclusive of taxes</span>
-</div>
-</div>
-<div class="flex items-center justify-between py-md border-y border-outline-variant">
-<div class="flex flex-col">
-<span class="text-label-sm text-on-surface-variant mb-1">SIZE</span>
-<span class="font-headline-md">330 ml</span>
-</div>
-<div class="flex items-center bg-surface-container rounded-full px-2">
-<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">remove</span></button>
-<span class="w-10 text-center font-bold">1</span>
-<button class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">add</span></button>
-</div>
-</div>
-<!-- Accordions -->
-<div class="space-y-sm">
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">DESCRIPTION</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">A sophisticated blend of botanical extracts designed to rejuvenate the skin while providing a calming sensory experience. Free from sulfates and parabens.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">SCENT NOTES</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">Top: Thai Jasmine, Mint. Heart: Ylang Ylang, Damask Rose. Base: Sandalwood, Cedarwood.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">HOW TO USE</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p class="text-body-sm text-on-surface-variant pt-xs">Apply to wet skin, massage gently to create a rich lather, then rinse thoroughly. Suitable for daily use.</p>
-</details>
-</div>
-</div>
-</div>
-<div class="p-md bg-surface-container-lowest border-t border-outline-variant">
-<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl">
-<span class="material-symbols-outlined">shopping_cart</span>
-                    ADD TO CART
-                </button>
-</div>
-</div>
-</div>
-        </div>
-
         <!-- 2. MAP VIEW -->
         <div id="map-view" class="page-section absolute inset-0 w-full h-full bg-surface">
             <!-- Admin Top Status Bar (Positioned below fixed header) -->
@@ -1401,21 +852,7 @@
                         </button>
                     </div>
                     
-                    <!-- AI Suggestion Chips for Map -->
-                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 px-1">
-                        <button onclick="document.getElementById('map-search-input').value='Best Thai Souvenirs'; triggerMapAISearch('Best Thai Souvenirs'); searchMapLive();" 
-                            class="shrink-0 whitespace-nowrap bg-white/90 backdrop-blur-md text-blue-700 border border-blue-200/50 shadow-sm px-3 py-1.5 rounded-full text-[10px] font-bold hover:bg-blue-50 transition-colors">
-                            ✨ Best Thai Souvenirs
-                        </button>
-                        <button onclick="document.getElementById('map-search-input').value='Skincare near me'; triggerMapAISearch('Skincare near me'); searchMapLive();" 
-                            class="shrink-0 whitespace-nowrap bg-white/90 backdrop-blur-md text-purple-700 border border-purple-200/50 shadow-sm px-3 py-1.5 rounded-full text-[10px] font-bold hover:bg-purple-50 transition-colors">
-                            🧴 Skincare near me
-                        </button>
-                        <button onclick="document.getElementById('map-search-input').value='Duty Free Sales'; triggerMapAISearch('Duty Free Sales'); searchMapLive();" 
-                            class="shrink-0 whitespace-nowrap bg-white/90 backdrop-blur-md text-green-700 border border-green-200/50 shadow-sm px-3 py-1.5 rounded-full text-[10px] font-bold hover:bg-green-50 transition-colors">
-                            🏷️ Duty Free Sales
-                        </button>
-                    </div>
+                    <!-- AI Suggestion Chips for Map (Removed to prevent overlapping Floor Selector) -->
 
                     <!-- AI Summary Box (Hidden by default) -->
                     <div id="map-ai-summary-box" class="hidden bg-white/95 backdrop-blur-xl shadow-lg rounded-2xl p-4 border border-[#B59115]/30 animate-[slideDown_0.3s_ease-out]">
@@ -1574,7 +1011,7 @@
             </div>
 
             <!-- Floor Selector Controls -->
-            <div class="absolute right-6 top-36 flex flex-col gap-2.5 z-30">
+            <div class="absolute right-6 top-48 flex flex-col gap-2.5 z-30">
                 <div class="flex flex-col bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-outline-variant/30">
                     <button onclick="switchFloor(4)" id="floor-4-btn"
                         class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 bg-primary text-white shadow-sm">4F</button>
@@ -2546,6 +1983,17 @@
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
 
+            const bottomNavBar = document.getElementById('bottom-nav-bar');
+            if (bottomNavBar) {
+                if (pageId === 'view-panpuri-boutique') {
+                    bottomNavBar.classList.add('hidden');
+                    bottomNavBar.classList.remove('flex');
+                } else {
+                    bottomNavBar.classList.remove('hidden');
+                    bottomNavBar.classList.add('flex');
+                }
+            }
+
             const navHome = document.getElementById('nav-home');
             const navMap = document.getElementById('nav-map');
             const navPreorder = document.getElementById('nav-preorder');
@@ -2553,22 +2001,22 @@
 
             [navHome, navMap, navPreorder, navAi].forEach(btn => {
                 if(!btn) return;
-                btn.classList.remove('text-[#00ffff]', 'bg-white/5');
+                btn.classList.remove('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
                 btn.classList.add('text-white/40');
                 const span = btn.querySelector('span');
                 if(span) span.style.fontVariationSettings = "'FILL' 0";
             });
 
             if (pageId === 'home-view') {
-                navHome.classList.add('text-[#00ffff]', 'bg-white/5');
+                navHome.classList.add('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
                 navHome.querySelector('span').style.fontVariationSettings = "'FILL' 1";
             } else if (pageId === 'map-view') {
-                navMap.classList.add('text-[#00ffff]', 'bg-white/5');
+                navMap.classList.add('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
                 navMap.querySelector('span').style.fontVariationSettings = "'FILL' 1";
                 setTimeout(() => fitMapToScreen(), 50);
             } else if (pageId === 'page-preorder' || pageId === 'view-panpuri-boutique') {
                 if (navPreorder) {
-                    navPreorder.classList.add('text-[#00ffff]', 'bg-white/5');
+                    navPreorder.classList.add('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
                     const span = navPreorder.querySelector('span');
                     if (span) span.style.fontVariationSettings = "'FILL' 1";
                 }
@@ -3238,14 +2686,14 @@
         }
         async function loadStoreList() {
             const container = document.getElementById('preorder-store-list');
-            container.innerHTML = '<div class="text-center text-gray-400 text-sm py-8">à¸à¸³à¸¥à¸±à¸‡à¹‚à¸«à¸¥à¸”...</div>';
+            container.innerHTML = '<div class="text-center text-gray-400 text-sm py-8">กำลังโหลด...</div>';
             try {
                 const res = await fetch('/api/store/settings');
                 const data = await res.json();
                 const stores = [
-                    { id: 'DE40', name: 'PANPURI Concourse D East', sub: 'à¸šà¸£à¸´à¹€à¸§à¸“ Gate D1-D4', icon: 'location_on' },
-                    { id: 'DE12', name: 'PANPURI Concourse D East 2', sub: 'à¸šà¸£à¸´à¹€à¸§à¸“ Gate D1-D2', icon: 'location_on' },
-                    { id: 'DW41', name: 'PANPURI Concourse D West', sub: 'à¸šà¸£à¸´à¹€à¸§à¸“ Gate D5-D8', icon: 'location_on' }
+                    { id: 'DE40', name: 'PANPURI Concourse D East', sub: 'บริเวณ Gate D1-D4', icon: 'location_on' },
+                    { id: 'DE12', name: 'PANPURI Concourse D East 2', sub: 'บริเวณ Gate D1-D2', icon: 'location_on' },
+                    { id: 'DW41', name: 'PANPURI Concourse D West', sub: 'บริเวณ Gate D5-D8', icon: 'location_on' }
                 ];
                 container.innerHTML = stores.map(s => {
                     const isOpen = data.settings[s.id]?.accepting_orders !== false;
@@ -3262,11 +2710,11 @@
                                 <p class="text-xs text-gray-400">${s.sub}</p>
                             </div>
                         </div>
-                        ${isOpen ? '<span class="bg-[#e6f4ea] text-[#1e7e34] text-[10px] font-bold px-2.5 py-1 rounded-md">à¹€à¸›à¸´à¸”à¸£à¸±à¸š</span>' : '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2.5 py-1 rounded-md">à¸›à¸´à¸”à¸£à¸±à¸š</span>'}
+                        ${isOpen ? '<span class="bg-[#e6f4ea] text-[#1e7e34] text-[10px] font-bold px-2.5 py-1 rounded-md">เปิดรับ</span>' : '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2.5 py-1 rounded-md">ปิดรับ</span>'}
                     </div>`;
                 }).join('');
             } catch(e) {
-                container.innerHTML = '<div class="text-center text-red-500 text-sm py-8">à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸£à¹‰à¸²à¸™à¹„à¸”à¹‰</div>';
+                container.innerHTML = '<div class="text-center text-red-500 text-sm py-8">ไม่สามารถโหลดข้อมูลร้านได้</div>';
             }
         }
 
@@ -3287,7 +2735,7 @@
 
         async function loadProducts() {
             const grid = document.getElementById('product-grid');
-            if (grid) grid.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-sm py-8">à¸à¸³à¸¥à¸±à¸‡à¹‚à¸«à¸¥à¸”à¸ªà¸´à¸™à¸„à¹‰à¸²...</div>';
+            if (grid) grid.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-sm py-8">กำลังโหลดสินค้า...</div>';
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
@@ -3295,7 +2743,7 @@
                 renderCategoriesUI();
                 // We don't renderProductGrid() here because filterProducts('all') will handle it.
             } catch(e) {
-                if (grid) grid.innerHTML = '<div class="col-span-2 text-center text-red-500 text-sm py-8">à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹‚à¸«à¸¥à¸”à¸ªà¸´à¸™à¸„à¹‰à¸²à¹„à¸”à¹‰</div>';
+                if (grid) grid.innerHTML = '<div class="col-span-2 text-center text-red-500 text-sm py-8">ไม่สามารถโหลดสินค้าได้</div>';
             }
         }
 
@@ -3438,19 +2886,19 @@
                         ${outOfStock ? `<div class="absolute top-4 right-4 bg-error text-on-error px-3 py-1 rounded-full text-label-sm font-bold shadow-sm uppercase">Out of Stock</div>` : ''}
                     </div>
                     <div class="p-md flex flex-col h-40">
-                        <p class="text-label-sm text-secondary uppercase tracking-widest mb-1 truncate">${(p.sub_category || p['Sub-Category']) && (p.sub_category || p['Sub-Category']) !== '-' ? (p.sub_category || p['Sub-Category']) : 'Information not available'}</p>
-                        <h3 class="font-headline-md text-headline-md text-primary mb-1 line-clamp-2">${(p.scent || p.Scent) && (p.scent || p.Scent) !== '-' ? (p.scent || p.Scent) : 'Information not available'}</h3>
+                        <p class="text-[10px] text-secondary uppercase tracking-widest mb-1 truncate">${(p.sub_category || p['Sub-Category']) && (p.sub_category || p['Sub-Category']) !== '-' ? (p.sub_category || p['Sub-Category']) : 'Information not available'}</p>
+                        <h3 class="font-bold text-sm text-primary mb-1 line-clamp-2">${(p.scent || p.Scent) && (p.scent || p.Scent) !== '-' ? (p.scent || p.Scent) : 'Information not available'}</h3>
                         <div class="flex items-center justify-between mt-auto">
                             <div>
-                                <span class="font-headline-md text-headline-md text-primary block">à¸¿${parseFloat(p.price).toLocaleString()}</span>
-                                <span class="text-xs ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-500'} font-bold">à¸„à¸‡à¹€à¸«à¸¥à¸·à¸­: ${stockQty - cartQty}</span>
+                                <span class="text-base font-bold text-pink-600 block">฿${parseFloat(p.price).toLocaleString()}</span>
+                                <span class="text-xs ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-500'} font-bold">คงเหลือ: ${stockQty - cartQty}</span>
                             </div>
-                            ${outOfStock ? `<button disabled class="bg-surface-variant text-on-surface-variant w-10 h-10 rounded-full flex items-center justify-center opacity-50 cursor-not-allowed"><span class="material-symbols-outlined">add</span></button>` : (cartQty === 0 
-                                ? `<button onclick="event.stopPropagation(); addToBoutiqueCart('${p.product_id}')" class="bg-secondary text-secondary-container w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform"><span class="material-symbols-outlined">add</span></button>` 
+                            ${outOfStock ? `<button disabled class="bg-surface-variant text-on-surface-variant w-8 h-8 rounded-full flex items-center justify-center opacity-50 cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">add</span></button>` : (cartQty === 0 
+                                ? `<button onclick="event.stopPropagation(); addToBoutiqueCart('${p.product_id}')" class="bg-secondary text-secondary-container w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[18px]">add</span></button>` 
                                 : `<div class="flex items-center bg-secondary-container rounded-full px-1 py-1" onclick="event.stopPropagation()">
-                                    <button onclick="changeBoutiqueCartQty('${p.product_id}', -1)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
-                                    <span class="w-6 text-center font-bold text-on-secondary-container text-sm">${cartQty}</span>
-                                    <button onclick="changeBoutiqueCartQty('${p.product_id}', 1)" ${cartQty >= stockQty ? 'disabled class="w-8 h-8 rounded-full flex items-center justify-center opacity-50"' : 'class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"'}><span class="material-symbols-outlined text-sm">add</span></button>
+                                    <button onclick="changeBoutiqueCartQty('${p.product_id}', -1)" class="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+                                    <span class="w-4 text-center font-bold text-on-secondary-container text-xs">${cartQty}</span>
+                                    <button onclick="changeBoutiqueCartQty('${p.product_id}', 1)" ${cartQty >= stockQty ? 'disabled class="w-6 h-6 rounded-full flex items-center justify-center opacity-50"' : 'class="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"'}><span class="material-symbols-outlined text-[16px]">add</span></button>
                                    </div>`
                             )}
                         </div>
@@ -3471,11 +2919,11 @@
                         <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-2 leading-snug">${(p.scent || p.Scent) && (p.scent || p.Scent) !== '-' ? (p.scent || p.Scent) : 'Information not available'}</h3>
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="font-black text-gray-900 text-sm">à¸¿${parseFloat(p.price).toLocaleString()}</span>
-                                <span class="text-[10px] font-bold ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-400'}">à¹€à¸«à¸¥à¸·à¸­ ${stockQty - cartQty}</span>
+                                <span class="font-black text-gray-900 text-sm">฿${parseFloat(p.price).toLocaleString()}</span>
+                                <span class="text-[10px] font-bold ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-400'}">เหลือ ${stockQty - cartQty}</span>
                             </div>
-                            ${outOfStock ? `<button disabled class="w-full bg-gray-100 text-gray-400 py-2 rounded-xl text-xs font-bold">à¸ªà¸´à¸™à¸„à¹‰à¸²à¸«à¸¡à¸”</button>` : (cartQty === 0
-                                ? `<button onclick="addToCart('${p.product_id}')" class="w-full bg-amber-50 text-amber-600 border border-amber-200 py-2 rounded-xl text-xs font-black active:bg-amber-100 transition-colors">à¹€à¸žà¸´à¹ˆà¸¡à¸¥à¸‡à¸•à¸°à¸à¸£à¹‰à¸²</button>`
+                            ${outOfStock ? `<button disabled class="w-full bg-gray-100 text-gray-400 py-2 rounded-xl text-xs font-bold">สินค้าหมด</button>` : (cartQty === 0
+                                ? `<button onclick="addToCart('${p.product_id}')" class="w-full bg-amber-50 text-amber-600 border border-amber-200 py-2 rounded-xl text-xs font-black active:bg-amber-100 transition-colors">เพิ่มลงตะกร้า</button>`
                                 : `<div class="flex items-center justify-between bg-amber-50 rounded-xl px-2 py-1">
                                     <button onclick="changeQty('${p.product_id}', -1)" class="w-8 h-8 flex items-center justify-center text-amber-700 active:scale-90"><span class="material-symbols-outlined text-sm">remove</span></button>
                                     <span class="font-black text-amber-700 text-sm">${cartQty}</span>
@@ -3526,9 +2974,9 @@
             document.getElementById('cart-store-name').textContent = preorderStoreName;
             
             if (items.length === 0) {
-                document.getElementById('cart-summary').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">à¸•à¸°à¸à¸£à¹‰à¸²à¸§à¹ˆà¸²à¸‡à¹€à¸›à¸¥à¹ˆà¸²</p>';
-                document.getElementById('cart-total-qty').textContent = 'Total (0 à¸Šà¸´à¹‰à¸™)';
-                document.getElementById('cart-total-price').textContent = 'à¸¿0';
+                document.getElementById('cart-summary').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">ตะกร้าว่างเปล่า</p>';
+                document.getElementById('cart-total-qty').textContent = 'Total (0 ชิ้น)';
+                document.getElementById('cart-total-price').textContent = '฿0';
                 return 0;
             }
             let total = 0;
@@ -3563,7 +3011,7 @@
                             <button onclick="changeQty('${i.product.product_id}', 1)" class="w-9 h-full flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-colors text-gray-600"><span class="material-symbols-outlined text-[18px]">add</span></button>
                         </div>
                         <div class="w-28 text-right shrink-0">
-                            <span class="font-black text-[16px] text-[#000a1e]">à¸¿${subtotal.toLocaleString()}</span>
+                            <span class="font-black text-[16px] text-[#000a1e]">฿${subtotal.toLocaleString()}</span>
                         </div>
                         <button onclick="changeQty('${i.product.product_id}', -9999)" class="material-symbols-outlined text-gray-400 hover:text-red-500 transition-colors p-1 shrink-0">delete</button>
                     </div>
@@ -3571,8 +3019,8 @@
             }).join('');
             
             document.getElementById('cart-summary').innerHTML = rows;
-            document.getElementById('cart-total-qty').textContent = `Total (${totalQty} à¸Šà¸´à¹‰à¸™)`;
-            document.getElementById('cart-total-price').textContent = `à¸¿${total.toLocaleString()}`;
+            document.getElementById('cart-total-qty').textContent = `Total (${totalQty} ชิ้น)`;
+            document.getElementById('cart-total-price').textContent = `฿${total.toLocaleString()}`;
             
             return total;
         }
@@ -3583,9 +3031,9 @@
             const errEl = document.getElementById('order-error-msg');
             errEl.classList.add('hidden');
 
-            if (!name) { errEl.textContent = 'à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸Šà¸·à¹ˆà¸­-à¸ªà¸à¸¸à¸¥'; errEl.classList.remove('hidden'); return; }
-            if (!flight) { errEl.textContent = 'à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸«à¸¡à¸²à¸¢à¹€à¸¥à¸‚à¹€à¸—à¸µà¹ˆà¸¢à¸§à¸šà¸´à¸™'; errEl.classList.remove('hidden'); return; }
-            if (Object.keys(preorderCart).length === 0) { errEl.textContent = 'à¸à¸£à¸¸à¸“à¸²à¹€à¸¥à¸·à¸­à¸à¸ªà¸´à¸™à¸„à¹‰à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 1 à¸£à¸²à¸¢à¸à¸²à¸£'; errEl.classList.remove('hidden'); return; }
+            if (!name) { errEl.textContent = 'กรุณากรอกชื่อ-สกุล'; errEl.classList.remove('hidden'); return; }
+            if (!flight) { errEl.textContent = 'กรุณากรอกหมายเลขเที่ยวบิน'; errEl.classList.remove('hidden'); return; }
+            if (Object.keys(preorderCart).length === 0) { errEl.textContent = 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ'; errEl.classList.remove('hidden'); return; }
 
             const items = Object.values(preorderCart).map(i => ({
                 product_id: i.product.product_id,
@@ -3597,7 +3045,7 @@
 
             const btn = document.getElementById('submit-order-btn');
             btn.disabled = true;
-            btn.textContent = 'à¸à¸³à¸¥à¸±à¸‡à¸ªà¹ˆà¸‡ Order...';
+            btn.textContent = 'กำลังส่ง Order...';
 
             try {
                 const res = await fetch('/api/orders', {
@@ -3612,22 +3060,22 @@
                     document.getElementById('track-order-input').value = data.order_number;
                     showPreorderStep('done');
                 } else {
-                    errEl.textContent = data.error || 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸” à¸à¸£à¸¸à¸“à¸²à¸¥à¸­à¸‡à¹ƒà¸«à¸¡à¹ˆ';
+                    errEl.textContent = data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
                     errEl.classList.remove('hidden');
                 }
             } catch(e) {
-                errEl.textContent = 'à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¹€à¸‹à¸´à¸£à¹Œà¸Ÿà¹€à¸§à¸­à¸£à¹Œà¹„à¸”à¹‰';
+                errEl.textContent = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
                 errEl.classList.remove('hidden');
             }
             btn.disabled = false;
-            btn.textContent = 'âœ… à¸¢à¸·à¸™à¸¢à¸±à¸™à¸à¸²à¸£à¸ªà¸±à¹ˆà¸‡à¸ˆà¸­à¸‡';
+            btn.textContent = 'âœ… ยืนยันการสั่งจอง';
         }
 
         async function trackOrder() {
             const orderNum = document.getElementById('track-order-input').value.trim().toUpperCase();
             const resultEl = document.getElementById('track-result');
             if (!orderNum) return;
-            resultEl.innerHTML = '<div class="text-center text-gray-400 text-sm py-6">à¸à¸³à¸¥à¸±à¸‡à¸„à¹‰à¸™à¸«à¸²...</div>';
+            resultEl.innerHTML = '<div class="text-center text-gray-400 text-sm py-6">กำลังค้นหา...</div>';
             resultEl.classList.remove('hidden');
             try {
                 const res = await fetch(`/api/orders/track/${orderNum}`);
@@ -3638,17 +3086,17 @@
                 }
                 const o = data.order;
                 const statusMap = {
-                    pending: { label: 'à¸£à¸­à¸£à¸±à¸š Order', icon: 'pending', color: 'yellow', desc: 'à¸£à¹‰à¸²à¸™à¸„à¹‰à¸²à¹„à¸”à¹‰à¸£à¸±à¸š Order à¸‚à¸­à¸‡à¸—à¹ˆà¸²à¸™à¹à¸¥à¹‰à¸§ à¸à¸³à¸¥à¸±à¸‡à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸š' },
-                    confirmed: { label: 'à¸£à¸±à¸š Order à¹à¸¥à¹‰à¸§', icon: 'check_circle', color: 'blue', desc: 'à¸žà¸™à¸±à¸à¸‡à¸²à¸™à¸£à¸±à¸š Order à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§' },
-                    preparing: { label: 'à¸à¸³à¸¥à¸±à¸‡à¸ˆà¸±à¸”à¸ªà¸´à¸™à¸„à¹‰à¸²', icon: 'inventory_2', color: 'amber', desc: 'à¸žà¸™à¸±à¸à¸‡à¸²à¸™à¸à¸³à¸¥à¸±à¸‡à¸ˆà¸±à¸”à¹€à¸•à¸£à¸µà¸¢à¸¡à¸ªà¸´à¸™à¸„à¹‰à¸²à¸‚à¸­à¸‡à¸—à¹ˆà¸²à¸™' },
-                    ready: { label: 'à¸žà¸£à¹‰à¸­à¸¡à¸£à¸±à¸šà¸ªà¸´à¸™à¸„à¹‰à¸²', icon: 'shopping_bag', color: 'green', desc: 'à¸ªà¸´à¸™à¸„à¹‰à¸²à¸žà¸£à¹‰à¸­à¸¡à¹à¸¥à¹‰à¸§! à¸à¸£à¸¸à¸“à¸²à¸¡à¸²à¸£à¸±à¸šà¸—à¸µà¹ˆà¸£à¹‰à¸²à¸™' },
-                    cancelled: { label: 'à¸¢à¸à¹€à¸¥à¸´à¸', icon: 'cancel', color: 'red', desc: 'Order à¸™à¸µà¹‰à¸–à¸¹à¸à¸¢à¸à¹€à¸¥à¸´à¸' },
-                    out_of_stock: { label: 'à¸ªà¸´à¸™à¸„à¹‰à¸²à¸«à¸¡à¸”', icon: 'warning', color: 'orange', desc: 'à¸ªà¸´à¸™à¸„à¹‰à¸²à¸šà¸²à¸‡à¸£à¸²à¸¢à¸à¸²à¸£à¸«à¸¡à¸”à¸ªà¸•à¹‡à¸­à¸ à¸à¸£à¸¸à¸“à¸²à¸•à¸´à¸”à¸•à¹ˆà¸­à¸£à¹‰à¸²à¸™à¸„à¹‰à¸²' }
+                    pending: { label: 'รอรับ Order', icon: 'pending', color: 'yellow', desc: 'ร้านค้าได้รับ Order ของท่านแล้ว กำลังตรวจสอบ' },
+                    confirmed: { label: 'รับ Order แล้ว', icon: 'check_circle', color: 'blue', desc: 'พนักงานรับ Order เรียบร้อยแล้ว' },
+                    preparing: { label: 'กำลังจัดสินค้า', icon: 'inventory_2', color: 'amber', desc: 'พนักงานกำลังจัดเตรียมสินค้าของท่าน' },
+                    ready: { label: 'พร้อมรับสินค้า', icon: 'shopping_bag', color: 'green', desc: 'สินค้าพร้อมแล้ว! กรุณามารับที่ร้าน' },
+                    cancelled: { label: 'ยกเลิก', icon: 'cancel', color: 'red', desc: 'Order นี้ถูกยกเลิก' },
+                    out_of_stock: { label: 'สินค้าหมด', icon: 'warning', color: 'orange', desc: 'สินค้าบางรายการหมดสต็อก กรุณาติดต่อร้านค้า' }
                 };
                 const sm = statusMap[o.status] || { label: o.status, icon: 'info', color: 'gray', desc: '' };
                 const colorClasses = { yellow: 'bg-yellow-100 text-yellow-700', blue: 'bg-blue-100 text-blue-700', amber: 'bg-amber-100 text-amber-700', green: 'bg-green-100 text-green-700', red: 'bg-red-100 text-red-700', orange: 'bg-orange-100 text-orange-700', gray: 'bg-gray-100 text-gray-700' };
                 const items = Array.isArray(o.items) ? o.items : [];
-                const staffNote = o.staff_note ? `<div class="mt-3 bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm text-orange-700 font-semibold">ðŸ’¬ à¸«à¸¡à¸²à¸¢à¹€à¸«à¸•à¸¸à¸ˆà¸²à¸à¸£à¹‰à¸²à¸™à¸„à¹‰à¸²: ${o.staff_note}</div>` : '';
+                const staffNote = o.staff_note ? `<div class="mt-3 bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm text-orange-700 font-semibold">ðŸ’¬ หมายเหตุจากร้านค้า: ${o.staff_note}</div>` : '';
 
                 resultEl.innerHTML = `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -3661,16 +3109,16 @@
                         <p class="text-sm text-gray-600 mb-3">${sm.desc}</p>
                         ${staffNote}
                         <div class="border-t border-gray-100 pt-3 mt-3 space-y-1.5">
-                            ${items.map(i => `<div class="flex justify-between text-xs"><span class="font-semibold text-gray-700">${i.name} Ã— ${i.qty}</span><span class="font-bold text-gray-900">à¸¿${(parseFloat(i.price)*parseInt(i.qty)).toLocaleString()}</span></div>`).join('')}
+                            ${items.map(i => `<div class="flex justify-between text-xs"><span class="font-semibold text-gray-700">${i.name} Ã— ${i.qty}</span><span class="font-bold text-gray-900">฿${(parseFloat(i.price)*parseInt(i.qty)).toLocaleString()}</span></div>`).join('')}
                         </div>
                         <div class="flex justify-between mt-3 pt-3 border-t border-gray-100">
-                            <span class="text-xs font-black text-gray-900">à¸¢à¸­à¸”à¸£à¸§à¸¡</span>
-                            <span class="font-black text-amber-700">à¸¿${parseFloat(o.total_price).toLocaleString()}</span>
+                            <span class="text-xs font-black text-gray-900">ยอดรวม</span>
+                            <span class="font-black text-amber-700">฿${parseFloat(o.total_price).toLocaleString()}</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-3">à¸¥à¸¹à¸à¸„à¹‰à¸²: ${o.customer_name} â€¢ à¹„à¸Ÿà¸¥à¸—à¹Œ: ${o.flight_number}</p>
+                        <p class="text-[10px] text-gray-400 mt-3">ลูกค้า: ${o.customer_name} â€¢ ไฟลท์: ${o.flight_number}</p>
                     </div>`;
             } catch(e) {
-                resultEl.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700 font-semibold text-center">à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¹„à¸”à¹‰</div>';
+                resultEl.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700 font-semibold text-center">ไม่สามารถเชื่อมต่อได้</div>';
             }
         }
 
@@ -3736,7 +3184,7 @@
             document.getElementById('drawerCategory').innerText = (p.sub_category || p['Sub-Category']) && (p.sub_category || p['Sub-Category']) !== '-' ? (p.sub_category || p['Sub-Category']) : 'Information not available';
             const drawerSizeEl = document.getElementById('drawerSize');
             if (drawerSizeEl) drawerSizeEl.innerText = p.size || 'N/A';
-            document.getElementById('drawerPrice').innerText = 'à¸¿' + parseFloat(p.price).toLocaleString();
+            document.getElementById('drawerPrice').innerText = '฿' + parseFloat(p.price).toLocaleString();
             
             const drawerSkuEl = document.getElementById('drawerSKU');
             if (drawerSkuEl) drawerSkuEl.innerText = p.product_code || p.Code || 'N/A';
@@ -3775,7 +3223,7 @@
             
             const stockEl = document.getElementById('drawerStock');
             if (stockEl) {
-                stockEl.innerText = `à¸„à¸‡à¹€à¸«à¸¥à¸·à¸­: ${remainingStock}`;
+                stockEl.innerText = `คงเหลือ: ${remainingStock}`;
                 stockEl.className = remainingStock <= 5 ? 'text-sm font-bold text-red-500' : 'text-sm font-bold text-gray-500';
             }
             

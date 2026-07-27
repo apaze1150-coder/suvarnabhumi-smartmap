@@ -182,30 +182,29 @@
 </div>
 <button class="ml-auto material-symbols-outlined text-outline hover:text-error transition-colors">logout</button>
 </div>
-</aside>
-    <main class="flex-1 h-screen flex flex-col overflow-hidden w-full">
-        <header class="h-20 bg-surface flex items-center justify-between px-margin-desktop border-b border-outline-variant z-10 shrink-0">
-<div class="flex items-center gap-4">
-<h2 class="font-headline-lg text-headline-lg text-on-surface" id="page-title">Global Dashboard</h2>
-<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm rounded-full" id="live-indicator">LIVE</span>
-</div>
-<div class="flex items-center gap-margin-desktop">
-<div class="relative flex items-center">
-<span class="absolute left-3 material-symbols-outlined text-outline">search</span>
-<input id="searchInput" class="pl-10 pr-4 py-2 bg-surface-container border-none rounded-full w-64 focus:ring-2 focus:ring-secondary text-body-sm" placeholder="Search orders, products..." type="text"/>
-</div>
-<div class="flex items-center gap-4">
-<button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">notifications</button>
-<button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">help</button>
-</div>
-</div>
-</header>
+</aside>    <main class="flex-1 h-screen flex flex-col overflow-hidden w-full pb-20 lg:pb-0">
+        <header class="h-auto min-h-20 py-4 lg:py-0 lg:h-20 bg-surface flex flex-col lg:flex-row items-center justify-between px-margin-mobile md:px-margin-desktop border-b border-outline-variant z-10 shrink-0 gap-4">
+  <div class="flex items-center justify-between w-full lg:w-auto gap-4">
+  <h2 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface truncate" id="page-title">Global Dashboard</h2>
+  <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm rounded-full shrink-0" id="live-indicator">LIVE</span>
+  </div>
+  <div class="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 lg:gap-margin-desktop">
+  <div class="relative flex items-center flex-1 lg:flex-none">
+  <span class="absolute left-3 material-symbols-outlined text-outline">search</span>
+  <input id="searchInput" class="pl-10 pr-4 py-2 bg-surface-container border-none rounded-full w-full lg:w-64 focus:ring-2 focus:ring-secondary text-body-sm" placeholder="Search orders, products..." type="text"/>
+  </div>
+  <div class="flex items-center gap-2 md:gap-4 shrink-0">
+  <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">notifications</button>
+  <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">help</button>
+  </div>
+  </div>
+  </header>
         
         <div id="view-dashboard" class="spa-view block">
             <!-- Top Bar -->
 
 <!-- View: Dashboard -->
-<div class="flex-1 overflow-y-auto p-margin-desktop space-y-lg custom-scrollbar">
+<div class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop space-y-lg custom-scrollbar">
 <!-- Global Stats Bento Grid -->
 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
 <div class="staggered-item bg-primary-container text-on-primary p-lg rounded-xl shadow-sm border border-outline-variant" style="animation-delay: 50ms;">
@@ -375,7 +374,7 @@
             <!-- Top Navigation Bar -->
 
 <!-- Scrollable Content Canvas -->
-<div class="flex-1 overflow-y-auto p-margin-desktop space-y-lg custom-scrollbar">
+<div class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop space-y-lg custom-scrollbar">
 <!-- Hero Summary Section -->
 <section class="grid grid-cols-1 md:grid-cols-4 gap-lg">
 <div class="md:col-span-2 relative h-48 rounded-xl overflow-hidden bg-primary-container p-xl flex flex-col justify-between shadow-lg">
@@ -463,7 +462,7 @@
 </div>
         </div>
         <div id="view-products" class="spa-view hidden">
-            <div class="p-margin-desktop space-y-lg overflow-y-auto custom-scrollbar">
+            <div class="p-margin-mobile md:p-margin-desktop space-y-lg overflow-y-auto custom-scrollbar">
 <div class="flex justify-between items-end">
 <div>
 <h2 class="font-headline-xl text-headline-xl text-primary tracking-tight">Product Database</h2>
@@ -561,7 +560,7 @@
 </div>
         </div>
         <div id="view-stocklogs" class="spa-view hidden">
-            <div class="flex-1 p-margin-desktop space-y-lg overflow-y-auto max-h-[calc(100vh-64px)] custom-scrollbar">
+            <div class="flex-1 p-margin-mobile md:p-margin-desktop space-y-lg overflow-y-auto max-h-[calc(100vh-64px)] custom-scrollbar">
 <div class="flex justify-between items-end">
 <div>
 <nav class="flex items-center gap-xs text-xs text-on-surface-variant mb-2 font-label-sm">
