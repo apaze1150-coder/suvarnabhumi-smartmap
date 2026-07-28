@@ -835,8 +835,15 @@ app.all('/api/search-store', upload.single('image'), async (req, res) => {
 
 // Scoring functions for Feature 2 matching
 function scoreStoreForQuery(store, query) {
-  const q = query.toLowerCase().trim();
+  let q = query.toLowerCase().trim();
   let score = 0;
+
+  // Map common Chinese terms to English equivalents
+  if (q.includes('药') || q.includes('药店')) q = 'pharmacy';
+  else if (q.includes('纪念品') || q.includes('伴手礼') || q.includes('特产')) q = 'souvenir';
+  else if (q.includes('化妆品') || q.includes('护肤品')) q = 'skincare';
+  else if (q.includes('香水')) q = 'perfume';
+  else if (q.includes('免税')) q = 'duty free';
 
   const shopName = (store.shop_name || store.brand_name || '').toLowerCase();
   const category = (store.category || '').toLowerCase();
@@ -1167,10 +1174,10 @@ app.get('/api/search-node', async (req, res) => {
     
     // Thai keyword mapping
     let mappedType = '';
-    if (searchQuery.includes('ห้องน้ำ')) mappedType = 'restroom';
-    else if (searchQuery.includes('ร้านอาหาร')) mappedType = 'restaurant';
-    else if (searchQuery.includes('ธนาคาร') || searchQuery.includes('แลกเงิน')) mappedType = 'bank';
-    else if (searchQuery.includes('สูบบุหรี่')) mappedType = 'smoking';
+    if (searchQuery.includes('ห้องน้ำ') || searchQuery.includes('厕所') || searchQuery.includes('洗手间') || searchQuery.includes('卫生间')) mappedType = 'restroom';
+    else if (searchQuery.includes('ร้านอาหาร') || searchQuery.includes('餐厅') || searchQuery.includes('饭店') || searchQuery.includes('餐饮')) mappedType = 'restaurant';
+    else if (searchQuery.includes('ธนาคาร') || searchQuery.includes('แลกเงิน') || searchQuery.includes('换钱') || searchQuery.includes('银行') || searchQuery.includes('兑换')) mappedType = 'bank';
+    else if (searchQuery.includes('สูบบุหรี่') || searchQuery.includes('吸烟室') || searchQuery.includes('抽烟')) mappedType = 'smoking';
     
     // Find matching nodes (case-insensitive search in name or node_id or type)
     const matchedNodes = nodes.filter(node => 
