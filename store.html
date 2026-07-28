@@ -1663,28 +1663,22 @@ async function printOrder(orderId) {
         
         escpos.push(GS, 0x56, 0x42, 0x00);
 
-        // Send data in chunks of 100 bytes (Safer for BLE MTU limits)
-        const data = new Uint8Array(escpos);
-        const CHUNK_SIZE = 100;
-        for (let i = 0; i < data.length; i += CHUNK_SIZE) {
-            let chunk = data.slice(i, i + CHUNK_SIZE);
-            if (typeof characteristic.writeValueWithoutResponse === 'function') {
-                await characteristic.writeValueWithoutResponse(chunk);
-            } else {
-                await characteristic.writeValue(chunk);
-            }
-            // Small delay to prevent buffer overflow on the printer
-            await new Promise(r => setTimeout(r, 20));
+        // Convert to Base64
+        let binary = '';
+        let bytes = new Uint8Array(escpos);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
         }
+        let b64 = window.btoa(binary);
 
-        server.disconnect();
-        
-        // Success Toast
-        alert("ส่งคำสั่งพิมพ์ไปยัง Sunmi เรียบร้อยแล้ว");
+        // Fire Intent (Silent print using RawBT)
+        // Note: To make it completely invisible, user should tick "Print without dialog" in RawBT settings.
+        const intentUrl = `intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;S.silent=true;B.silent=true;end;`;
+        window.location.href = intentUrl;
 
     } catch (error) {
-        console.error("Web Bluetooth Printing Error:", error);
-        alert("ข้อผิดพลาดในการพิมพ์: " + error.message);
+        console.error("Print Intent Error:", error);
+        alert("ข้อผิดพลาดในการสร้างคำสั่งพิมพ์: " + error.message);
     }
 }
 
