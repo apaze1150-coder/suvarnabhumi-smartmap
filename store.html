@@ -1570,6 +1570,54 @@ async function printOrder(orderId) {
     if (currentStore === 'DE12') storeName = "D East Gate 1-4 (DE12)";
     if (currentStore === 'DW41') storeName = "D West (DW41)";
 
+    // 1. Try Sunmi JS SDK (Requires Sunmi Browser)
+    if (window.sunmiInnerPrinter || (window.sunmi && window.sunmi.printText)) {
+        try {
+            const printer = window.sunmiInnerPrinter || window.sunmi;
+            if(printer.setAlignment) printer.setAlignment(1);
+            printer.printText("PANPURI\\nPRE-ORDER RECEIPT\\n\\n");
+            
+            if(printer.setAlignment) printer.setAlignment(0);
+            printer.printText(`Store: ${storeName}\\n`);
+            printer.printText(`Order: ${o.order_number || o.order_id}\\n`);
+            printer.printText(`Customer: ${o.customer_name || '-'}\\n`);
+            printer.printText(`Flight: ${o.flight_number || '-'}\\n`);
+            printer.printText(`Time: ${dt}\\n`);
+            printer.printText("--------------------------------\\n");
+
+            let totalItems = 0;
+            for (let i of items) {
+                let qty = parseInt(i.qty) || 0;
+                totalItems += qty;
+                let desc = (i.name || '').substring(0, 18);
+                if (i.scent) desc += ` ${i.scent}`.substring(0, 6);
+                desc = desc.substring(0, 20);
+                
+                let line = `${qty}x ${desc}`.padEnd(24, ' ');
+                let price = `${(i.price * qty).toLocaleString()}`.padStart(8, ' ');
+                printer.printText(line + price + "\\n");
+            }
+            
+            printer.printText("--------------------------------\\n");
+            if(printer.setAlignment) printer.setAlignment(2);
+            printer.printText(`Total Items: ${totalItems}\\n`);
+            printer.printText(`Total Amount: ${parseFloat(o.total_price||0).toLocaleString()} THB\\n`);
+            
+            if(printer.setAlignment) printer.setAlignment(1);
+            printer.printText("\\nThank you for choosing Panpuri\\n");
+            printer.printText("Please pick up your items\\nat the designated store.\\n");
+            
+            if(printer.lineWrap) printer.lineWrap(4);
+            if(printer.cutPaper) printer.cutPaper();
+
+            alert("พิมพ์ผ่าน Sunmi JS SDK สำเร็จ!");
+            return;
+        } catch (err) {
+            console.error("Sunmi JS SDK Error:", err);
+            // Fallthrough to Web Bluetooth if SDK fails
+        }
+    }
+
     // Update receipt UI (optional, still good for visual feedback)
     document.getElementById('rcp-store').textContent = storeName;
     document.getElementById('rcp-ordernum').textContent = o.order_number || o.order_id;
@@ -1614,10 +1662,14 @@ async function printOrder(orderId) {
         let service, characteristic;
 
         alert("2/4: เชื่อมต่อสำเร็จ กำลังค้นหา Service ทั้งหมด...");
+        
+        // Timeout promise to detect if getPrimaryServices hangs (Common SPP issue on Android Chrome)
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("GATT_TIMEOUT")), 5000));
+        
         try {
-            const services = await server.getPrimaryServices();
+            const services = await Promise.race([server.getPrimaryServices(), timeoutPromise]);
             const uuids = services.map(s => s.uuid).join('\\n');
-            alert("พบ Services:\\n" + uuids);
+            // alert("พบ Services:\\n" + uuids);
 
             // Try to find a writable characteristic in ANY service
             for (const s of services) {
@@ -1626,7 +1678,6 @@ async function printOrder(orderId) {
                     if (c.properties.write || c.properties.writeWithoutResponse) {
                         service = s;
                         characteristic = c;
-                        alert("พบ Service ที่สามารถเขียนข้อมูลได้:\\n" + s.uuid + "\\nChar: " + c.uuid);
                         break;
                     }
                 }
@@ -1637,6 +1688,11 @@ async function printOrder(orderId) {
                 throw new Error("ไม่พบ Service ที่รองรับการเขียนข้อมูลบนปริ้นเตอร์นี้");
             }
         } catch (e) {
+            if (e.message === "GATT_TIMEOUT") {
+                alert("Error: ระบบค้นหา Service ค้าง\\nสาเหตุ: Google Chrome บน Android ไม่รองรับเครื่องพิมพ์ InnerPrinter ที่เป็นแบบ SPP (Bluetooth Classic)\\n\\nวิธีแก้: กรุณาเปิดเว็บนี้ผ่านแอป 'Sunmi Browser' แทน Google Chrome เพื่อใช้ Sunmi JS SDK โดยตรง");
+                server.disconnect();
+                return;
+            }
             alert("Error: " + e.message);
             throw e;
         }
