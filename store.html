@@ -1608,10 +1608,12 @@ async function printOrder(orderId) {
 
         if (!device) return;
 
+        alert("1/4: จับคู่สำเร็จ กำลังเชื่อมต่อ...");
         const server = await device.gatt.connect();
         await new Promise(r => setTimeout(r, 500)); // Wait half a second for connection to stabilize
         let service, characteristic;
 
+        alert("2/4: เชื่อมต่อสำเร็จ กำลังค้นหา Service...");
         try {
             service = await server.getPrimaryService(PRIMARY_SERVICE_UUID);
             characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
@@ -1620,9 +1622,12 @@ async function printOrder(orderId) {
                 service = await server.getPrimaryService(GENERIC_SERVICE_UUID);
                 characteristic = await service.getCharacteristic(GENERIC_CHAR_UUID);
             } catch (e2) {
+                alert("Error: ไม่พบบริการเครื่องพิมพ์ (Printer Service) UUID");
                 throw new Error("ไม่พบบริการเครื่องพิมพ์ (Printer Service) บนอุปกรณ์ที่เชื่อมต่อ");
             }
         }
+        
+        alert("3/4: พบ Service แล้ว กำลังส่งคำสั่งพิมพ์...");
 
         // Generate ESC/POS Bytes
         let escpos = [];
