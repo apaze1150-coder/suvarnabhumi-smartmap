@@ -642,6 +642,7 @@
                         <span class="material-symbols-outlined">search</span>
                     </button>
                 </div>
+                <div id="order-history-list" class="flex flex-col gap-2 mb-4"></div>
                 <div id="track-result" class="hidden"></div>
             </div>
         </div>
@@ -1123,7 +1124,7 @@
     </main>
 
     <!-- BottomNavBar -->
-    <nav id="bottom-nav-bar" class="fixed bottom-0 left-0 right-0 bg-[#1c2233] text-gray-400 px-4 py-4 rounded-t-3xl shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.3)] z-50 flex items-center justify-around">
+    <nav id="bottom-nav-bar" class="fixed bottom-4 left-4 right-4 bg-[#1c2233]/95 backdrop-blur-md text-gray-400 px-4 py-3 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] border border-white/10 z-50 flex items-center justify-around">
     <div class="nav-btn flex flex-col items-center gap-1 cursor-pointer hover:text-white transition-colors" onclick="showPage('home-view')" id="nav-home">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -1313,6 +1314,25 @@
             window.addEventListener('resize', fitMapToScreen);
 
             trackFlightLive("TG679");
+
+            // Restore previous orders and show bubble if exists
+            let savedOrders = localStorage.getItem('myOrders');
+            if (!savedOrders) {
+                const oldOrder = localStorage.getItem('myLastOrder');
+                if (oldOrder) savedOrders = JSON.stringify([oldOrder]);
+            }
+            if (savedOrders) {
+                try {
+                    const ordersArray = JSON.parse(savedOrders);
+                    if (ordersArray.length > 0) {
+                        lastCompletedOrderNumber = ordersArray[ordersArray.length - 1];
+                        const floatBtn = document.getElementById('floating-track-btn');
+                        if (floatBtn) floatBtn.classList.remove('hidden');
+                        
+                        renderOrderHistory(ordersArray);
+                    }
+                } catch(e) {}
+            }
         };
 
         // --- 1. LIVE API เที่ยวบินและการนับถอยหลัง ---
@@ -1336,23 +1356,29 @@
                 document.getElementById('flight-number-display').innerText = data.flight_id;
                 document.getElementById('flight-route-display').innerText = `${data.status} • Flight Journey`;
                 document.getElementById('flight-gate-display').innerText = data.gate;
-                activeGateNodeId = data.gate_node_id || 'Node_Gate_D4';
+                activeGateNodeId = data.gate_node_id || null;
 
                 const badge = document.getElementById('flight-status-badge');
-                badge.className = `px-3 py-1 rounded-full flex items-center gap-1.5 border bg-[#B59115]/20 border-[#B59115]`;
-                document.getElementById('flight-status-text').className = "text-[10px] font-bold text-white uppercase tracking-wider";
-                document.getElementById('flight-status-text').innerText = `${data.walk_time_mins} Min Walk`;
-
-                document.getElementById('navigate-gate-btn-container').classList.remove('hidden');
+                if (data.gate === 'TBD' || !activeGateNodeId) {
+                    badge.classList.add('hidden');
+                    document.getElementById('navigate-gate-btn-container').classList.add('hidden');
+                } else {
+                    badge.classList.remove('hidden');
+                    badge.className = `px-3 py-1 rounded-full flex items-center gap-1.5 border bg-[#B59115]/20 border-[#B59115]`;
+                    document.getElementById('flight-status-text').className = "text-[10px] font-bold text-white uppercase tracking-wider";
+                    document.getElementById('flight-status-text').innerText = `${data.walk_time_mins} Min Walk`;
+                    document.getElementById('navigate-gate-btn-container').classList.remove('hidden');
+                }
                 startCountdownLive(data.boarding_time);
 
             } catch (error) {
                 console.error("Backend Offline - ใช้ข้อมูลสำรองสำหรับเดโม:", error);
                 document.getElementById('flight-number-display').innerText = inputVal;
                 document.getElementById('flight-route-display').innerText = "International Flight Journey";
-                document.getElementById('flight-gate-display').innerText = "D4";
-                activeGateNodeId = 'Node_Gate_D4';
-                document.getElementById('navigate-gate-btn-container').classList.remove('hidden');
+                document.getElementById('flight-gate-display').innerText = "TBD";
+                activeGateNodeId = null;
+                document.getElementById('flight-status-badge').classList.add('hidden');
+                document.getElementById('navigate-gate-btn-container').classList.add('hidden');
             }
         }
 
@@ -1436,12 +1462,19 @@
 
                 // Update UI elements
                 document.getElementById('flight-gate-display').innerText = data.gate;
-                activeGateNodeId = data.gate_node_id || 'Node_Gate_D4';
+                activeGateNodeId = data.gate_node_id || null;
 
                 const badge = document.getElementById('flight-status-badge');
-                badge.className = `px-3 py-1 rounded-full flex items-center gap-1.5 border bg-[#B59115]/20 border-[#B59115]`;
-                document.getElementById('flight-status-text').className = "text-[10px] font-bold text-white uppercase tracking-wider";
-                document.getElementById('flight-status-text').innerText = `${data.walk_time_mins} Min Walk`;
+                if (data.gate === 'TBD' || !activeGateNodeId) {
+                    badge.classList.add('hidden');
+                    document.getElementById('navigate-gate-btn-container').classList.add('hidden');
+                } else {
+                    badge.classList.remove('hidden');
+                    badge.className = `px-3 py-1 rounded-full flex items-center gap-1.5 border bg-[#B59115]/20 border-[#B59115]`;
+                    document.getElementById('flight-status-text').className = "text-[10px] font-bold text-white uppercase tracking-wider";
+                    document.getElementById('flight-status-text').innerText = `${data.walk_time_mins} Min Walk`;
+                    document.getElementById('navigate-gate-btn-container').classList.remove('hidden');
+                }
 
             } catch (err) {
                 console.error("Error updating manual gate:", err);
@@ -3099,9 +3132,27 @@
                 const data = await res.json();
                 if (data.success) {
                     lastCompletedOrderNumber = data.order_number;
+                    
+                    let ordersArray = [];
+                    try {
+                        if (localStorage.getItem('myOrders')) {
+                            ordersArray = JSON.parse(localStorage.getItem('myOrders'));
+                        } else if (localStorage.getItem('myLastOrder')) {
+                            ordersArray = [localStorage.getItem('myLastOrder')];
+                        }
+                    } catch(e) {}
+                    if (!ordersArray.includes(data.order_number)) {
+                        ordersArray.push(data.order_number);
+                        localStorage.setItem('myOrders', JSON.stringify(ordersArray));
+                    }
+                    
+                    renderOrderHistory(ordersArray);
+
                     document.getElementById('done-order-number').textContent = data.order_number;
                     document.getElementById('track-order-input').value = data.order_number;
                     showPreorderStep('done');
+                    const floatBtn = document.getElementById('floating-track-btn');
+                    if (floatBtn) floatBtn.classList.remove('hidden');
                 } else {
                     errEl.textContent = data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
                     errEl.classList.remove('hidden');
@@ -3138,6 +3189,7 @@
                 };
                 const sm = statusMap[o.status] || { label: o.status, icon: 'info', color: 'gray', desc: '' };
                 const colorClasses = { yellow: 'bg-yellow-100 text-yellow-700', blue: 'bg-blue-100 text-blue-700', amber: 'bg-amber-100 text-amber-700', green: 'bg-green-100 text-green-700', red: 'bg-red-100 text-red-700', orange: 'bg-orange-100 text-orange-700', gray: 'bg-gray-100 text-gray-700' };
+                const storesMap = { 'DE40': 'PANPURI Concourse D East', 'DE12': 'PANPURI Concourse D East 2', 'DW41': 'PANPURI Concourse D West' };
                 const items = Array.isArray(o.items) ? o.items : [];
                 const staffNote = o.staff_note ? `<div class="mt-3 bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm text-orange-700 font-semibold">ðŸ’¬ หมายเหตุจากร้านค้า: ${o.staff_note}</div>` : '';
 
@@ -3158,7 +3210,21 @@
                             <span class="text-xs font-black text-gray-900">ยอดรวม</span>
                             <span class="font-black text-amber-700">฿${parseFloat(o.total_price).toLocaleString()}</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-3">ลูกค้า: ${o.customer_name} â€¢ ไฟลท์: ${o.flight_number}</p>
+                        <p class="text-[10px] text-gray-400 mt-3 mb-2">ลูกค้า: ${o.customer_name} â€¢ ไฟลท์: ${o.flight_number}</p>
+                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] text-gray-400">รับสินค้าที่ร้าน</div>
+                                <div class="text-xs font-bold text-gray-800">${storesMap[o.store_id] || o.store_id}</div>
+                            </div>
+                            <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${o.store_id}'; setTimeout(()=>searchMapLive(),100);" class="bg-blue-50 border border-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-blue-100 transition-all active:scale-95 shadow-sm">
+                                <span class="material-symbols-outlined text-xs">near_me</span> นำทาง
+                            </button>
+                        </div>
+                        ${o.status === 'pending' ? `
+                        <div class="mt-4 pt-3 border-t border-gray-100 text-center">
+                            <button onclick="cancelCustomerOrder('${o.order_number}')" class="text-[10px] font-bold text-gray-400 hover:text-red-600 border border-gray-200 hover:border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all active:scale-95 inline-block">ยกเลิกรายการจองนี้</button>
+                        </div>
+                        ` : ''}
                     </div>`;
             } catch(e) {
                 resultEl.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700 font-semibold text-center">ไม่สามารถเชื่อมต่อได้</div>';
@@ -3460,7 +3526,59 @@
                 document.getElementById('lightbox-img').src = '';
             }, 300);
         }
-    </script>
-</body>
+        function renderOrderHistory(ordersArray) {
+            const historyList = document.getElementById('order-history-list');
+            if (!historyList) return;
+            if (!ordersArray || ordersArray.length === 0) {
+                historyList.innerHTML = '';
+                return;
+            }
+            historyList.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <div class="text-xs font-bold text-gray-400">ประวัติการสั่งจองล่าสุดของคุณ:</div>
+                    <button onclick="clearOrderHistory()" class="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors underline">ล้างประวัติ</button>
+                </div>
+            ` + [...ordersArray].reverse().map(orderId => `
+                <button onclick="document.getElementById('track-order-input').value='${orderId}'; trackOrder();" class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 hover:border-amber-400 hover:bg-amber-50 active:scale-95 transition-all shadow-sm">
+                    <span>${orderId}</span>
+                    <span class="material-symbols-outlined text-amber-500 text-sm">chevron_right</span>
+                </button>
+            `).join('');
+        }
 
+        async function cancelCustomerOrder(orderNum) {
+            if(!confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งจองนี้?')) return;
+            try {
+                const res = await fetch(`/api/orders/customer-cancel/${orderNum}`, { method: 'POST' });
+                const data = await res.json();
+                if(data.success) {
+                    alert('ยกเลิก Order สำเร็จ');
+                    trackOrder();
+                } else {
+                    alert(data.error || 'ไม่สามารถยกเลิกได้');
+                }
+            } catch(e) {
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+            }
+        }
+
+        function clearOrderHistory() {
+            if(!confirm('ต้องการล้างประวัติการสั่งจองในเครื่องนี้หรือไม่? (จะทำให้สัญลักษณ์รถเข็นหายไป)')) return;
+            localStorage.removeItem('myOrders');
+            localStorage.removeItem('myLastOrder');
+            renderOrderHistory([]);
+            document.getElementById('track-order-input').value = '';
+            document.getElementById('track-result').classList.add('hidden');
+            const floatBtn = document.getElementById('floating-track-btn');
+            if(floatBtn) floatBtn.classList.add('hidden');
+        }
+    </script>
+    <!-- Floating Track Order Button -->
+    <div id="floating-track-btn" class="hidden fixed bottom-28 right-4 z-[90] animate-bounce">
+        <button onclick="showPage('page-preorder'); showPreorderStep('track');" class="bg-gray-900 text-[#ffe088] w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gray-900/40 hover:scale-110 transition-transform relative border-2 border-[#ffe088]">
+            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">1</span>
+        </button>
+    </div>
+</body>
 </html>

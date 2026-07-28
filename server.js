@@ -477,7 +477,7 @@ async function scrapeFlightAwareData(flightId) {
       }
     }
 
-    if (!gate) gate = 'D4';
+    if (!gate) gate = 'TBD';
 
     // Get departure time
     let depEpoch = activeFlight.gateDepartureTimes.scheduled;
@@ -548,26 +548,7 @@ app.get('/api/flight-status', async (req, res) => {
       const airline = cleanFlightId.match(/^([A-Z]{2,3})/)?.[1] || 'TG';
       let gate = 'D4';
 
-      // Distribute gates realistically by airline
-      if (airline === 'TG') {
-        const tgGates = ['C1', 'D4', 'E2', 'S101'];
-        gate = tgGates[Math.floor(Math.abs(hashString(cleanFlightId)) % tgGates.length)];
-      } else if (airline === 'PG') {
-        const pgGates = ['A1', 'B1'];
-        gate = pgGates[Math.floor(Math.abs(hashString(cleanFlightId)) % pgGates.length)];
-      } else if (airline === 'EK') {
-        const ekGates = ['E2', 'F2', 'G2'];
-        gate = ekGates[Math.floor(Math.abs(hashString(cleanFlightId)) % ekGates.length)];
-      } else if (airline === 'SQ') {
-        const sqGates = ['D4', 'E2'];
-        gate = sqGates[Math.floor(Math.abs(hashString(cleanFlightId)) % sqGates.length)];
-      } else if (airline === 'QR') {
-        const qrGates = ['F2', 'G2'];
-        gate = qrGates[Math.floor(Math.abs(hashString(cleanFlightId)) % qrGates.length)];
-      } else {
-        const generalGates = ['D4', 'E2', 'F2', 'G2', 'S101'];
-        gate = generalGates[Math.floor(Math.abs(hashString(cleanFlightId)) % generalGates.length)];
-      }
+      gate = 'TBD'; // Never guess the gate to prevent passengers from going to the wrong place
 
       // Generate dynamic status relative to server clock
       const now = new Date();
@@ -604,9 +585,9 @@ app.get('/api/flight-status', async (req, res) => {
     const gateZone = getZoneFromGate(flightData.gate);
     const walkInfo = walkTimes.find(w => w.gate_zone.toUpperCase() === gateZone.toUpperCase());
 
-    const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 10;
-    const zone_description = walkInfo ? walkInfo.description : 'Airport Gate Zone';
-    const gateNodeId = resolveGateToNode(flightData.gate) || 'Node_Gate_D4';
+    const walk_time_mins = flightData.gate === 'TBD' ? 0 : (walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 10);
+    const zone_description = flightData.gate === 'TBD' ? 'รอประกาศ (Gate TBD)' : (walkInfo ? walkInfo.description : 'Airport Gate Zone');
+    const gateNodeId = flightData.gate === 'TBD' ? null : (resolveGateToNode(flightData.gate) || null);
 
     return res.json({
       flight_id: flightData.flight_id,
@@ -1593,6 +1574,30 @@ app.get('/api/orders/track/:order_number', async (req, res) => {
     let itemsParsed = [];
     try { itemsParsed = JSON.parse(order.items_json); } catch(e) {}
     res.json({ success: true, order: { ...order, items: itemsParsed } });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/orders/customer-cancel/:order_number - customer cancels their own order
+app.post('/api/orders/customer-cancel/:order_number', async (req, res) => {
+  try {
+    let orders = [];
+    try { orders = await readCsv(ORDERS_CSV); } catch(e) { return res.json({ success: false, error: 'No orders found' }); }
+    
+    const idx = orders.findIndex(o => o.order_number === req.params.order_number);
+    if (idx === -1) return res.json({ success: false, error: 'ไม่พบหมายเลข Order นี้' });
+    
+    if (orders[idx].status !== 'pending') {
+      return res.json({ success: false, error: 'ไม่สามารถยกเลิกได้ (รับเรื่องหรือเตรียมของแล้ว)' });
+    }
+    
+    orders[idx].status = 'cancelled';
+    orders[idx].updated_at = new Date().toISOString();
+    writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
+    
+    console.log(`[Order] ${orders[idx].order_number} status → cancelled (by customer)`);
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
