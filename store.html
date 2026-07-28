@@ -1614,106 +1614,22 @@ async function printOrder(orderId) {
             return;
         } catch (err) {
             console.error("Sunmi JS SDK Error:", err);
-            // Fallthrough to Web Bluetooth if SDK fails
         }
     }
 
-    // Update receipt UI (optional, still good for visual feedback)
-    document.getElementById('rcp-store').textContent = storeName;
-    document.getElementById('rcp-ordernum').textContent = o.order_number || o.order_id;
-    document.getElementById('rcp-customer').textContent = o.customer_name || '-';
-    document.getElementById('rcp-flight').textContent = o.flight_number || '-';
-    document.getElementById('rcp-time').textContent = dt;
-    let totalItems = 0;
-    items.forEach(i => totalItems += parseInt(i.qty) || 0);
-
-    // ESC/POS Bluetooth Printing for Sunmi InnerPrinter
+    // Fallback to RawBT Silent Print via Android Intent
     try {
-        if (!navigator.bluetooth) {
-            throw new Error("Web Bluetooth API is not supported in this browser. Please use Chrome on Android/Windows.");
-        }
-
-        // Sunmi InnerPrinter and Generic BLE Printer UUIDs
-        const PRIMARY_SERVICE_UUID = 'e7810a71-73ae-499d-8c15-faa9aef0c3f2';
-        const CHARACTERISTIC_UUID = 'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f';
-        const GENERIC_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
-        const GENERIC_CHAR_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
-
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [
-                { services: [PRIMARY_SERVICE_UUID] },
-                { services: [GENERIC_SERVICE_UUID] },
-                { namePrefix: 'InnerPrinter' }
-            ],
-            optionalServices: [PRIMARY_SERVICE_UUID, GENERIC_SERVICE_UUID]
-        }).catch(() => {
-            // Fallback to allow any device if specific filters fail
-            return navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: [PRIMARY_SERVICE_UUID, GENERIC_SERVICE_UUID]
-            });
-        });
-
-        if (!device) return;
-
-        alert("1/4: จับคู่สำเร็จ กำลังเชื่อมต่อ...");
-        const server = await device.gatt.connect();
-        await new Promise(r => setTimeout(r, 500)); // Wait half a second for connection to stabilize
-        let service, characteristic;
-
-        alert("2/4: เชื่อมต่อสำเร็จ กำลังค้นหา Service ทั้งหมด...");
-        
-        // Timeout promise to detect if getPrimaryServices hangs (Common SPP issue on Android Chrome)
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("GATT_TIMEOUT")), 5000));
-        
-        try {
-            const services = await Promise.race([server.getPrimaryServices(), timeoutPromise]);
-            const uuids = services.map(s => s.uuid).join('\\n');
-            // alert("พบ Services:\\n" + uuids);
-
-            // Try to find a writable characteristic in ANY service
-            for (const s of services) {
-                const chars = await s.getCharacteristics();
-                for (const c of chars) {
-                    if (c.properties.write || c.properties.writeWithoutResponse) {
-                        service = s;
-                        characteristic = c;
-                        break;
-                    }
-                }
-                if (characteristic) break;
-            }
-
-            if (!characteristic) {
-                throw new Error("ไม่พบ Service ที่รองรับการเขียนข้อมูลบนปริ้นเตอร์นี้");
-            }
-        } catch (e) {
-            if (e.message === "GATT_TIMEOUT") {
-                alert("Error: ระบบค้นหา Service ค้าง\\nสาเหตุ: Google Chrome บน Android ไม่รองรับเครื่องพิมพ์ InnerPrinter ที่เป็นแบบ SPP (Bluetooth Classic)\\n\\nวิธีแก้: กรุณาเปิดเว็บนี้ผ่านแอป 'Sunmi Browser' แทน Google Chrome เพื่อใช้ Sunmi JS SDK โดยตรง");
-                server.disconnect();
-                return;
-            }
-            alert("Error: " + e.message);
-            throw e;
-        }
-        
-        alert("3/4: พบ Service แล้ว กำลังส่งคำสั่งพิมพ์...");
-
-        // Generate ESC/POS Bytes
         let escpos = [];
         const ESC = 0x1B;
         const GS = 0x1D;
         const encoder = new TextEncoder();
 
-        // Init Printer
         escpos.push(ESC, 0x40);
 
-        // Header (Center align)
         escpos.push(ESC, 0x61, 0x01);
         escpos.push(...encoder.encode("PANPURI\n"));
         escpos.push(...encoder.encode("PRE-ORDER RECEIPT\n\n"));
 
-        // Info (Left align)
         escpos.push(ESC, 0x61, 0x00);
         escpos.push(...encoder.encode(`Store: ${storeName}\n`));
         escpos.push(...encoder.encode(`Order: ${o.order_number || o.order_id}\n`));
@@ -1722,9 +1638,10 @@ async function printOrder(orderId) {
         escpos.push(...encoder.encode(`Time: ${dt}\n`));
         escpos.push(...encoder.encode("--------------------------------\n"));
 
-        // Items
+        let totalItems = 0;
         for (let i of items) {
             let qty = parseInt(i.qty) || 0;
+            totalItems += qty;
             let desc = (i.name || '').substring(0, 18);
             if (i.scent) desc += ` ${i.scent}`.substring(0, 6);
             desc = desc.substring(0, 20);
@@ -1736,17 +1653,14 @@ async function printOrder(orderId) {
         
         escpos.push(...encoder.encode("--------------------------------\n"));
         
-        // Summary (Right align)
         escpos.push(ESC, 0x61, 0x02);
         escpos.push(...encoder.encode(`Total Items: ${totalItems}\n`));
         escpos.push(...encoder.encode(`Total Amount: ${parseFloat(o.total_price||0).toLocaleString()} THB\n`));
         
-        // Footer (Center align)
         escpos.push(ESC, 0x61, 0x01);
         escpos.push(...encoder.encode("\nThank you for choosing Panpuri\n"));
         escpos.push(...encoder.encode("Please pick up your items\nat the designated store.\n\n\n\n"));
         
-        // Cut Paper
         escpos.push(GS, 0x56, 0x42, 0x00);
 
         // Send data in chunks of 100 bytes (Safer for BLE MTU limits)
