@@ -1613,18 +1613,32 @@ async function printOrder(orderId) {
         await new Promise(r => setTimeout(r, 500)); // Wait half a second for connection to stabilize
         let service, characteristic;
 
-        alert("2/4: เชื่อมต่อสำเร็จ กำลังค้นหา Service...");
+        alert("2/4: เชื่อมต่อสำเร็จ กำลังค้นหา Service ทั้งหมด...");
         try {
-            service = await server.getPrimaryService(PRIMARY_SERVICE_UUID);
-            characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-        } catch (e1) {
-            try {
-                service = await server.getPrimaryService(GENERIC_SERVICE_UUID);
-                characteristic = await service.getCharacteristic(GENERIC_CHAR_UUID);
-            } catch (e2) {
-                alert("Error: ไม่พบบริการเครื่องพิมพ์ (Printer Service) UUID");
-                throw new Error("ไม่พบบริการเครื่องพิมพ์ (Printer Service) บนอุปกรณ์ที่เชื่อมต่อ");
+            const services = await server.getPrimaryServices();
+            const uuids = services.map(s => s.uuid).join('\\n');
+            alert("พบ Services:\\n" + uuids);
+
+            // Try to find a writable characteristic in ANY service
+            for (const s of services) {
+                const chars = await s.getCharacteristics();
+                for (const c of chars) {
+                    if (c.properties.write || c.properties.writeWithoutResponse) {
+                        service = s;
+                        characteristic = c;
+                        alert("พบ Service ที่สามารถเขียนข้อมูลได้:\\n" + s.uuid + "\\nChar: " + c.uuid);
+                        break;
+                    }
+                }
+                if (characteristic) break;
             }
+
+            if (!characteristic) {
+                throw new Error("ไม่พบ Service ที่รองรับการเขียนข้อมูลบนปริ้นเตอร์นี้");
+            }
+        } catch (e) {
+            alert("Error: " + e.message);
+            throw e;
         }
         
         alert("3/4: พบ Service แล้ว กำลังส่งคำสั่งพิมพ์...");
