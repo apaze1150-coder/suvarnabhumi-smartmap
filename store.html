@@ -190,18 +190,31 @@
 
     /* Print styling */
     @media print {
-        body { margin: 0; padding: 0; width: 80mm; background: #fff; }
-        body > *:not(#receipt-print-area) { display: none !important; }
-        #receipt-print-area { 
-            display: block !important; 
-            width: 100%; 
-            margin: 0; 
-            padding: 5mm; 
-            font-family: monospace; 
-            font-size: 12px; 
-            line-height: 1.2; 
-            color: #000;
+        @page { size: auto; margin: 0; }
+        html, body { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            width: 100% !important; 
+            height: auto !important; 
+            background: #fff !important; 
+            overflow: visible !important;
         }
+        /* Hide everything by default in body */
+        body > * { display: none !important; }
+        
+        /* Show only the print area */
+        body > #receipt-print-area { 
+            display: block !important; 
+            width: 80mm !important; 
+            margin: 0 auto !important; 
+            padding: 5mm !important; 
+            font-family: monospace !important; 
+            font-size: 12px !important; 
+            line-height: 1.2 !important; 
+            color: #000 !important;
+            position: static !important;
+        }
+        
         .rcp-header { text-align: center; margin-bottom: 5mm; }
         .rcp-header h2 { font-size: 14px; font-weight: bold; margin: 0 0 2mm 0; }
         .rcp-header p { margin: 0; }
@@ -213,7 +226,6 @@
         .rcp-summary { font-weight: bold; margin-top: 3mm; }
         .rcp-summary div { display: flex; justify-content: space-between; margin-bottom: 1mm; }
         .rcp-footer { text-align: center; margin-top: 5mm; font-size: 10px; }
-        @page { size: 80mm auto; margin: 0; }
     }
     #receipt-print-area { display: none; }
     
@@ -1581,9 +1593,61 @@ function printOrder(orderId) {
     document.getElementById('rcp-total-items').textContent = totalItems;
     document.getElementById('rcp-total').textContent = `฿${parseFloat(o.total_price||0).toLocaleString()}`;
     
-    // Slight delay to ensure DOM updates before triggering print
+    // Create an iframe to print just the receipt area to avoid any CSS conflicts with the main app
     setTimeout(() => {
-        window.print();
+        const receiptHtml = document.getElementById('receipt-print-area').innerHTML;
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        document.body.appendChild(printFrame);
+        
+        const printDoc = printFrame.contentWindow.document;
+        printDoc.open();
+        printDoc.write(`
+            <html>
+            <head>
+                <style>
+                    @page { size: 80mm auto; margin: 0; }
+                    body { 
+                        margin: 0; padding: 5mm; 
+                        width: 80mm; 
+                        background: #fff; 
+                        font-family: monospace; 
+                        font-size: 12px; 
+                        line-height: 1.2; 
+                        color: #000;
+                    }
+                    .rcp-header { text-align: center; margin-bottom: 5mm; }
+                    .rcp-header h2 { font-size: 14px; font-weight: bold; margin: 0 0 2mm 0; }
+                    .rcp-header p { margin: 0; }
+                    .rcp-info { margin-bottom: 3mm; }
+                    .rcp-info div { display: flex; justify-content: space-between; margin-bottom: 1px; }
+                    .rcp-divider { border-top: 1px dashed #000; margin: 3mm 0; }
+                    .rcp-items-header { display: flex; font-weight: bold; margin-bottom: 1mm; }
+                    .rcp-item { display: flex; justify-content: space-between; margin-bottom: 2mm; align-items: flex-start; }
+                    .rcp-summary { font-weight: bold; margin-top: 3mm; }
+                    .rcp-summary div { display: flex; justify-content: space-between; margin-bottom: 1mm; }
+                    .rcp-footer { text-align: center; margin-top: 5mm; font-size: 10px; }
+                </style>
+            </head>
+            <body>
+                ${receiptHtml}
+            </body>
+            </html>
+        `);
+        printDoc.close();
+        
+        printFrame.contentWindow.focus();
+        setTimeout(() => {
+            printFrame.contentWindow.print();
+            setTimeout(() => {
+                document.body.removeChild(printFrame);
+            }, 1000);
+        }, 200);
     }, 100);
 }
 

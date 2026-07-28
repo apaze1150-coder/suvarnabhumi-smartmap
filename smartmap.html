@@ -1194,6 +1194,22 @@
                 el.style.display = (floor === 4 || floor === '4' || floor === undefined) ? '' : 'none';
             });
 
+            // Toggle dynamic map pins based on floor attribute
+            document.querySelectorAll('.dynamic-map-pin').forEach(pin => {
+                const pinFloor = pin.getAttribute('data-floor');
+                if (pinFloor) {
+                    let pinFloorMap = '';
+                    if (pinFloor === 'FL.4') pinFloorMap = '4';
+                    else if (pinFloor === 'FL.3') pinFloorMap = '3';
+                    else if (pinFloor === 'SAT1') pinFloorMap = 'SAT-1';
+                    
+                    if (pinFloorMap) {
+                        const floorStr = floor.toString();
+                        pin.style.display = (floorStr === pinFloorMap) ? '' : 'none';
+                    }
+                }
+            });
+
             [btn3, btn4, btnSat].forEach(b => {
                 if (b) {
                     b.classList.remove('bg-primary', 'text-white', 'shadow-sm');
@@ -1562,6 +1578,7 @@
                     const pin = document.createElement('div');
                     pin.className = `dynamic-map-pin absolute z-10 transition-all duration-300 flex flex-col items-center select-none ${isAdminMode ? 'cursor-grab' : 'cursor-pointer'}`;
                     pin.id = `pin-shop-${s.shop_number}`;
+                    if (s.floor) pin.setAttribute('data-floor', s.floor);
                     const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
                     const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
                     pin.style.left = `${targetX}px`;
@@ -1576,7 +1593,7 @@
 
                     if (s.is_amenity_node) {
                         let iconName = s.icon;
-                        if (['vat_refund', 'restaurant', 'wc', 'bank_transfer', 'lounge'].includes(iconName)) {
+                        if (['vat_refund', 'restaurant', 'wc', 'bank_transfer', 'lounge', 'Pharmacy', 'prayer-room', 'smoking-area', 'exchange-rate', 'information'].includes(iconName)) {
                             let imgSrc = '';
                             let borderColor = 'border-blue-700';
                             
@@ -1585,6 +1602,11 @@
                             else if (iconName === 'wc') { imgSrc = '/uploads/toilet-.png'; borderColor = 'border-red-600'; }
                             else if (iconName === 'bank_transfer') { imgSrc = '/uploads/bank-transfer.png'; borderColor = 'border-emerald-500'; }
                             else if (iconName === 'lounge') { imgSrc = '/uploads/lounge.png'; borderColor = 'border-purple-500'; }
+                            else if (iconName === 'Pharmacy') { imgSrc = '/uploads/medicine.png'; borderColor = 'border-emerald-600'; }
+                            else if (iconName === 'prayer-room') { imgSrc = '/uploads/prayer-room.png'; borderColor = 'border-indigo-500'; }
+                            else if (iconName === 'smoking-area') { imgSrc = '/uploads/smoking-area.png'; borderColor = 'border-gray-500'; }
+                            else if (iconName === 'exchange-rate') { imgSrc = '/uploads/exchange-rate.png'; borderColor = 'border-green-600'; }
+                            else if (iconName === 'information') { imgSrc = '/uploads/information.png'; borderColor = 'border-blue-500'; }
 
                             pin.innerHTML = `
                                 <div class="animate-pulse flex flex-col items-center pb-1">
@@ -1695,8 +1717,26 @@
         }
 
         async function searchMapLive(overrideQuery = null) {
-            const queryText = overrideQuery || document.getElementById('map-search-input').value.trim();
+            let queryText = overrideQuery || document.getElementById('map-search-input').value.trim();
             if (!queryText) return;
+
+            // --- AI Keyword Synonym Mapping (Smart Search Enhancement) ---
+            const qLower = queryText.toLowerCase();
+            if (['food', 'ของกิน', 'ร้านอาหาร', 'ข้าว', 'หิว'].some(k => qLower.includes(k))) {
+                queryText = 'restaurant';
+            } else if (['pharmacy', 'ร้านขายยา', 'ยา', 'medicine', 'ป่วย'].some(k => qLower.includes(k))) {
+                queryText = 'Pharmacy';
+            } else if (['ห้องน้ำ', 'สุขา', 'wc', 'toilet', 'restroom', 'ปวดฉี่'].some(k => qLower.includes(k))) {
+                queryText = 'restroom';
+            } else if (['สูบบุหรี่', 'smoking', 'ที่สูบบุหรี่', 'บุหรี่'].some(k => qLower.includes(k))) {
+                queryText = 'smoking-area';
+            } else if (['vat refund', 'ขอคืนภาษี', 'คืนภาษี', 'vat'].some(k => qLower.includes(k))) {
+                queryText = 'vat_refund';
+            } else if (['แลกเงิน', 'exchange', 'เงิน', 'currency', 'ธนาคาร', 'bank'].some(k => qLower.includes(k))) {
+                queryText = 'exchange-rate';
+            } else if (['ติดต่อสอบถาม', 'information', 'info', 'ข้อมูล', 'สอบถาม', 'ประชาสัมพันธ์'].some(k => qLower.includes(k))) {
+                queryText = 'information';
+            }
 
             // Automatically switch to Floor 4 map since all shops are on Floor 4
             switchFloor(4);
@@ -2082,7 +2122,7 @@
                 pin.className = 'absolute transform -translate-x-1/2 -translate-y-full z-30 flex flex-col items-center cursor-pointer dynamic-map-pin';
                 pin.style.left = `${x}px`;
                 pin.style.top = `${y}px`;
-                if (['vat_refund', 'restaurant', 'wc', 'bank_transfer', 'lounge'].includes(iconName)) {
+                if (['vat_refund', 'restaurant', 'wc', 'bank_transfer', 'lounge', 'Pharmacy', 'prayer-room', 'smoking-area'].includes(iconName)) {
                     let imgSrc = '';
                     let borderColor = 'border-blue-700';
                     let pointerBgColor = 'bg-blue-700';
@@ -2092,6 +2132,9 @@
                     else if (iconName === 'wc') { imgSrc = '/uploads/toilet-.png'; borderColor = 'border-red-600'; pointerBgColor = 'bg-red-600'; }
                     else if (iconName === 'bank_transfer') { imgSrc = '/uploads/bank-transfer.png'; borderColor = 'border-emerald-500'; pointerBgColor = 'bg-emerald-500'; }
                     else if (iconName === 'lounge') { imgSrc = '/uploads/lounge.png'; borderColor = 'border-purple-500'; pointerBgColor = 'bg-purple-500'; }
+                    else if (iconName === 'Pharmacy') { imgSrc = '/uploads/medicine.png'; borderColor = 'border-emerald-600'; pointerBgColor = 'bg-emerald-600'; }
+                    else if (iconName === 'prayer-room') { imgSrc = '/uploads/prayer-room.png'; borderColor = 'border-indigo-500'; pointerBgColor = 'bg-indigo-500'; }
+                    else if (iconName === 'smoking-area') { imgSrc = '/uploads/smoking-area.png'; borderColor = 'border-gray-500'; pointerBgColor = 'bg-gray-500'; }
 
                     pin.innerHTML = `
                         <div class="animate-pulse flex flex-col items-center pb-1">

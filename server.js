@@ -1209,14 +1209,14 @@ app.get('/api/search-node', async (req, res) => {
 
 // --- ADMIN FEATURE: CRUD Operations on airport_map_nodes.csv ---
 function saveNodesToCsvSync(nodes) {
-  const headers = 'node_id,name,x,y,concourse,type,connections,icon,image_url\n';
+  const headers = 'node_id,name,x,y,concourse,type,connections,icon,image_url,floor\n';
   const rows = nodes.map(n => {
     const escape = (val) => {
       if (val === undefined || val === null) return '""';
       let str = val.toString().replace(/"/g, '""');
       return `"${str}"`;
     };
-    return `${escape(n.node_id)},${escape(n.name)},${n.x},${n.y},${escape(n.concourse)},${escape(n.type)},${escape(n.connections)},${escape(n.icon)},${escape(n.image_url)}`;
+    return `${escape(n.node_id)},${escape(n.name)},${n.x},${n.y},${escape(n.concourse)},${escape(n.type)},${escape(n.connections)},${escape(n.icon)},${escape(n.image_url)},${escape(n.floor)}`;
   }).join('\n');
   fs.writeFileSync(MAP_NODES_CSV, headers + rows, 'utf8');
 }
@@ -1228,12 +1228,12 @@ app.get('/api/admin/nodes', async (req, res) => {
 });
 
 app.post('/api/admin/nodes', async (req, res) => {
-  const { password, node_id, name, x, y, concourse, type, connections, icon, image_url } = req.body;
+  const { password, node_id, name, x, y, concourse, type, connections, icon, image_url, floor } = req.body;
   if (password !== '6515') return res.status(403).json({ error: 'Unauthorized.' });
   try {
     const nodes = await readCsv(MAP_NODES_CSV);
     if (nodes.find(n => n.node_id === node_id)) return res.status(400).json({ error: 'node_id already exists.' });
-    const newNode = { node_id, name, x, y, concourse, type, connections, icon, image_url };
+    const newNode = { node_id, name, x, y, concourse, type, connections, icon, image_url, floor };
     nodes.push(newNode);
     saveNodesToCsvSync(nodes);
     await loadNavigationGraph();
@@ -1242,7 +1242,7 @@ app.post('/api/admin/nodes', async (req, res) => {
 });
 
 app.put('/api/admin/nodes/:node_id', async (req, res) => {
-  const { password, name, x, y, concourse, type, connections, icon, image_url } = req.body;
+  const { password, name, x, y, concourse, type, connections, icon, image_url, floor } = req.body;
   if (password !== '6515') return res.status(403).json({ error: 'Unauthorized.' });
   try {
     const nodes = await readCsv(MAP_NODES_CSV);
@@ -1256,6 +1256,7 @@ app.put('/api/admin/nodes/:node_id', async (req, res) => {
     if (connections !== undefined) nodes[idx].connections = connections;
     if (icon !== undefined) nodes[idx].icon = icon;
     if (image_url !== undefined) nodes[idx].image_url = image_url;
+    if (floor !== undefined) nodes[idx].floor = floor;
     saveNodesToCsvSync(nodes);
     await loadNavigationGraph();
     return res.json({ success: true, node: nodes[idx] });

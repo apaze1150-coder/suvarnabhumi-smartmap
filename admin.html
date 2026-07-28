@@ -349,7 +349,8 @@
                 x: { label: "Map X Coordinate (0-1000)", type: "number", required: true, min: 0, max: 1000 },
                 y: { label: "Map Y Coordinate (0-500)", type: "number", required: true, min: 0, max: 500 },
                 concourse: { label: "Concourse", type: "select", options: ["A", "B", "C", "D", "E", "F", "G", "SAT-1"] },
-                type: { label: "Type", type: "select", options: ["gate", "intersection", "corridor", "security", "restroom", "smoking", "restaurant", "store", "lounge"] },
+                floor: { label: "Fl.", type: "select", options: ["", "FL.4", "FL.3", "SAT1"] },
+                type: { label: "Type", type: "select", options: ["gate", "intersection", "corridor", "security", "restroom", "smoking", "restaurant", "store", "lounge", "Pharmacy", "prayer-room", "smoking-area", "vat_refund", "exchange-rate", "information"] },
                 connections: { label: "Connections (e.g., Node_ID:dist)", type: "textarea" },
                 icon: { 
                     label: "Icon Name (Material Symbols)", 
@@ -362,7 +363,12 @@
                         { value: "account_balance", label: "ธนาคาร (Bank/Exchange)" },
                         { value: "bank_transfer", label: "Bank Transfer (เพิ่มใหม่)" },
                         { value: "lounge", label: "Lounge (เพิ่มใหม่)" },
-                        { value: "vat_refund", label: "VAT Refund (โลโก้รูปภาพ)" }
+                        { value: "vat_refund", label: "VAT Refund (โลโก้รูปภาพ)" },
+                        { value: "Pharmacy", label: "Pharmacy" },
+                        { value: "prayer-room", label: "Prayer Room" },
+                        { value: "smoking-area", label: "Smoking Area" },
+                        { value: "exchange-rate", label: "Exchange Rate" },
+                        { value: "information", label: "Information" }
                     ] 
                 },
                 image_url: { label: "Image Filename", type: "text", placeholder: "e.g., restroom.jpg" }
