@@ -3,7 +3,7 @@ const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const db = require('./db');
+const csv = require('csv-parser');
 const axios = require('axios');
 
 const app = express();
@@ -64,26 +64,18 @@ const MAP_NODES_CSV = path.join(__dirname, 'airport_map_nodes.csv');
 const PRODUCT_MATRIX_CSV = path.join(__dirname, 'product_matrix.csv');
 
 // --- CSV Helper Functions ---
-async function readCsv(filePath) {
-  let table = null;
-  if (filePath.includes('walk_time_matrix')) table = 'walk_time_matrix';
-  else if (filePath.includes('store_matrix')) table = 'store_matrix';
-  else if (filePath.includes('airport_map_nodes')) table = 'airport_map_nodes';
-  else if (filePath.includes('product_matrix')) table = 'product_matrix';
-  else if (filePath.includes('panpuri_products')) table = 'panpuri_products';
-  else if (filePath.includes('panpuri_orders')) table = 'panpuri_orders';
-  else if (filePath.includes('panpuri_stock_logs')) table = 'panpuri_stock_logs';
-  else if (filePath.includes('panpuri_spa_reservations')) table = 'panpuri_spa_reservations';
-  else if (filePath.includes('flight_matrix')) table = 'flight_matrix';
-  
-  if (!table) return [];
-  try {
-    const res = await db.query('SELECT * FROM ' + table);
-    return res.rows;
-  } catch(e) {
-    console.error('DB Error reading', table, e);
-    return [];
-  }
+function readCsv(filePath) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    if (!fs.existsSync(filePath)) {
+      return reject(new Error(`CSV file not found at ${filePath}`));
+    }
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => resolve(results))
+      .on('error', (err) => reject(err));
+  });
 }
 
 // Helper to hash string for mock random selection
@@ -988,13 +980,17 @@ app.get('/api/navigation-path', (req, res) => {
 // --- ADMIN FEATURE: CRUD Operations on store_matrix.csv ---
 
 // Helper function to save stores to csv (synchronously to match existing pattern)
-async function saveStoresToCsvSync(stores) {
-  try {
-    await db.query('TRUNCATE store_matrix');
-    for (let row of stores) {
-      await db.query('INSERT INTO store_matrix (shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)', [row.shop_number, row.shop_name, row.shop_image, row.category, row.brands_available, row.graph_node_id, Number(row.x)||0, Number(row.y)||0, row.parent_node_id, row.store_id, row.AI_KEYWORDS, row.TOP_HERO_PRODUCTS, row.PROMOTION_TAGS]);
-    }
-  } catch(e) { console.error('Error saving stores to DB:', e); }
+function saveStoresToCsvSync(stores) {
+  const headers = 'shop_number,shop_name,shop_image,category,brands_available,graph_node_id,x,y,parent_node_id,store_id,AI_KEYWORDS,TOP_HERO_PRODUCTS,PROMOTION_TAGS\n';
+  const rows = stores.map(s => {
+    const escape = (val) => {
+      if (val === undefined || val === null) return '""';
+      let str = val.toString().replace(/"/g, '""');
+      return `"${str}"`;
+    };
+    return `${s.shop_number},${escape(s.shop_name)},${escape(s.shop_image)},${escape(s.category)},${escape(s.brands_available)},${escape(s.graph_node_id)},${s.x},${s.y},${escape(s.parent_node_id)},${escape(s.store_id)},${escape(s.AI_KEYWORDS)},${escape(s.TOP_HERO_PRODUCTS)},${escape(s.PROMOTION_TAGS)}`;
+  }).join('\n');
+  fs.writeFileSync(STORE_CSV, headers + rows, 'utf8');
 }
 
 // POST /api/admin/upload-image - Upload a shop image
@@ -1067,7 +1063,7 @@ app.post('/api/admin/stores', async (req, res) => {
     stores.push(newStore);
     
     // Save to CSV
-    await saveStoresToCsvSync(stores);
+    saveStoresToCsvSync(stores);
     console.log(`[Admin] Created Shop ${resolvedShopNum}: ${newStore.shop_name}`);
 
     // Reload navigation graph
@@ -1108,7 +1104,7 @@ app.put('/api/admin/stores/:shop_number', async (req, res) => {
     if (store_id !== undefined) stores[idx].store_id = store_id.trim();
 
     // Save to CSV
-    await saveStoresToCsvSync(stores);
+    saveStoresToCsvSync(stores);
     console.log(`[Admin] Updated Shop ${shopNumStr}`);
 
     // Reload navigation graph
@@ -1141,7 +1137,7 @@ app.delete('/api/admin/stores/:shop_number', async (req, res) => {
     const deletedStore = stores.splice(idx, 1)[0];
 
     // Save to CSV
-    await saveStoresToCsvSync(stores);
+    saveStoresToCsvSync(stores);
     console.log(`[Admin] Deleted Shop ${shopNumStr}: ${deletedStore.shop_name}`);
 
     // Reload navigation graph
@@ -1193,13 +1189,17 @@ app.get('/api/search-node', async (req, res) => {
 
 
 // --- ADMIN FEATURE: CRUD Operations on airport_map_nodes.csv ---
-async function saveNodesToCsvSync(nodes) {
-  try {
-    await db.query('TRUNCATE airport_map_nodes');
-    for (let row of nodes) {
-      await db.query('INSERT INTO airport_map_nodes (node_id, name, x, y, concourse, type, connections, icon, image_url, floor) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [row.node_id, row.name, Number(row.x)||0, Number(row.y)||0, row.concourse, row.type, row.connections, row.icon, row.image_url, row.floor]);
-    }
-  } catch(e) { console.error('Error saving nodes to DB:', e); }
+function saveNodesToCsvSync(nodes) {
+  const headers = 'node_id,name,x,y,concourse,type,connections,icon,image_url,floor\n';
+  const rows = nodes.map(n => {
+    const escape = (val) => {
+      if (val === undefined || val === null) return '""';
+      let str = val.toString().replace(/"/g, '""');
+      return `"${str}"`;
+    };
+    return `${escape(n.node_id)},${escape(n.name)},${n.x},${n.y},${escape(n.concourse)},${escape(n.type)},${escape(n.connections)},${escape(n.icon)},${escape(n.image_url)},${escape(n.floor)}`;
+  }).join('\n');
+  fs.writeFileSync(MAP_NODES_CSV, headers + rows, 'utf8');
 }
 
 app.get('/api/admin/nodes', async (req, res) => {
@@ -1216,7 +1216,7 @@ app.post('/api/admin/nodes', async (req, res) => {
     if (nodes.find(n => n.node_id === node_id)) return res.status(400).json({ error: 'node_id already exists.' });
     const newNode = { node_id, name, x, y, concourse, type, connections, icon, image_url, floor };
     nodes.push(newNode);
-    await saveNodesToCsvSync(nodes);
+    saveNodesToCsvSync(nodes);
     await loadNavigationGraph();
     return res.json({ success: true, node: newNode });
   } catch (error) { return res.status(500).json({ error: 'Failed to create node.' }); }
@@ -1238,7 +1238,7 @@ app.put('/api/admin/nodes/:node_id', async (req, res) => {
     if (icon !== undefined) nodes[idx].icon = icon;
     if (image_url !== undefined) nodes[idx].image_url = image_url;
     if (floor !== undefined) nodes[idx].floor = floor;
-    await saveNodesToCsvSync(nodes);
+    saveNodesToCsvSync(nodes);
     await loadNavigationGraph();
     return res.json({ success: true, node: nodes[idx] });
   } catch (error) { return res.status(500).json({ error: 'Failed to update node.' }); }
@@ -1252,7 +1252,7 @@ app.delete('/api/admin/nodes/:node_id', async (req, res) => {
     const idx = nodes.findIndex(n => n.node_id === req.params.node_id);
     if (idx === -1) return res.status(404).json({ error: 'Node not found.' });
     nodes.splice(idx, 1);
-    await saveNodesToCsvSync(nodes);
+    saveNodesToCsvSync(nodes);
     await loadNavigationGraph();
     return res.json({ success: true });
   } catch (error) { return res.status(500).json({ error: 'Failed to delete node.' }); }
@@ -1286,7 +1286,7 @@ app.post('/api/admin/update-coordinates', async (req, res) => {
     stores[storeIdx].y = coordY.toString();
 
     // Save back to CSV
-    await saveStoresToCsvSync(stores);
+    saveStoresToCsvSync(stores);
     console.log(`[Admin] Updated Shop ${shopNum} coordinates to (${coordX}, ${coordY})`);
 
     // Reload navigation graph so Dijkstra path is updated instantly
@@ -1416,33 +1416,19 @@ const STORE_INFO = {
 };
 
 // --- CSV write helper for orders & products ---
-async function writeCsvGeneric(filePath, rows, headers) {
-  let table = null;
-  if (filePath.includes('walk_time_matrix')) table = 'walk_time_matrix';
-  else if (filePath.includes('store_matrix')) table = 'store_matrix';
-  else if (filePath.includes('airport_map_nodes')) table = 'airport_map_nodes';
-  else if (filePath.includes('product_matrix')) table = 'product_matrix';
-  else if (filePath.includes('panpuri_products')) table = 'panpuri_products';
-  else if (filePath.includes('panpuri_orders')) table = 'panpuri_orders';
-  else if (filePath.includes('panpuri_stock_logs')) table = 'panpuri_stock_logs';
-  else if (filePath.includes('panpuri_spa_reservations')) table = 'panpuri_spa_reservations';
-  else if (filePath.includes('flight_matrix')) table = 'flight_matrix';
-  
-  if (!table) return;
-  try {
-    await db.query('TRUNCATE ' + table);
-    if (!rows || rows.length === 0) return;
-    const cols = headers.map(h => '"' + h + '"').join(', ');
-    for (let row of rows) {
-      let vals = headers.map(h => {
-        if (h === 'items_json' && typeof row[h] === 'string') return row[h];
-        if (h === 'items_json' && typeof row[h] === 'object') return JSON.stringify(row[h]);
-        return row[h];
-      });
-      let placeholders = headers.map((_, i) => '$' + (i+1)).join(', ');
-      await db.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
-    }
-  } catch(e) { console.error('Error writing to table ' + table, e); }
+function writeCsvGeneric(filePath, rows, headers) {
+  if (!rows || rows.length === 0) {
+    fs.writeFileSync(filePath, headers.join(',') + '\n', 'utf8');
+    return;
+  }
+  const headerLine = headers.join(',') + '\n';
+  const escape = (val) => {
+    if (val === undefined || val === null) return '""';
+    let str = val.toString().replace(/"/g, '""');
+    return `"${str}"`;
+  };
+  const rowLines = rows.map(r => headers.map(h => escape(r[h])).join(',')).join('\n');
+  fs.writeFileSync(filePath, headerLine + rowLines + '\n', 'utf8');
 }
 
 const PRODUCT_HEADERS = ['Code','Description','Reference','Category','Sub-Category','Scent','Price','Image','Qty_Branch1','Qty_Branch2','Qty_Branch3','Description_Customer','Scent_Notes','How_to_Use','Size'];
@@ -1568,7 +1554,7 @@ app.post('/api/orders', async (req, res) => {
     };
 
     orders.push(newOrder);
-    await writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
+    writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
     console.log(`[Order] New order ${orderNumber} from ${customer_name} (${flight_number}) at store ${store_id}`);
 
     res.json({ success: true, order_number: orderNumber, order_id: orderId, total: total.toFixed(2) });
@@ -1608,7 +1594,7 @@ app.post('/api/orders/customer-cancel/:order_number', async (req, res) => {
     
     orders[idx].status = 'cancelled';
     orders[idx].updated_at = new Date().toISOString();
-    await writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
+    writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
     
     console.log(`[Order] ${orders[idx].order_number} status → cancelled (by customer)`);
     res.json({ success: true });
@@ -1680,7 +1666,7 @@ app.put('/api/orders/:order_id', async (req, res) => {
     orders[idx].updated_at = new Date().toISOString();
     if (staff_note !== undefined) orders[idx].staff_note = staff_note.toString().trim();
 
-    await writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
+    writeCsvGeneric(ORDERS_CSV, orders, ORDER_HEADERS);
     console.log(`[Order] ${orders[idx].order_number} status → ${status}`);
 
     let itemsParsed = [];
@@ -1754,7 +1740,7 @@ app.post('/api/admin/products', async (req, res) => {
       Scent: (Scent || '').trim()
     };
     products.push(newProduct);
-    await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+    writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
     console.log(`[Admin] Created product ${newProduct.Code}`);
     res.json({ success: true, product: newProduct });
   } catch (err) {
@@ -1857,8 +1843,8 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
       }
     }
     
-    await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
-    await writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
+    writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+    writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
     console.log(`[Admin] Batch updated ${updatedCount} products`);
     res.json({ success: true, updatedCount });
   } catch (err) {
@@ -1886,7 +1872,7 @@ app.put('/api/admin/products/:Code', async (req, res) => {
     if (Description_Customer !== undefined) products[idx].Description_Customer = Description_Customer.trim();
     if (Scent_Notes !== undefined) products[idx].Scent_Notes = Scent_Notes.trim();
     if (How_to_Use !== undefined) products[idx].How_to_Use = How_to_Use.trim();
-    await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+    writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
     res.json({ success: true, product: products[idx] });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1902,7 +1888,7 @@ app.delete('/api/admin/products/:Code', async (req, res) => {
     const idx = products.findIndex(p => String(p.Code).trim() === String(req.params.Code).trim());
     if (idx === -1) return res.status(404).json({ error: 'Product not found' });
     products.splice(idx, 1);
-    await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+    writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -2119,8 +2105,8 @@ app.post('/api/staff/stock-transaction', async (req, res) => {
       }
     }
 
-    await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
-    await writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
+    writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+    writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
 
     res.json({ success: true });
   } catch (err) {
