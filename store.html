@@ -1609,6 +1609,7 @@ async function printOrder(orderId) {
         if (!device) return;
 
         const server = await device.gatt.connect();
+        await new Promise(r => setTimeout(r, 500)); // Wait half a second for connection to stabilize
         let service, characteristic;
 
         try {
@@ -1673,13 +1674,18 @@ async function printOrder(orderId) {
         // Cut Paper
         escpos.push(GS, 0x56, 0x42, 0x00);
 
-        // Send data in chunks of 256 bytes (Standard for BLE)
+        // Send data in chunks of 100 bytes (Safer for BLE MTU limits)
         const data = new Uint8Array(escpos);
-        const CHUNK_SIZE = 256;
+        const CHUNK_SIZE = 100;
         for (let i = 0; i < data.length; i += CHUNK_SIZE) {
-            await characteristic.writeValue(data.slice(i, i + CHUNK_SIZE));
-            // Small delay to prevent buffer overflow
-            await new Promise(r => setTimeout(r, 50));
+            let chunk = data.slice(i, i + CHUNK_SIZE);
+            if (typeof characteristic.writeValueWithoutResponse === 'function') {
+                await characteristic.writeValueWithoutResponse(chunk);
+            } else {
+                await characteristic.writeValue(chunk);
+            }
+            // Small delay to prevent buffer overflow on the printer
+            await new Promise(r => setTimeout(r, 20));
         }
 
         server.disconnect();
