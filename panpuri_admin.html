@@ -1663,6 +1663,10 @@ function exportStockLogsCSV() {
                     <input type="text" id="newProductName" required class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
                 <div>
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Reference</label>
+                    <input type="text" id="newProductReference" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
+                </div>
+                <div>
                     <label class="block text-label-sm text-on-surface-variant mb-1">Category</label>
                     <select id="newProductCategory" required onchange="updateSubCategoryDropdown()" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                         <option value="">Select Main Category</option>
@@ -1673,6 +1677,14 @@ function exportStockLogsCSV() {
                     <select id="newProductSubCategory" required class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                         <option value="">Select Sub Category</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Scent</label>
+                    <input type="text" id="newProductScent" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Size</label>
+                    <input type="text" id="newProductSize" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
                 <div>
                     <label class="block text-label-sm text-on-surface-variant mb-1">Price</label>
@@ -1809,9 +1821,11 @@ async function saveNewProduct(e) {
     const newProduct = {
         Code: newProductCode,
         Description: document.getElementById('newProductName').value,
-        Reference: '',
+        Reference: document.getElementById('newProductReference') ? document.getElementById('newProductReference').value : '',
         Category: document.getElementById('newProductCategory').value,
         'Sub-Category': document.getElementById('newProductSubCategory').value,
+        Scent: document.getElementById('newProductScent') ? document.getElementById('newProductScent').value : '',
+        Size: document.getElementById('newProductSize') ? document.getElementById('newProductSize').value : '',
         Price: document.getElementById('newProductPrice').value,
         Qty_Branch1: document.getElementById('newProductStock').value,
         Qty_Branch2: document.getElementById('newProductStockDE12').value,
@@ -1853,9 +1867,31 @@ async function saveNewProduct(e) {
               <h3 class="font-headline-md text-primary">Bulk Import (Excel)</h3>
               <button onclick="closeBulkImportModal()" class="material-symbols-outlined text-outline hover:text-on-surface">close</button>
           </div>
-          <p class="text-body-sm text-on-surface-variant mb-4">Paste data from Excel. Must exactly match these 10 columns in order:<br>
-          <strong>Code | Description | Reference | Category | Sub-Category | Price | Image | Qty_Branch1 | Qty_Branch2 | Qty_Branch3</strong></p>
-          <textarea id="bulkImportTextarea" class="w-full h-64 bg-surface-container border border-outline-variant rounded-lg p-3 font-mono text-sm focus:border-primary custom-scrollbar" placeholder="PP-1234&#9;Product Name&#9;REF-1&#9;FACE&#9;Serum&#9;890&#9;img.png&#9;10&#9;5&#9;15"></textarea>
+          <p class="text-body-sm text-on-surface-variant mb-4">Paste data directly from Excel. Please ensure your columns match the headers below.</p>
+          
+          <div class="border border-outline-variant rounded-lg overflow-hidden bg-surface">
+              <div class="overflow-x-auto custom-scrollbar">
+                  <table class="w-full text-left text-label-sm whitespace-nowrap min-w-max">
+                      <thead class="bg-surface-container-low border-b border-outline-variant text-on-surface-variant">
+                          <tr>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[100px]">Code</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[150px]">Description</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[100px]">Reference</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[120px]">Category</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[120px]">Sub-Category</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[100px]">Scent</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">Size</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">Price</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[100px]">Image URL</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">DE40 (1)</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">DE12 (2)</th>
+                              <th class="p-3 font-medium w-[80px]">DW41 (3)</th>
+                          </tr>
+                      </thead>
+                  </table>
+                  <textarea id="bulkImportTextarea" class="w-full h-64 bg-transparent p-3 font-mono text-sm focus:outline-none custom-scrollbar resize-none whitespace-pre wrap-off" style="tab-size: 16;" placeholder="PP-1234&#9;Product Name&#9;REF-1&#9;FACE&#9;Serum&#9;Rose&#9;50ml&#9;890&#9;img.png&#9;10&#9;5&#9;15"></textarea>
+              </div>
+          </div>
           <div class="flex justify-end gap-3 mt-md">
               <button type="button" onclick="closeBulkImportModal()" class="px-lg py-2.5 rounded-full font-label-md text-primary hover:bg-primary/10 transition-colors">Cancel</button>
               <button type="button" onclick="processBulkImport()" class="bg-primary text-on-primary px-lg py-2.5 rounded-full font-label-md shadow hover:opacity-90 active:scale-95 transition-all">Import Data</button>
@@ -1880,7 +1916,7 @@ async function saveNewProduct(e) {
         let count = 0;
         for(let line of lines) {
             const cols = line.split('\t');
-            if(cols.length >= 10) {
+            if(cols.length >= 12) {
                 const code = cols[0].trim();
                 if(code) {
                     updates[code] = {
@@ -1888,17 +1924,19 @@ async function saveNewProduct(e) {
                         Reference: cols[2].trim(),
                         Category: cols[3].trim(),
                         'Sub-Category': cols[4].trim(),
-                        Price: cols[5].trim(),
-                        Image: cols[6].trim(),
-                        Qty_Branch1: cols[7].trim(),
-                        Qty_Branch2: cols[8].trim(),
-                        Qty_Branch3: cols[9].trim()
+                        Scent: cols[5].trim(),
+                        Size: cols[6].trim(),
+                        Price: cols[7].trim(),
+                        Image: cols[8].trim(),
+                        Qty_Branch1: cols[9].trim(),
+                        Qty_Branch2: cols[10].trim(),
+                        Qty_Branch3: cols[11].trim()
                     };
                     count++;
                 }
             }
         }
-        if(count === 0) return alert('No valid 10-column data found');
+        if(count === 0) return alert('No valid 12-column data found. Please ensure you copied all columns including Scent and Size.');
         try {
             await fetch('/api/admin/products/batch-update', {
                 method: 'POST',

@@ -1444,17 +1444,30 @@
                                  (s.category && s.category.includes('ชั้น 3')) ||
                                  (s.tags && s.tags.includes('ชั้น 3'));
 
+                const isSat = s.shop_name.toLowerCase().includes('sat') || 
+                              s.shop_name.toLowerCase().includes('satellite') || 
+                              /S\d{3}/i.test(s.shop_name) ||
+                              (s.brands_available && s.brands_available.toLowerCase().includes('sat'));
+
                 if (isSelected) {
                     // Update Map Background based on Floor using switchFloor to update UI
-                    if (isFloor3) {
+                    if (isSat) {
+                        switchFloor('SAT-1');
+                    } else if (isFloor3) {
                         switchFloor(3);
                     } else {
                         switchFloor(4);
                     }
 
-                    const startX = 489;
+                    let startX = 489;
+                    let startY = 227;
+                    
+                    if (isSat) {
+                        // Start point for SAT map (e.g., Shuttle Train Arrival)
+                        startX = 500;
+                        startY = 250;
+                    }
 
-                    const startY = 227;
                     // Target coordinates from Store Matrix Column G (x) and Column H (y)
                     const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
                     const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
@@ -1750,9 +1763,26 @@
                 const nodeRes = await fetch(`/api/search-node?q=${encodeURIComponent(queryText)}`);
                 const nodeData = await nodeRes.json();
                 
-                if (nodeData.success && nodeData.nodes && nodeData.nodes.length > 0) {
+                let nodes = nodeData.nodes || [];
+
+                // SAT Gate Fallback
+                const satMatch = queryText.match(/^(?:GATE\s+)?(S\d{3}[A-Z]?)$/i);
+                if (nodes.length === 0 && satMatch) {
+                    nodes = [{
+                        name: `Gate ${satMatch[1].toUpperCase()}`,
+                        node_id: `Node_Gate_${satMatch[1].toUpperCase()}`,
+                        type: 'gate',
+                        concourse: 'SAT',
+                        icon: 'flight_takeoff',
+                        x: 520, // approximate center for SAT
+                        y: 300
+                    }];
+                    nodeData.success = true;
+                }
+                
+                if (nodeData.success && nodes && nodes.length > 0) {
                     // Always show results cards, even for a single result (matches Store Matrix behavior)
-                    const dummyStores = nodeData.nodes.map(node => ({
+                    const dummyStores = nodes.map(node => ({
                         shop_name: node.name,
                         shop_number: node.node_id,
                         category: node.type || "Facility",
@@ -1766,7 +1796,7 @@
                         is_amenity_node: true
                     }));
                     activeStores = dummyStores;
-                    selectedShopNumber = null;
+                    selectedShopNumber = dummyStores.length === 1 ? dummyStores[0].shop_number : null;
 
                     const legacyGateRoute = document.getElementById('route-gate-c');
                     if (legacyGateRoute) legacyGateRoute.classList.add('hidden');
@@ -2160,8 +2190,23 @@
                 const response = await fetch(`/api/search-node?q=${encodeURIComponent(searchQuery)}`);
                 const data = await response.json();
                 
-                if (data.success && data.nodes && data.nodes.length > 0) {
-                    const matchedGateNode = data.nodes[0]; // just navigate to the first one
+                let nodes = data.nodes || [];
+                const satMatch = searchQuery.trim().match(/^(?:GATE\s+)?(S\d{3}[A-Z]?)$/i);
+                if (nodes.length === 0 && satMatch) {
+                    nodes = [{
+                        name: `Gate ${satMatch[1].toUpperCase()}`,
+                        node_id: `Node_Gate_${satMatch[1].toUpperCase()}`,
+                        type: 'gate',
+                        concourse: 'SAT',
+                        icon: 'flight_takeoff',
+                        x: 520,
+                        y: 300
+                    }];
+                    data.success = true;
+                }
+                
+                if (data.success && nodes && nodes.length > 0) {
+                    const matchedGateNode = nodes[0]; // just navigate to the first one
                     // 2. Extract X, Y coordinates
                     const targetX = matchedGateNode.x;
                     const targetY = matchedGateNode.y;
@@ -2180,7 +2225,13 @@
         async function navigateToCoordinate(x, y, name, nodeId, iconName = null) {
             // Determine Floor
             const isGateD = (name && name.toUpperCase().includes('GATE D')) || (nodeId && nodeId.toUpperCase().includes('_GATE_D'));
-            if (isGateD) {
+            const isSat = (name && name.toUpperCase().includes('SAT')) || 
+                          (nodeId && nodeId.toUpperCase().includes('SAT')) ||
+                          (name && /S\d{3}/i.test(name));
+
+            if (isSat) {
+                switchFloor('SAT-1');
+            } else if (isGateD) {
                 switchFloor(3);
             } else {
                 switchFloor(4);
