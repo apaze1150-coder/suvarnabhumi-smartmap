@@ -37,9 +37,9 @@ app.use('/uploads', express.static(uploadDir));
 // Serve static frontend files
 app.use(express.static(__dirname));
 
-// Serve smartmap.html at root
+// Serve index.html at root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'smartmap.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Serve admin.html at /admin
@@ -539,7 +539,44 @@ app.get('/api/flight-status', async (req, res) => {
     return res.status(400).json({ error: 'flight_id query parameter is required.' });
   }
 
+  
   const cleanFlightId = flight_id.toUpperCase().replace(/\s+/g, '');
+
+  // --- DEMO OVERRIDE ---
+  
+  if (cleanFlightId === 'QR829' && !custom_gate) {
+      console.log("Applying demo override for QR829 to Gate S111A");
+      const walkTimes = await readCsv(WALK_TIME_CSV);
+      const walkInfo = walkTimes.find(w => w.gate_zone === 'SAT-1');
+      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 15;
+      
+      return res.json({
+        flight_id: 'QR829',
+        gate: 'S111A',
+        boarding_time: '02:20',
+        status: 'Scheduled',
+        gate_node_id: 'Node_Gate_S101',
+        walk_time_mins: walk_time_mins
+      });
+  }
+
+  if (cleanFlightId === 'EY401' && !custom_gate) {
+      console.log("Applying demo override for EY401 to Gate C6");
+      const walkTimes = await readCsv(WALK_TIME_CSV);
+      const walkInfo = walkTimes.find(w => w.gate_zone === 'C');
+      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 7;
+      
+      return res.json({
+        flight_id: 'EY401',
+        gate: 'C6',
+        boarding_time: '02:30',
+        status: 'Scheduled',
+        gate_node_id: 'Node_Gate_C6',
+        walk_time_mins: walk_time_mins
+      });
+  }
+  // ---------------------
+
 
   try {
     let flightData = null;

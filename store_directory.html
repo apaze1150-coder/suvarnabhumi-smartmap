@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Store Directory | KING POWER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#001a3d",
+                        "secondary-container": "#d8aa3d",
+                        "on-secondary-container": "#ffffff",
+                        "surface-container-high": "#f1f5f9",
+                        "background": "#f8f9fb",
+                        "on-background": "#1a1c1d",
+                        "surface-variant": "#e2e2e4",
+                        "on-surface-variant": "#44474e",
+                        "primary-container": "#002147",
+                        "on-primary-container": "#ffffff",
+                        "surface": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e2e2e4",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#d8aa3d",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c4c6cf"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "display": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body select-none">
+<!-- Top Navigation Bar -->
+<header class="bg-[#001a3d] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+    <!-- Left: Hamburger & Logo -->
+    <div class="flex items-center gap-4 relative">
+        <!-- Hamburger Menu (acts as back for now or menu) -->
+        <button class="text-white hover:text-[#d8aa3d] transition-colors focus:outline-none" onclick="window.history.back()">
+            <span class="material-symbols-outlined text-3xl">menu</span>
+        </button>
+
+        <!-- Logo -->
+        <img src="https://s3-ap-southeast-1.amazonaws.com/kpc-prod-web-static/frontend/img/svg/v2/logo-kingpower.svg" alt="King Power" class="h-6 md:h-8 object-contain cursor-pointer" onclick="window.location.href='index.html'">
+    </div>
+    
+    <!-- Right: Lang Switcher -->
+    <div id="google_translate_element" class="hidden"></div><div class="flex items-center gap-3">
+        <!-- Language Switcher -->
+        
+        <div class="relative inline-block text-left" id="lang-dropdown-container">
+          <div>
+            <button type="button" class="inline-flex w-full justify-center items-center gap-x-1.5 rounded-full bg-[#1a3355] px-3 py-1.5 text-xs font-semibold text-white shadow-sm border border-white/5 hover:bg-[#1a3355]/80 focus:outline-none transition-all" id="lang-menu-button" aria-expanded="true" aria-haspopup="true" onclick="document.getElementById('lang-dropdown-menu').classList.toggle('hidden')">
+              <img id="current-lang-flag" src="https://flagcdn.com/w20/us.png" alt="English" class="w-4 h-3 object-cover rounded-sm">
+              <span id="current-lang-text">English</span>
+              <span class="material-symbols-outlined text-[16px]">expand_more</span>
+            </button>
+          </div>
+          <div id="lang-dropdown-menu" class="hidden absolute right-0 z-[100] mt-2 w-32 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden" role="menu" aria-orientation="vertical" aria-labelledby="lang-menu-button" tabindex="-1">
+            <div class="py-1" role="none">
+              <a href="#" class="text-[#001a3d] block px-4 py-2.5 text-xs font-bold hover:bg-gray-100 flex items-center gap-3 transition-colors" role="menuitem" tabindex="-1" onclick="document.getElementById('lang-dropdown-menu').classList.add('hidden'); event.preventDefault();">
+                <img src="https://flagcdn.com/w20/us.png" alt="English" class="w-4 h-3 object-cover rounded-sm shadow-sm"> English
+              </a>
+              <a href="#" class="text-[#001a3d] block px-4 py-2.5 text-xs font-bold hover:bg-gray-100 flex items-center gap-3 transition-colors" role="menuitem" tabindex="-1" onclick="document.getElementById('lang-dropdown-menu').classList.add('hidden'); event.preventDefault();">
+                <img src="https://flagcdn.com/w20/cn.png" alt="Chinese" class="w-4 h-3 object-cover rounded-sm shadow-sm"> 中文
+              </a>
+            </div>
+          </div>
+        </div>
+        
+    </div>
+</header>
+<main class="pt-20 pb-32">
+<!-- Sticky Search & Filter -->
+<section class="px-6 sticky top-16 z-40 bg-background/95 backdrop-blur-md py-4">
+<div class="flex items-center gap-3">
+<div class="flex-1 flex items-center bg-surface-container-high rounded-xl px-4 py-3 gap-3 transition-all focus-within:ring-2 ring-primary/20 shadow-inner">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md placeholder:text-on-surface-variant outline-none" placeholder="Search 50+ stores, brands..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary p-3 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-md">
+<span class="material-symbols-outlined text-xl">tune</span>
+</button>
+</div>
+<!-- Category Chips -->
+<div class="flex gap-2 mt-6 overflow-x-auto hide-scrollbar pb-2">
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-primary text-on-primary text-label-sm font-semibold shadow-md">All</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-medium hover:bg-surface-variant transition-colors">Duty Free</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-medium hover:bg-surface-variant transition-colors">Luxury</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-medium hover:bg-surface-variant transition-colors">Beauty</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-medium hover:bg-surface-variant transition-colors">Dining</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-medium hover:bg-surface-variant transition-colors">Lounges</button>
+</div>
+</section>
+<!-- Featured Store -->
+<section class="px-6 mb-8 mt-2">
+<div class="relative w-full h-[380px] rounded-2xl overflow-hidden group cursor-pointer shadow-xl" onclick="window.location.href='store_selection.html'">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('uploads/panpuri_Banner.jpg')">
+</div>
+<div class="absolute bottom-0 left-0 w-full p-6 z-20">
+<span class="inline-block px-3 py-1 bg-secondary text-primary text-[10px] font-bold uppercase tracking-widest rounded mb-3 shadow-sm">Featured Partner</span>
+<h2 class="text-white font-display text-4xl font-extrabold tracking-tight mb-2">PAÑPURI</h2>
+<p class="text-white/80 text-body-md max-w-[280px] mb-5">Holistic wellness and luxury fragrances inspired by Eastern wisdom.</p>
+<div class="flex items-center gap-4">
+<button class="bg-secondary text-primary px-5 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-white transition-colors">
+                            Explore Collection <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<div class="flex items-center text-white/90 gap-1 text-sm font-medium">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                            Gate F, 3 min
+                        </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Store List -->
+<section class="px-6 space-y-4">
+<div class="flex items-baseline justify-between mb-2">
+<h3 class="font-display text-headline-md font-bold text-primary text-xl">Store Directory</h3>
+<span class="text-label-sm text-on-surface-variant font-medium">52 Stores Found</span>
+</div>
+<!-- Rolex -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant/20 active:scale-[0.98] transition-all cursor-pointer group hover:border-secondary">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:bg-primary-container transition-colors">
+<img class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-NEj2dK6BFEGuEuElIg3O2PWsuusCziZ2nt8YfF990sqZnQYwENtiXHt31NJhE8QMTKb0eU-f_FC43Zz-oDCIzo1GxJdLv0lu8q-bE19cD_h38kJmnhde0MYeqCP3m-762w2uAGk16-OjeD8yX0unvq2wWojmSUCeP5skhb9lJ_Zthbgi_mTrPxjGKnISuUHwZ1vcfVkFRdVldMZcenDEtjnk7m_OMmSETOA5xls1v1ACaePR6O1OSZLP8n2hnvng9zkwyOBFmU4"/>
+</div>
+<div class="ml-4 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-primary text-lg">Rolex</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Luxury Watches</p>
+<div class="flex items-center gap-3 mt-1 text-on-surface-variant/70 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">directions_walk</span> 5 min walk</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Concourse D</span>
+</div>
+</div>
+</div>
+<!-- Chanel -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant/20 active:scale-[0.98] transition-all cursor-pointer group hover:border-secondary">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:bg-primary-container transition-colors">
+<img class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYrC6SBepAI1XbTo46_K-gfTbttf7uZbSkcqeIzN9cJ1-BS4FKq52KR5-AuOkACEwhRXvpKsINrqBdhqdNqz_wwFc0FckBW7TdWl8aRDTV_yI9cTK7rG_LTJCS2qst2n-vtxYIgji8twiNE-U0__mNhV7bYrebnuTDDxcadfEFoQfB_5nTptuM0bStpuwEpwGP2-mzeG71O8LKIDofc2xD4eOmRpmmXLELI2iNtPBt_rmA8od6I7a7OK8CGmVHyCb8RZQcpG4U4Qo"/>
+</div>
+<div class="ml-4 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-primary text-lg">Chanel</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Beauty &amp; Fashion</p>
+<div class="flex items-center gap-3 mt-1 text-on-surface-variant/70 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">directions_walk</span> 8 min walk</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Concourse E</span>
+</div>
+</div>
+</div>
+<!-- King Power Duty Free -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant/20 active:scale-[0.98] transition-all cursor-pointer group hover:border-secondary" onclick="window.location.href='index.html'">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:bg-primary-container transition-colors">
+<img class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2xPa01j24nqaxDZJNpQZMBf6yx1s3hddEV9AlraSwhuwXmOPC6BzCRE0jHdet1yzm3LmvK0NLqBCH0Hw3HTNjaHpvHutSsqmsdCAIoObhLjhtEyPfzpmwoDfCCZfwHnDGDz_koHcRgo15Y2W6BOilhskviflCTHpzJVViRF_ZyWLol0zb-VqFmX8IQvaMN9M5syHQj5B2wo8GdfqKoV31nC1FKuCqysRJR_-HD7IFRGZ7mthU2QI921uE9dzgZGqcRRCWpVsiQgo"/>
+</div>
+<div class="ml-4 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-primary text-lg">King Power Duty Free</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">General Duty Free</p>
+<div class="flex items-center gap-3 mt-1 text-on-surface-variant/70 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">directions_walk</span> 2 min walk</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Central Plaza</span>
+</div>
+</div>
+</div>
+<!-- Jim Thompson -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant/20 active:scale-[0.98] transition-all cursor-pointer group hover:border-secondary">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:bg-primary-container transition-colors">
+<img class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKXoN2UWz6XJuKODfstJs_ssnCpF-m8_8dQPMLUmrIVknd2tq3qme7NS7zbzoxJMvhwRJ-hd5XoOolImnonF9admj9FnctK9AIB6iOO7nOCpTj4LCU5SMhT96bQm3nfnGwiQiz4npqHFE28sNPScPN-1yEahBvZwgRVAMaMekIak4zbPEN8b9yC2Oj75dN4tOgKnvaDj9mdDf5gbzxKooXbZePBSmFO_NXKAnyyDm3ArEApmMVHcY40GD9ZMTZ1rqtGEP-n4_R6v0"/>
+</div>
+<div class="ml-4 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-primary text-lg">Jim Thompson</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Thai Silk &amp; Souvenirs</p>
+<div class="flex items-center gap-3 mt-1 text-on-surface-variant/70 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">directions_walk</span> 12 min walk</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Concourse A</span>
+</div>
+</div>
+</div>
+<!-- Bvlgari -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant/20 active:scale-[0.98] transition-all cursor-pointer group hover:border-secondary">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:bg-primary-container transition-colors">
+<img class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbltdl2T6edYFvM6qVhOaY6c9e5xzB2SxuoVZ46nriZBRk0twygINBslr0MZucOL4WYO5hLsmil5LcLPcfZ10aJZLrO4uRSXT9CGJ4TxlkIUUsMo7AGjr79VgWvC0vaF2_HW098z76mtxbOHmgx9tKmWEIfdUZk0iDzmMz3hJlMeVelNpPz8wnA3jDVImDCIyGuBbeLeHl1hHolPJu2KmDjGX6Wu9xL9-ji15s3g3mToDJaWRHQ12gSLSSqIarwOY5JaZeUFWZiOU"/>
+</div>
+<div class="ml-4 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-primary text-lg">Bvlgari</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Fine Jewelry</p>
+<div class="flex items-center gap-3 mt-1 text-on-surface-variant/70 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">directions_walk</span> 6 min walk</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Concourse D</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Informational Banner -->
+<section class="px-6 mt-10 mb-8">
+<div class="bg-secondary/10 border border-secondary/30 p-6 rounded-2xl flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">info</span>
+<div>
+<h5 class="font-bold text-primary mb-1">Pre-Order Convenience</h5>
+<p class="text-on-surface-variant text-sm">Purchase duty-free items 2 hours before your flight and pick up at our 24/7 collection counters.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Matching index.html) -->
+<div class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+    <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
+        <div class="px-6 w-full flex items-center justify-between relative">
+            <!-- Home -->
+            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html'">
+                <span class="material-symbols-outlined">home</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">Home</span>
+            </div>
+            <!-- Navigate -->
+            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html?view=map'">
+                <span class="material-symbols-outlined">map</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
+            </div>
+            <!-- Center Floating Pre-Order button -->
+            <div class="relative w-14 flex justify-center cursor-pointer transition-all duration-200 active:scale-95" onclick="window.location.href='store_selection.html'">
+                <div class="absolute -top-10 w-14 h-14 bg-[#d8aa3d] shadow-lg border-4 border-white flex items-center justify-center hover:scale-105 active:shadow-[0_0_20px_rgba(216,170,61,0.9)] transition-all" style="border-radius: 50%;">
+                    <span class="material-symbols-outlined text-[#001a3d] font-bold text-xl">add</span>
+                </div>
+                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-tight mt-6">Pre-Order</span>
+            </div>
+            <!-- AI Assist -->
+            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html?view=ai'">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">AI Assist</span>
+            </div>
+            <!-- Offers -->
+            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95">
+                <span class="material-symbols-outlined">local_offer</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">Offers</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        // Micro-interactions for category chips
+        const chips = document.querySelectorAll('.flex.gap-2.overflow-x-auto button');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-on-primary', 'shadow-md');
+                    c.classList.add('bg-surface-container-highest', 'text-on-surface-variant');
+                });
+                chip.classList.add('bg-primary', 'text-on-primary', 'shadow-md');
+                chip.classList.remove('bg-surface-container-highest', 'text-on-surface-variant');
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input');
+        const searchContainer = searchInput.parentElement;
+        searchInput.addEventListener('focus', () => {
+            searchContainer.classList.add('ring-2', 'ring-primary/40');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchContainer.classList.remove('ring-2', 'ring-primary/40');
+        });
+    </script>
+</body></html>
