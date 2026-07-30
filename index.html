@@ -266,6 +266,12 @@
     .skiptranslate > iframe.goog-te-banner-frame { display: none !important; }
     body { top: 0px !important; }
 </style>
+<script>
+    // Anti-flicker for boutique navigation
+    if (window.location.search.includes('boutiqueStore=')) {
+        document.write('<style id="anti-flicker">#home-view { display: none !important; }</style>');
+    }
+</script>
 </head>
 
 <body class="bg-surface font-body text-on-surface antialiased overflow-hidden flex flex-col h-screen w-screen">
@@ -477,11 +483,11 @@
         </div>
 
         <!-- PANPURI Pre-order -->
-        <div class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl border border-white/5 flex flex-col gap-4">
-            <div class="flex justify-between items-start">
+        <div onclick="window.location.href='store_selection.html'" class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl border border-white/5 flex flex-col gap-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+            <div class="flex justify-between items-start pointer-events-none">
                 <div>
                     <h3 class="text-white text-xl font-bold tracking-[0.2em]">PAÑPURI</h3>
-                    <p class="text-[#d8aa3d] text-[10px] mt-2 mb-2 font-light">สั่งจองสินค้าล่วงหน้า รับสินค้าได้ที่ร้านก่อนขึ้นเครื่อง</p>
+                    <p class="text-[#d8aa3d] text-[10px] mt-2 mb-2 font-light">Pre-order now and pick up at the store before boarding</p>
                 </div>
                 <span class="border border-[#d8aa3d]/40 text-[#d8aa3d] text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">Pre-Order</span>
             </div>
@@ -494,9 +500,9 @@
                 </div>
             </div>
 
-            <button onclick="showPage('page-preorder')" class="w-full bg-[#d8aa3d] text-[#001a3d] py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c99a2c] active:scale-95 transition-all shadow-md">
+            <button onclick="event.stopPropagation(); window.location.href='store_selection.html'" class="w-full bg-[#d8aa3d] text-[#001a3d] py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c99a2c] active:scale-95 transition-all shadow-md pointer-events-auto">
                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
-                สั่งจองสินค้า PANPURI
+                PRE-ORDER PANPURI
             </button>
         </div>
 
@@ -673,6 +679,13 @@
 </aside>
 <!-- Main Content Canvas -->
 <main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
+<!-- Mobile Back to Store Selection -->
+<div class="bg-surface px-4 py-2 lg:hidden flex border-b border-gray-100">
+    <button onclick="confirmExitToStoreSelection()" class="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors text-xs font-bold w-full rounded-lg bg-gray-50 px-3 py-2 border border-gray-200">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        เลือกร้านค้าใหม่ (Change Store)
+    </button>
+</div>
 <!-- Top Navigation -->
 <header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
 <div class="flex items-center gap-4">
@@ -966,7 +979,7 @@
             </div>
 
             <!-- Interactive Store Results List Cards -->
-            <div id="results-container" class="absolute bottom-28 left-0 md:left-6 w-full md:w-[420px] px-6 md:px-0 z-[60] pointer-events-none flex flex-col gap-3 max-h-[35vh] overflow-y-auto no-scrollbar hidden">
+            <div id="results-container" class="absolute bottom-28 left-0 md:left-6 w-full md:w-[420px] px-6 md:px-0 z-[60] pointer-events-none flex flex-col gap-3 max-h-[50vh] pb-[120px] overflow-y-auto no-scrollbar hidden">
                 <!-- Google Maps Cards will be dynamically inserted here -->
             </div>
 
@@ -1607,6 +1620,37 @@
                         `;
                     }
                     mapContainer.appendChild(pin);
+                    // Auto-zoom logic for selected route
+                    if (isSelected && typeof mapPanzoom !== 'undefined' && mapPanzoom) {
+                        setTimeout(() => {
+                            const startX = 489;
+                            const startY = 227;
+                            const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
+                            const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
+                            
+                            // Calculate bounding box center
+                            const centerX = (startX + targetX) / 2;
+                            const centerY = (startY + targetY) / 2;
+                            
+                            // Calculate distance to determine zoom level
+                            const dx = Math.abs(targetX - startX);
+                            const dy = Math.abs(targetY - startY);
+                            const distance = Math.max(dx, dy);
+                            
+                            let targetScale = 2; // Default scale for short routes
+                            if (distance > 400) targetScale = 0.8;
+                            else if (distance > 250) targetScale = 1.2;
+                            else if (distance > 100) targetScale = 1.5;
+                            
+                            // Container size for centering adjustment
+                            // Since the 1000x500 SVG is naturally centered, pan(0,0) centers it on 500,250.
+                            const panX = 500 - centerX;
+                            const panY = 250 - centerY;
+                            
+                            mapPanzoom.pan(panX, panY, { animate: true, relative: false });
+                            mapPanzoom.zoom(targetScale, { animate: true });
+                        }, 100);
+                    }
                 }
             });
         }
@@ -1697,7 +1741,7 @@
             // Panpuri popup special deal
             if (queryText.toLowerCase().includes('panpuri')) {
                 setTimeout(() => {
-                    alert(`✨ พบแบรนด์ Pañpuri บนเส้นทางเดินของคุณ! \n\n🔥 สินค้าขายดีแนะนำ:\n1. Perfume Oil\n2. Hand Cream\n\n🎟️ รับสิทธิ์พิเศษเฉพาะคุณ: Get 10% Off สำหรับลูกค้า King Power`);
+                    // alert(`✨ พบแบรนด์ Pañpuri บนเส้นทางเดินของคุณ! \n\n🔥 สินค้าขายดีแนะนำ:\n1. Perfume Oil\n2. Hand Cream\n\n🎟️ รับสิทธิ์พิเศษเฉพาะคุณ: Get 10% Off สำหรับลูกค้า King Power`);
                 }, 300);
             }
 
@@ -1831,8 +1875,17 @@
                 btn.classList.add('bg-surface-container-low');
             });
 
+            // Reset menubar and results container positioning
+            const menuBar = document.getElementById('main-mobile-menubar');
+            const resultsContainer = document.getElementById('results-container');
+            if (menuBar) menuBar.classList.remove('translate-y-[150%]');
+            if (resultsContainer) {
+                resultsContainer.classList.add('bottom-28', 'pb-[120px]');
+                resultsContainer.classList.remove('bottom-4', 'pb-4');
+                resultsContainer.classList.add('hidden');
+            }
+
             // Hide results container, gate path, and clear SVG paths/pins
-            document.getElementById('results-container').classList.add('hidden');
             document.getElementById('route-path-svg').innerHTML = '';
             const routeGateC = document.getElementById('route-gate-c');
             if (routeGateC) routeGateC.classList.add('hidden');
@@ -1854,6 +1907,9 @@
 
             activeStores = [];
             selectedShopNumber = null;
+            
+            // Zoom back to fit screen when cancelling
+            fitMapToScreen();
         }
 
         // Listen to input changes to show/hide clear button
@@ -2021,6 +2077,24 @@
             } else {
                 selectedShopNumber = shopNumber;
             }
+
+            // Toggle menubar visibility
+            const menuBar = document.getElementById('main-mobile-menubar');
+            const resultsContainer = document.getElementById('results-container');
+            if (selectedShopNumber) {
+                if (menuBar) menuBar.classList.add('translate-y-[150%]');
+                if (resultsContainer) {
+                    resultsContainer.classList.remove('bottom-28', 'pb-[120px]');
+                    resultsContainer.classList.add('bottom-4', 'pb-4');
+                }
+            } else {
+                if (menuBar) menuBar.classList.remove('translate-y-[150%]');
+                if (resultsContainer) {
+                    resultsContainer.classList.add('bottom-28', 'pb-[120px]');
+                    resultsContainer.classList.remove('bottom-4', 'pb-4');
+                }
+            }
+
             renderResultsCards(activeStores);
             renderStoreRoutes(activeStores);
         }
@@ -2782,6 +2856,46 @@
             } catch (e) {
                 alert("Error in selectPreorderStore: " + e.message + "\n" + e.stack);
             }
+        }
+
+        function confirmExitToStoreSelection() {
+            const modal = document.getElementById('exit-store-modal');
+            const backdrop = document.getElementById('exit-store-backdrop');
+            const content = document.getElementById('exit-store-content');
+            
+            if (!modal) return;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        }
+
+        function closeExitStoreModal() {
+            const modal = document.getElementById('exit-store-modal');
+            const backdrop = document.getElementById('exit-store-backdrop');
+            const content = document.getElementById('exit-store-content');
+            
+            if (!modal) return;
+            
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function proceedExitStore() {
+            window.location.href = 'store_selection.html';
         }
 
         async function loadProducts() {
@@ -3557,7 +3671,7 @@
     </div>
 
 
-<div class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+<div id="main-mobile-menubar" class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none transition-transform duration-300 ease-in-out transform translate-y-0">
     <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
         <div class="px-6 w-full flex items-center justify-between relative">
             <!-- Home -->
@@ -3662,11 +3776,9 @@
             if (boutiqueStoreParam) {
                 const storeMap = { 'DE40': 'PANPURI Concourse D East', 'DE12': 'PANPURI Concourse D East 2', 'DW41': 'PANPURI Concourse D West' };
                 const storeName = storeMap[boutiqueStoreParam] || 'PANPURI';
-                setTimeout(() => {
-                    if (typeof selectPreorderStore === 'function') {
-                        selectPreorderStore(boutiqueStoreParam, storeName);
-                    }
-                }, 500); // Wait a bit for everything to init
+                if (typeof selectPreorderStore === 'function') {
+                    selectPreorderStore(boutiqueStoreParam, storeName);
+                }
             } else if (searchStoreParam) {
                 setTimeout(() => {
                     if (typeof showPage === 'function') showPage('map-view');
@@ -3699,6 +3811,32 @@
                 </button>
                 <button onclick="confirmCancelNavigation()" class="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/30 active:scale-95 text-sm border border-red-500">
                     ยืนยันยกเลิก
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exit Store Confirmation Modal -->
+<div id="exit-store-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 pointer-events-auto">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="exit-store-backdrop" onclick="closeExitStoreModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white/95 backdrop-blur-xl rounded-2xl p-6 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="exit-store-content">
+        <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 border border-blue-200 shadow-inner">
+                <span class="material-symbols-outlined text-blue-600 text-3xl">storefront</span>
+            </div>
+            <h3 class="text-lg font-black text-[#000a1e] mb-2">เปลี่ยนร้านค้า?</h3>
+            <p class="text-sm font-medium text-gray-500 mb-6">ต้องการออกเพื่อเปลี่ยนร้านค้าใช่หรือไม่?<br><span class="text-xs text-gray-400">(Are you sure you want to exit and change store?)</span></p>
+            
+            <div class="flex w-full gap-3">
+                <button onclick="closeExitStoreModal()" class="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all active:scale-95 text-sm border border-gray-200">
+                    ยกเลิก (Cancel)
+                </button>
+                <button onclick="proceedExitStore()" class="flex-1 py-3 px-4 bg-[#001a3d] hover:bg-[#002855] text-white font-bold rounded-xl transition-all shadow-lg shadow-[#001a3d]/30 active:scale-95 text-sm border border-[#001a3d]">
+                    ยืนยัน (Confirm)
                 </button>
             </div>
         </div>
