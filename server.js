@@ -1499,20 +1499,47 @@ async function writeCsvGeneric(filePath, rows, headers) {
   else if (filePath.includes('flight_matrix')) table = 'flight_matrix';
   
   if (!table) return;
+  
+  // Dedup logic based on primary key for products to prevent transaction aborts
+  let dedupedRows = rows;
+  if (table === 'panpuri_products' && rows && rows.length > 0) {
+      const seen = new Set();
+      dedupedRows = [];
+      for (let r of rows) {
+          if (!seen.has(r.Code)) {
+              seen.add(r.Code);
+              dedupedRows.push(r);
+          } else {
+              console.warn('[Admin] Skipping duplicate product Code:', r.Code);
+          }
+      }
+  }
+  
+  const client = await db.pool.connect();
   try {
-    await db.query('TRUNCATE ' + table);
-    if (!rows || rows.length === 0) return;
+    await client.query('BEGIN');
+    await client.query('TRUNCATE ' + table);
+    if (!dedupedRows || dedupedRows.length === 0) {
+      await client.query('COMMIT');
+      return;
+    }
     const cols = headers.map(h => '"' + h + '"').join(', ');
-    for (let row of rows) {
+    for (let row of dedupedRows) {
       let vals = headers.map(h => {
         if (h === 'items_json' && typeof row[h] === 'string') return row[h];
         if (h === 'items_json' && typeof row[h] === 'object') return JSON.stringify(row[h]);
         return row[h];
       });
       let placeholders = headers.map((_, i) => '$' + (i+1)).join(', ');
-      await db.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
+      await client.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
     }
-  } catch(e) { console.error('Error writing to table ' + table, e); }
+    await client.query('COMMIT');
+  } catch(e) { 
+    await client.query('ROLLBACK');
+    console.error('Error writing to table (Transaction Rolled Back) ' + table, e); 
+  } finally {
+    client.release();
+  }
 }
 
 const PRODUCT_HEADERS = ['Code','Description','Reference','Category','Sub-Category','Scent','Price','Image','Qty_Branch1','Qty_Branch2','Qty_Branch3','Description_Customer','Scent_Notes','How_to_Use','Size'];
