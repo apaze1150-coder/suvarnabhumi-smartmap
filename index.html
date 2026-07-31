@@ -2352,6 +2352,8 @@
                 }
 
             }, 300);
+        }
+
         async function navigateToGate() {
             // Read gate text BEFORE switching pages, or use textContent which is not layout-dependent
             const gateText = (document.getElementById('flight-gate-display')?.textContent || 'D4').trim();
