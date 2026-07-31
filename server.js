@@ -1833,7 +1833,7 @@ app.post('/api/admin/products', async (req, res) => {
 });
 
 app.post('/api/admin/products/batch-update', async (req, res) => {
-  const { password, updates } = req.body;
+  const { password, updates, insertAfterCode } = req.body;
   if (password && password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Unauthorized' });
   if (!updates || typeof updates !== 'object') return res.status(400).json({ error: 'Invalid updates payload' });
 
@@ -1928,7 +1928,17 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
           Scent_Notes: (changes.Scent_Notes || '').trim(),
           How_to_Use: (changes.How_to_Use || '').trim()
         };
-        products.push(newProduct);
+        
+        if (insertAfterCode) {
+            const afterIdx = products.findIndex(p => p.Code === insertAfterCode);
+            if (afterIdx !== -1) {
+                products.splice(afterIdx + 1, 0, newProduct);
+            } else {
+                products.push(newProduct);
+            }
+        } else {
+            products.push(newProduct);
+        }
         updatedCount++;
       }
     }
@@ -1937,6 +1947,34 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
     await writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
     console.log(`[Admin] Batch updated ${updatedCount} products`);
     res.json({ success: true, updatedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/products/reorder
+app.post('/api/admin/products/reorder', async (req, res) => {
+  const { password, orderedCodes } = req.body;
+  if (password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Unauthorized' });
+  if (!orderedCodes || !Array.isArray(orderedCodes)) return res.status(400).json({ error: 'Invalid payload' });
+  try {
+    const products = await readCsv(PRODUCTS_CSV);
+    const newProducts = [];
+    const prodMap = new Map();
+    products.forEach(p => prodMap.set(p.Code, p));
+    
+    // Add in specified order
+    orderedCodes.forEach(code => {
+      if (prodMap.has(code)) {
+        newProducts.push(prodMap.get(code));
+        prodMap.delete(code);
+      }
+    });
+    // Add any remaining products that weren't in the ordered list
+    prodMap.forEach(p => newProducts.push(p));
+    
+    await writeCsvGeneric(PRODUCTS_CSV, newProducts, PRODUCT_HEADERS);
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

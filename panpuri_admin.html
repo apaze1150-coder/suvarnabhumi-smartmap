@@ -1322,8 +1322,11 @@ applyColumnVisibility();
                 <td class="px-md py-md font-body-sm text-on-surface-variant max-w-[200px]">
                     <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="How_to_Use" title="${p.How_to_Use || ''}">${p.How_to_Use || '-'}</span>
                 </td>
-                <td class="px-md py-md text-center w-[120px]">
-                    <div class="flex items-center gap-2 justify-center">
+                <td class="px-md py-md text-center w-[160px]">
+                    <div class="flex items-center gap-1 justify-center">
+                        <button onclick="moveProductUp('${p.Code}')" class="p-1 text-on-surface-variant hover:text-primary transition-colors material-symbols-outlined" title="Move Up">arrow_upward</button>
+                        <button onclick="moveProductDown('${p.Code}')" class="p-1 text-on-surface-variant hover:text-primary transition-colors material-symbols-outlined" title="Move Down">arrow_downward</button>
+                        <button onclick="insertProductBelow('${p.Code}')" class="p-1 text-on-surface-variant hover:text-primary transition-colors material-symbols-outlined" title="Insert Below">playlist_add</button>
                         <button onclick="editProductRow('${p.Code}')" class="p-1 text-on-surface-variant hover:text-primary transition-colors material-symbols-outlined" title="Edit inline">edit</button>
                         <button onclick="deleteProduct('${p.Code}')" class="p-1 text-on-surface-variant hover:text-error transition-colors material-symbols-outlined" title="Delete">delete</button>
                     </div>
@@ -1874,7 +1877,8 @@ const CATEGORY_MAP = {
       "GIFT": ["Gift of Fine Fragrances", "Gift For Face", "Gift For Bath & Body", "Gift For Home"]
   };
 
-function openAddProductModal() {
+function openAddProductModal(insertAfter = null) {
+    window.insertAfterCode = insertAfter;
     const modal = document.getElementById('addProductModal');
     const catSelect = document.getElementById('newProductCategory');
     
@@ -1893,7 +1897,53 @@ function openAddProductModal() {
     modal.classList.remove('hidden');
 }
 
+function insertProductBelow(code) {
+    openAddProductModal(code);
+}
+
+async function moveProductUp(code) {
+    const idx = allProducts.findIndex(p => p.Code === code);
+    if (idx > 0) {
+        const temp = allProducts[idx];
+        allProducts[idx] = allProducts[idx - 1];
+        allProducts[idx - 1] = temp;
+        await saveReorder();
+    }
+}
+
+async function moveProductDown(code) {
+    const idx = allProducts.findIndex(p => p.Code === code);
+    if (idx > -1 && idx < allProducts.length - 1) {
+        const temp = allProducts[idx];
+        allProducts[idx] = allProducts[idx + 1];
+        allProducts[idx + 1] = temp;
+        await saveReorder();
+    }
+}
+
+async function saveReorder() {
+    renderTable(); // Optimistically update UI
+    try {
+        const orderedCodes = allProducts.map(p => p.Code);
+        const res = await fetch('/api/admin/products/reorder', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ password: '6515', orderedCodes })
+        });
+        const data = await res.json();
+        if(!data.success) {
+            alert('Reorder failed: ' + (data.error || 'Unknown error'));
+            loadProducts(); // revert
+        }
+    } catch(err) {
+        console.error(err);
+        alert('Connection error');
+        loadProducts(); // revert
+    }
+}
+
 function closeAddProductModal() {
+    window.insertAfterCode = null;
     document.getElementById('addProductModal').classList.add('hidden');
 }
 
@@ -1971,31 +2021,37 @@ async function saveNewProduct(e) {
     const newProductCode = document.getElementById('newProductCode').value.trim();
     if (!newProductCode) return alert('Product Code is required');
 
+    const existing = allProducts.find(p => p.Code === newProductCode);
     const newProduct = {
         Code: newProductCode,
-        Description: document.getElementById('newProductName').value,
-        Reference: document.getElementById('newProductReference') ? document.getElementById('newProductReference').value : '',
-        Category: document.getElementById('newProductCategory').value,
-        'Sub-Category': document.getElementById('newProductSubCategory').value,
-        Scent: document.getElementById('newProductScent') ? document.getElementById('newProductScent').value : '',
-        Size: document.getElementById('newProductSize') ? document.getElementById('newProductSize').value : '',
-        Price: document.getElementById('newProductPrice').value,
-        Qty_Branch1: document.getElementById('newProductStock').value,
-        Qty_Branch2: document.getElementById('newProductStockDE12').value,
-        Qty_Branch3: document.getElementById('newProductStockDW41').value,
-        Image: ''
+        Description: document.getElementById('newProductName').value || (existing ? existing.Description : ''),
+        Reference: (document.getElementById('newProductReference') ? document.getElementById('newProductReference').value : '') || (existing ? existing.Reference : ''),
+        Category: document.getElementById('newProductCategory').value || (existing ? existing.Category : ''),
+        'Sub-Category': document.getElementById('newProductSubCategory').value || (existing ? (existing['Sub-Category'] || existing.sub_category) : ''),
+        Scent: (document.getElementById('newProductScent') ? document.getElementById('newProductScent').value : '') || (existing ? (existing.Scent || existing.scent) : ''),
+        Size: (document.getElementById('newProductSize') ? document.getElementById('newProductSize').value : '') || (existing ? (existing.Size || existing.size) : ''),
+        Price: document.getElementById('newProductPrice').value || (existing ? existing.Price : ''),
+        Qty_Branch1: document.getElementById('newProductStock').value || (existing ? existing.Qty_Branch1 : '0'),
+        Qty_Branch2: document.getElementById('newProductStockDE12').value || (existing ? existing.Qty_Branch2 : '0'),
+        Qty_Branch3: document.getElementById('newProductStockDW41').value || (existing ? existing.Qty_Branch3 : '0'),
+        Image: existing ? existing.Image : ''
     };
+    
+    const payload = {
+        password: '6515',
+        updates: {
+            [newProductCode]: newProduct
+        }
+    };
+    if (window.insertAfterCode) {
+        payload.insertAfterCode = window.insertAfterCode;
+    }
     
     try {
         const res = await fetch('/api/admin/products/batch-update', {
             method: 'POST', 
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                password: '6515',
-                updates: {
-                    [newProductCode]: newProduct
-                }
-            })
+            body: JSON.stringify(payload)
         });
         const data = await res.json();
         
