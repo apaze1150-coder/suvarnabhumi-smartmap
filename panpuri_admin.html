@@ -127,20 +127,11 @@
         .thumb-zone-safe {
             padding-bottom: env(safe-area-inset-bottom);
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #c5c6cd;
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #75777d;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 16px; height: 16px; background-color: #f5f5f5; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: #f5f5f5; border-radius: 8px; box-shadow: inset 0 0 6px rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #b0b0b0; border-radius: 8px; border: 3px solid #f5f5f5; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #909090; }
+        .col-hidden { display: none !important; }
     </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -462,7 +453,7 @@
 </div>
         </div>
         <div id="view-products" class="spa-view hidden">
-            <div class="p-margin-mobile md:p-margin-desktop space-y-lg overflow-y-auto custom-scrollbar">
+            <div class="p-margin-mobile md:p-margin-desktop space-y-lg flex-1 flex flex-col min-h-0 overflow-hidden">
 <div class="flex justify-between items-end">
 <div>
 <h2 class="font-headline-xl text-headline-xl text-primary tracking-tight">Product Database</h2>
@@ -473,7 +464,21 @@
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
         <input type="text" id="admin-code-search" placeholder="ค้นหารหัสสินค้า (CODE)..." class="pl-10 pr-4 py-2 bg-white border border-outline-variant/40 rounded-full w-full sm:w-64 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm" onkeydown="if(event.key==='Enter') searchProductCode()">
     </div>
-    <button onclick="openAddProductModal()" class="flex items-center gap-2 bg-primary-container text-on-primary px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all ripple-gold">
+    
+                        <!-- Column Visibility Dropdown -->
+                        <div class="relative inline-block">
+                            <button id="columnToggleBtn" onclick="toggleColumnDropdown(event)" class="flex items-center gap-2 bg-surface-container-high text-on-surface px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
+                                <span class="material-symbols-outlined text-[20px]">view_column</span>
+                                Columns
+                            </button>
+                            <div id="columnDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white border border-outline-variant shadow-lg rounded-xl z-50 p-4 max-h-[300px] overflow-y-auto custom-scrollbar">
+                                <p class="text-xs font-bold text-on-surface-variant uppercase mb-3 tracking-wider">Toggle Columns</p>
+                                <div id="columnToggles" class="flex flex-col gap-2">
+                                    <!-- Dynamic Checkboxes -->
+                                </div>
+                            </div>
+                        </div>
+        <button onclick="openAddProductModal()" class="flex items-center gap-2 bg-primary-container text-on-primary px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all ripple-gold">
         <span class="material-symbols-outlined text-[20px]">add</span> Add Product
     </button>
     <button onclick="openBulkImportModal()" class="flex items-center gap-2 bg-surface-container-high text-on-surface px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
@@ -524,28 +529,28 @@
 </div>
 </div>
 
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden bento-shadow">
-<div class="overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden bento-shadow flex-1 flex flex-col min-h-0">
+<div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar" id="productsTableContainer">
 <table class="w-full text-left border-collapse min-w-[1600px]">
 <thead class="bg-surface-container-low sticky top-0 z-10">
 <tr>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low">No.</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low">Code</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Description</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Reference</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Category</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Sub Category</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Scent</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Size</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-right sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Price</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Image</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Qty_Branch1</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Qty_Branch2</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Qty_Branch3</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Description For Customer</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">SCENT NOTES</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">How To Use</th>
-<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap">Actions</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low" data-col="no">No.</th>
+<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low" data-col="code">Code</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="desc">Description</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="ref">Reference</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="cat">Category</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="subcat">Sub Category</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="scent">Scent</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="size">Size</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-right sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="price">Price</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="img">Image</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="qty1">Qty_Branch1</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="qty2">Qty_Branch2</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="qty3">Qty_Branch3</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="desc_cust">Description For Customer</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="scent_notes">SCENT NOTES</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="how_to_use">How To Use</th>
+<th class="px-md py-md font-label-md text-on-surface-variant uppercase tracking-wider text-center sticky top-0 z-10 bg-surface-container-low whitespace-nowrap" data-col="actions">Actions</th>
 </tr>
 </thead>
 <tbody id="productsTableBody" class="divide-y divide-outline-variant/20">
@@ -790,7 +795,8 @@ function switchTab(viewId) {
         async function loadProducts() {
             try {
                 const res = await fetch(`/api/admin/products?password=6515&_t=${Date.now()}`);
-                allProducts = await res.json();
+                const rawProducts = await res.json();
+                allProducts = rawProducts.map((p, i) => ({ ...p, _originalIndex: i }));
                 
                 // Calculate Stats
                 const totalSKUsEl = document.getElementById('totalSKUs');
@@ -818,6 +824,128 @@ function switchTab(viewId) {
                 console.error('Error loading products:', err);
             }
         }
+
+
+        
+        // --- COLUMN VISIBILITY LOGIC ---
+        const columns = [
+            { id: 'no', label: 'No.', defaultVisible: true },
+            { id: 'code', label: 'Code', defaultVisible: true },
+            { id: 'desc', label: 'Description', defaultVisible: true },
+            { id: 'ref', label: 'Reference', defaultVisible: true },
+            { id: 'cat', label: 'Category', defaultVisible: true },
+            { id: 'subcat', label: 'Sub Category', defaultVisible: false },
+            { id: 'scent', label: 'Scent', defaultVisible: false },
+            { id: 'size', label: 'Size', defaultVisible: false },
+            { id: 'price', label: 'Price', defaultVisible: true },
+            { id: 'img', label: 'Image', defaultVisible: true },
+            { id: 'qty1', label: 'Qty_Branch1', defaultVisible: true },
+            { id: 'qty2', label: 'Qty_Branch2', defaultVisible: true },
+            { id: 'qty3', label: 'Qty_Branch3', defaultVisible: true },
+            { id: 'desc_cust', label: 'Description For Customer', defaultVisible: false },
+            { id: 'scent_notes', label: 'Scent Notes', defaultVisible: false },
+            { id: 'how_to_use', label: 'How To Use', defaultVisible: false },
+            { id: 'actions', label: 'Actions', defaultVisible: true }
+        ];
+
+        let visibleColumns = {};
+        // Initialize from local storage or defaults
+        try {
+            const saved = localStorage.getItem('panpuri_visible_columns');
+            if (saved) visibleColumns = JSON.parse(saved);
+            else columns.forEach(c => visibleColumns[c.id] = c.defaultVisible);
+        } catch(e) {
+            columns.forEach(c => visibleColumns[c.id] = c.defaultVisible);
+        }
+
+        
+        function toggleColumnDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('columnDropdown');
+            if(dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+        
+        // Ensure dropdown closes when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('columnDropdown');
+            const btn = document.getElementById('columnToggleBtn');
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Initialize immediately
+        setTimeout(() => {
+            initColumnDropdown();
+            applyColumnVisibility();
+        }, 500);
+
+        function initColumnDropdown() {
+            const container = document.getElementById('columnToggles');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            columns.forEach(col => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 cursor-pointer p-2 hover:bg-surface-container rounded-md transition-colors';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'w-4 h-4 text-primary rounded border-outline focus:ring-primary';
+                cb.checked = visibleColumns[col.id];
+                cb.onchange = (e) => {
+                    visibleColumns[col.id] = e.target.checked;
+                    localStorage.setItem('panpuri_visible_columns', JSON.stringify(visibleColumns));
+                    applyColumnVisibility();
+                };
+                
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(col.label));
+                container.appendChild(label);
+            });
+            
+
+        }
+
+        function applyColumnVisibility() {
+            // Update Headers
+            const ths = document.querySelectorAll('#productsTableBody').length > 0 
+                ? document.querySelectorAll('th[data-col]') 
+                : [];
+            
+            ths.forEach(th => {
+                const colId = th.getAttribute('data-col');
+                if (visibleColumns[colId] === false) {
+                    th.classList.add('col-hidden');
+                } else {
+                    th.classList.remove('col-hidden');
+                }
+            });
+            
+            // Update Data Rows
+            const trs = document.querySelectorAll('#productsTableBody tr');
+            trs.forEach(tr => {
+                // We assume td's are in the exact same order as the columns array
+                const tds = tr.querySelectorAll('td');
+                if (tds.length === columns.length) {
+                    columns.forEach((col, index) => {
+                        if (visibleColumns[col.id] === false) {
+                            tds[index].classList.add('col-hidden');
+                        } else {
+                            tds[index].classList.remove('col-hidden');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Wait for DOM to init column UI
+        document.addEventListener('DOMContentLoaded', () => {
+            initColumnDropdown();
+            applyColumnVisibility();
+        });
 
 
         function renderProducts(products) {
@@ -908,7 +1036,8 @@ function switchTab(viewId) {
                 const id = e.target.getAttribute('data-id');
                 const field = e.target.getAttribute('data-field');
                 const val = e.target.innerText;
-                if(!unsavedChanges[id]) unsavedChanges[id] = {};
+                const originalIndex = e.target.getAttribute('data-index');
+                if(!unsavedChanges[id]) unsavedChanges[id] = { _originalIndex: originalIndex };
                 unsavedChanges[id][field] = val;
             }
         });
@@ -1124,28 +1253,28 @@ function switchTab(viewId) {
             tr.innerHTML = `
                 <td class="px-md py-md font-body-sm text-on-surface-variant text-center">${index + 1}</td>
                 <td class="px-md py-md font-mono font-bold text-primary">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Code">${p.Code || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Code">${p.Code || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm font-medium text-primary">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Description">${p.Description || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Description">${p.Description || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Reference">${p.Reference || '-'}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Reference">${p.Reference || '-'}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Category">${p.Category || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Category">${p.Category || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Sub-Category">${p['Sub-Category'] || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Sub-Category">${p['Sub-Category'] || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Scent">${p.Scent || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Scent">${p.Scent || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant text-center">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Size">${p.Size || ''}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Size">${p.Size || ''}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-primary font-bold text-right">
-                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-field="Price">${p.Price || '0'}</span>
+                    <span class="excel-cell px-2 py-1 rounded" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Price">${p.Price || '0'}</span>
                 </td>
                 <td class="px-md py-md text-center">
                     <div class="cursor-pointer inline-block overflow-hidden rounded-md border border-outline-variant hover:border-primary transition-colors" onclick="openImageModal('${p.Code}')" id="img-preview-container-${p.Code}">
@@ -1153,22 +1282,22 @@ function switchTab(viewId) {
                     </div>
                 </td>
                 <td class="px-md py-md text-center">
-                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-field="Qty_Branch1">${p.Qty_Branch1 || 0}</span>
+                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Qty_Branch1">${p.Qty_Branch1 || 0}</span>
                 </td>
                 <td class="px-md py-md text-center">
-                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-field="Qty_Branch2">${p.Qty_Branch2 || 0}</span>
+                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Qty_Branch2">${p.Qty_Branch2 || 0}</span>
                 </td>
                 <td class="px-md py-md text-center">
-                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-field="Qty_Branch3">${p.Qty_Branch3 || 0}</span>
+                    <span class="excel-cell px-2 py-1 rounded font-bold text-status-gold" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Qty_Branch3">${p.Qty_Branch3 || 0}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant max-w-[200px]">
-                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-field="Description_Customer" title="${p.Description_Customer || ''}">${p.Description_Customer || '-'}</span>
+                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Description_Customer" title="${p.Description_Customer || ''}">${p.Description_Customer || '-'}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant max-w-[200px]">
-                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-field="Scent_Notes" title="${p.Scent_Notes || ''}">${p.Scent_Notes || '-'}</span>
+                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="Scent_Notes" title="${p.Scent_Notes || ''}">${p.Scent_Notes || '-'}</span>
                 </td>
                 <td class="px-md py-md font-body-sm text-on-surface-variant max-w-[200px]">
-                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-field="How_to_Use" title="${p.How_to_Use || ''}">${p.How_to_Use || '-'}</span>
+                    <span class="excel-cell px-2 py-1 rounded block truncate w-full" contenteditable="false" data-id="${p.Code}" data-index="${p._originalIndex}" data-field="How_to_Use" title="${p.How_to_Use || ''}">${p.How_to_Use || '-'}</span>
                 </td>
                 <td class="px-md py-md text-center w-[120px]">
                     <div class="flex items-center gap-2 justify-center">
@@ -1179,6 +1308,7 @@ function switchTab(viewId) {
             `;
             tbody.appendChild(tr);
         });
+        applyColumnVisibility();
     }
 
     document.getElementById('searchInput').addEventListener('input', renderTable);

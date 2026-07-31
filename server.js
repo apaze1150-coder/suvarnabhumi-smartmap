@@ -544,6 +544,34 @@ app.get('/api/flight-status', async (req, res) => {
 
   // --- DEMO OVERRIDE ---
   
+  if ((cleanFlightId === 'TG679' || cleanFlightId === 'THA679') && !custom_gate) {
+      console.log("Applying demo override for TG679 to Gate D4");
+      return res.json({
+        flight_id: 'TG679',
+        gate: 'D4',
+        boarding_time: '23:45',
+        status: 'On Time',
+        gate_node_id: 'Node_Gate_D4',
+        walk_time_mins: 4
+      });
+  }
+
+  if (cleanFlightId === 'EK385' && !custom_gate) {
+      console.log("Applying demo override for EK385 to Gate S116");
+      const walkTimes = await readCsv(WALK_TIME_CSV);
+      const walkInfo = walkTimes.find(w => w.gate_zone === 'SAT-1');
+      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 15;
+      
+      return res.json({
+        flight_id: 'EK385',
+        gate: 'S116',
+        boarding_time: '01:45',
+        status: 'Scheduled',
+        gate_node_id: 'Node_Gate_S116',
+        walk_time_mins: walk_time_mins
+      });
+  }
+
   if (cleanFlightId === 'QR829' && !custom_gate) {
       console.log("Applying demo override for QR829 to Gate S111A");
       const walkTimes = await readCsv(WALK_TIME_CSV);
@@ -592,8 +620,6 @@ app.get('/api/flight-status', async (req, res) => {
     if (!flightData) {
       const airline = cleanFlightId.match(/^([A-Z]{2,3})/)?.[1] || 'TG';
       let gate = 'D4';
-
-      gate = 'TBD'; // Never guess the gate to prevent passengers from going to the wrong place
 
       // Generate dynamic status relative to server clock
       const now = new Date();
@@ -1401,7 +1427,7 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
     const productSales = {};
     orders.forEach(o => {
         let items = [];
-        try { items = JSON.parse(o.items_json || '[]'); } catch(e) {}
+        try { items = typeof o.items_json === 'string' ? JSON.parse(o.items_json || '[]') : (o.items_json || []); } catch(e) {}
         items.forEach(item => {
             if(!productSales[item.product_code]) {
                 productSales[item.product_code] = { code: item.product_code, name: item.name, qty: 0 };
@@ -1630,7 +1656,7 @@ app.get('/api/orders/track/:order_number', async (req, res) => {
     const order = orders.find(o => o.order_number === req.params.order_number);
     if (!order) return res.json({ success: false, error: 'ไม่พบหมายเลข Order นี้' });
     let itemsParsed = [];
-    try { itemsParsed = JSON.parse(order.items_json); } catch(e) {}
+    try { itemsParsed = typeof order.items_json === 'string' ? JSON.parse(order.items_json) : (order.items_json || []); } catch(e) {}
     res.json({ success: true, order: { ...order, items: itemsParsed } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -1681,7 +1707,7 @@ app.get('/api/orders', async (req, res) => {
     // Parse items and reverse (newest first)
     const result = filtered.map(o => {
       let items = [];
-      try { items = JSON.parse(o.items_json); } catch(e) {}
+      try { items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : (o.items_json || []); } catch(e) {}
       return { ...o, items };
     }).reverse();
 
@@ -1728,7 +1754,7 @@ app.put('/api/orders/:order_id', async (req, res) => {
     console.log(`[Order] ${orders[idx].order_number} status → ${status}`);
 
     let itemsParsed = [];
-    try { itemsParsed = JSON.parse(orders[idx].items_json); } catch(e) {}
+    try { itemsParsed = typeof orders[idx].items_json === 'string' ? JSON.parse(orders[idx].items_json) : (orders[idx].items_json || []); } catch(e) {}
     res.json({ success: true, order: { ...orders[idx], items: itemsParsed } });
   } catch (err) {
     console.error('[Order] Error updating order:', err);
@@ -1824,10 +1850,16 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
     
     // First, process updates to existing records
     for (const code of Object.keys(updates)) {
-      const idx = products.findIndex(p => p.Code === code);
       const changes = updates[code];
+      let idx = -1;
       
-      if (idx !== -1) {
+      if (changes._originalIndex !== undefined) {
+        idx = parseInt(changes._originalIndex);
+      } else {
+        idx = products.findIndex(p => p.Code === code);
+      }
+      
+      if (idx !== -1 && idx < products.length) {
         // Log stock changes
         const storesMap = { Qty_Branch1: 'de40', Qty_Branch2: 'de12', Qty_Branch3: 'dw41' };
         for (const [qtyField, frontendField] of Object.entries(storesMap)) {
@@ -2081,7 +2113,7 @@ app.get('/api/admin/orders', async (req, res) => {
     try { orders = await readCsv(ORDERS_CSV); } catch(e) {}
     const result = orders.map(o => {
       let items = [];
-      try { items = JSON.parse(o.items_json); } catch(e) {}
+      try { items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : (o.items_json || []); } catch(e) {}
       return { ...o, items };
     }).reverse();
     res.json(result);

@@ -77,3 +77,5 @@ node_id,name,x,y,concourse,type,connections,icon,image_url,floor
 "Node_information_west","information",758,218,"D","information","","information","","FL.4"
 "Node_Exchage rate_east","Exchage rate",214,214,"C","exchange-rate","","exchange-rate","prod-1785215575104-561699331.png","FL.4"
 "Node_exchage rate_west","exchange rate",774,230,"E","exchange-rate","","exchange-rate","prod-1785215590365-252677204.png","FL.4"
+"Node_Gate_S101","Gate S101",500,250,"SAT","gate","","","","SAT1"
+"Node_Gate_S116","Gate S116",500,250,"SAT","gate","","","","SAT1"
