@@ -1198,6 +1198,26 @@
             }
         }
 
+        function getSGateCoords(gateCode) {
+            if (!gateCode) return null;
+            const clean = gateCode.toUpperCase().replace(/^GATE\s*/i, '').replace(/\s+/g, '');
+            const match = clean.match(/^S(\d{3})/);
+            if (!match) return null;
+            
+            const num = parseInt(match[1], 10);
+            let targetX = 500;
+            let targetY = 250;
+            
+            if (num >= 101 && num <= 112) {
+                targetX = 500 - ((113 - num) * 35);
+            } else if (num >= 113 && num <= 128) {
+                targetX = 500 + ((num - 112) * 35);
+            }
+            
+            targetX = Math.max(100, Math.min(900, targetX));
+            return { x: targetX, y: targetY };
+        }
+
         function getDGateCoords(gateCode) {
             if (!gateCode) return null;
             const clean = gateCode.toUpperCase().replace(/^GATE\s*/i, '').replace(/\s+/g, '');
@@ -2447,8 +2467,9 @@
             let targetY = 227;
 
             if (sMatch) {
-                targetX = 500;
-                targetY = 250;
+                const sCoords = getSGateCoords(cleanGate);
+                targetX = sCoords ? sCoords.x : 500;
+                targetY = sCoords ? sCoords.y : 250;
             } else if (dMatch) {
                 const dCoords = getDGateCoords(cleanGate);
                 targetX = dCoords ? dCoords.x : 454;
@@ -2469,9 +2490,9 @@
             }
 
             // 4. Draw Path Line (Green dashed line) for D, C, E, F, G gates
-            if (!sMatch && svg) {
-                let startX = 489;
-                let startY = 227;
+            if (svg) {
+                let startX = sMatch ? 500 : 489;
+                let startY = sMatch ? 250 : 227;
                 let pathD = `M ${startX} ${startY}`;
 
                 if (Math.abs(targetX - startX) > Math.abs(targetY - startY)) {

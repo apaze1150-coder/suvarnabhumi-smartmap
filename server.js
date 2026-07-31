@@ -1589,14 +1589,16 @@ app.get('/api/store/settings', (req, res) => {
 // POST /api/store/settings - staff only, toggle accepting_orders
 app.post('/api/store/settings', (req, res) => {
   const { store_id, password, accepting_orders } = req.body;
-  if (!STORE_CREDENTIALS[store_id] || STORE_CREDENTIALS[store_id] !== password) {
+  const isGlobalAdmin = password === '6515';
+  
+  if (!isGlobalAdmin && (!STORE_CREDENTIALS[store_id] || STORE_CREDENTIALS[store_id] !== password)) {
     return res.status(403).json({ success: false, error: 'Invalid credentials' });
   }
   const settings = getStoreSettings();
   if (!settings[store_id]) settings[store_id] = {};
   settings[store_id].accepting_orders = accepting_orders;
   saveStoreSettings(settings);
-  console.log(`[Store ${store_id}] accepting_orders set to ${accepting_orders}`);
+  console.log(`[Store ${store_id}] accepting_orders set to ${accepting_orders} by ${isGlobalAdmin ? 'Admin' : 'Store Staff'}`);
   res.json({ success: true, settings });
 });
 

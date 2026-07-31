@@ -1,103 +1,53 @@
 
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-surface-variant": "#44474d",
-                        "inverse-surface": "#2e3132",
-                        "on-background": "#191c1e",
-                        "surface-container-low": "#f3f4f6",
-                        "on-tertiary-fixed": "#1c1b1b",
-                        "secondary": "#725c10",
-                        "primary-fixed-dim": "#bac7e2",
-                        "secondary-container": "#ffe088",
-                        "on-secondary-container": "#786216",
-                        "background": "#f8f9fb",
-                        "surface-container-highest": "#e1e2e4",
-                        "surface-bright": "#f8f9fb",
-                        "on-primary-fixed-variant": "#3b475d",
-                        "surface-container-high": "#e7e8ea",
-                        "surface-tint": "#525f76",
-                        "primary-fixed": "#d6e3ff",
-                        "on-tertiary": "#ffffff",
-                        "surface": "#f8f9fb",
-                        "error-container": "#ffdad6",
-                        "outline": "#75777d",
-                        "primary-container": "#0f1c30",
-                        "on-primary-fixed": "#0f1c30",
-                        "surface-variant": "#e1e2e4",
-                        "tertiary-container": "#1c1b1b",
-                        "on-tertiary-container": "#858383",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container": "#edeef0",
-                        "tertiary-fixed": "#e5e2e1",
-                        "on-secondary-fixed": "#241a00",
-                        "on-primary": "#ffffff",
-                        "error": "#ba1a1a",
-                        "on-secondary": "#ffffff",
-                        "tertiary-fixed-dim": "#c8c6c5",
-                        "tertiary": "#000000",
-                        "status-gold": "#735C00",
-                        "secondary-fixed-dim": "#e1c46f",
-                        "on-surface": "#191c1e",
-                        "on-primary-container": "#78849d",
-                        "outline-variant": "#c5c6cd",
-                        "on-secondary-fixed-variant": "#574500",
-                        "inverse-primary": "#bac7e2",
-                        "secondary-fixed": "#ffe088",
-                        "on-tertiary-fixed-variant": "#474746",
-                        "surface-dim": "#d9dadc",
-                        "inverse-on-surface": "#f0f1f3",
-                        "on-error": "#ffffff",
-                        "charcoal-surface": "#1A1A1A",
-                        "on-error-container": "#93000a",
-                        "primary": "#000000",
-                        "navy-luxury": "#000a1e"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "lg": "24px",
-                        "baseline": "4px",
-                        "sm": "8px",
-                        "xs": "4px",
-                        "md": "16px",
-                        "gutter": "16px",
-                        "xl": "32px",
-                        "margin-mobile": "16px",
-                        "margin-desktop": "32px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope", "sans-serif"],
-                        "body": ["Manrope", "sans-serif"],
-                        "label": ["Inter", "sans-serif"],
-                        "headline-lg": ["Manrope"],
-                        "headline-xl": ["Manrope"],
-                        "label-md": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "body-md": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "headline-md": ["Manrope"],
-                        "label-sm": ["Manrope"],
-                        "headline-xl-mobile": ["Manrope"]
-                    },
-                    "fontSize": {
-                        "headline-lg": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
-                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
-                        "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "headline-xl-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-                    }
+    function openBulkImportModal() {
+        document.getElementById('bulkImportTextarea').value = '';
+        document.getElementById('bulkImportModal').classList.remove('hidden');
+        document.getElementById('bulkImportModal').classList.add('flex');
+    }
+    function closeBulkImportModal() {
+        document.getElementById('bulkImportModal').classList.add('hidden');
+        document.getElementById('bulkImportModal').classList.remove('flex');
+    }
+    async function processBulkImport() {
+        const text = document.getElementById('bulkImportTextarea').value.trim();
+        if(!text) return alert('Please paste data');
+        const lines = text.split('\n');
+        let updates = {};
+        let count = 0;
+        for(let line of lines) {
+            const cols = line.split('\t');
+            if(cols.length >= 12) {
+                const code = cols[0].trim();
+                if(code) {
+                    updates[code] = {
+                        Description: cols[1].trim(),
+                        Reference: cols[2].trim(),
+                        Category: cols[3].trim(),
+                        'Sub-Category': cols[4].trim(),
+                        Scent: cols[5].trim(),
+                        Size: cols[6].trim(),
+                        Price: cols[7].trim(),
+                        Image: cols[8].trim(),
+                        Qty_Branch1: cols[9].trim(),
+                        Qty_Branch2: cols[10].trim(),
+                        Qty_Branch3: cols[11].trim()
+                    };
+                    count++;
                 }
             }
         }
-    
+        if(count === 0) return alert('No valid 12-column data found. Please ensure you copied all columns including Scent and Size.');
+        try {
+            await fetch('/api/admin/products/batch-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: '6515', updates })
+            });
+            alert('Successfully imported ' + count + ' products!');
+            closeBulkImportModal();
+            if(typeof loadProducts === 'function') loadProducts();
+        } catch (err) {
+            alert('Failed to import: ' + err.message);
+        }
+    }
+  

@@ -7,5 +7,11 @@
   },
   "DW41": {
     "accepting_orders": true
+  },
+  "TE1": {
+    "accepting_orders": true
+  },
+  "TW4": {
+    "accepting_orders": true
   }
 }

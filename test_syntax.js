@@ -616,6 +616,7 @@ function addToOrder() {
 }
 
 const CATEGORY_MAP = {
+    "NEW & CURATED": ["CARE EAU DE PARFUM"],
     "FINE FRAGRANCES": ["EXTRACT Perfume Oil", "Care Eau de Parfum", "Accessories"],
     "BATH & BODY": ["Bath & Body Oil", "Body & Hand Lotion", "Body Polish", "Hand Care", "Hair Care", "Bath & Body Accesories"],
     "FACE": ["Natural Face Oil & Serum", "Face & Eye Cream", "Gentle Cleanser & Toner", "Lip Care"],

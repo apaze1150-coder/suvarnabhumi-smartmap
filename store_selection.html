@@ -204,6 +204,50 @@
       // Navigate to the main page (index.html) and open the Boutique view
       window.location.href = 'index.html?boutiqueStore=' + encodeURIComponent(storeId);
   }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+      try {
+          const res = await fetch('/api/store/settings');
+          const data = await res.json();
+          if (data.success && data.settings) {
+              const settings = data.settings;
+              
+              const oldToNewStoreId = {
+                  'DE40': 'TE3',
+                  'DE12': 'TE1',
+                  'DW41': 'TW4'
+              };
+
+              document.querySelectorAll('.store-card').forEach(card => {
+                  const onclick = card.getAttribute('onclick');
+                  if (onclick) {
+                      const match = onclick.match(/'([^']+)'/);
+                      if (match) {
+                          const oldStoreId = match[1];
+                          const newStoreId = oldToNewStoreId[oldStoreId] || oldStoreId;
+                          
+                          if ((settings[newStoreId] && settings[newStoreId].accepting_orders === false) || 
+                              (settings[oldStoreId] && settings[oldStoreId].accepting_orders === false)) {
+                              card.classList.add('opacity-50', 'pointer-events-none');
+                              card.removeAttribute('onclick');
+                              
+                              // Target the actual 'Open' badge span instead of the first span (which is the Gate text)
+                              const statusSpans = card.querySelectorAll('span');
+                              statusSpans.forEach(span => {
+                                  if (span.innerText.trim() === 'Open') {
+                                      span.innerText = 'Closed';
+                                      span.className = 'bg-gray-200 text-gray-500 text-[10px] font-bold px-2.5 py-1 rounded-md';
+                                  }
+                              });
+                          }
+                      }
+                  }
+              });
+          }
+      } catch (e) {
+          console.error('Failed to load store settings', e);
+      }
+  });
 </script>
 
 </body></html>
