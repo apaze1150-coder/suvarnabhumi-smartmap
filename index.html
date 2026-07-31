@@ -2352,9 +2352,10 @@
                 }
 
             }, 300);
-        }
-
         async function navigateToGate() {
+            // Read gate text BEFORE switching pages, or use textContent which is not layout-dependent
+            const gateText = (document.getElementById('flight-gate-display')?.textContent || 'D4').trim();
+            
             showPage('map-view');
             
             // clear previous paths & pins
@@ -2367,7 +2368,6 @@
             const cancelBanner = document.getElementById('cancel-route-banner');
             if (cancelBanner) cancelBanner.classList.remove('hidden');
 
-            const gateText = (document.getElementById('flight-gate-display')?.innerText || 'D4').trim();
             const cleanGate = gateText.toUpperCase().replace(/^GATE\s*/i, '').replace(/\s+/g, '');
             const dMatch = cleanGate.match(/^D([1-8])/);
             const sMatch = cleanGate.startsWith('S');

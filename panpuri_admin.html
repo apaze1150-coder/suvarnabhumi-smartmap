@@ -447,7 +447,7 @@
 </div>
 <!-- Pagination Footer -->
 <div class="p-md flex justify-between items-center bg-surface-container-low/30 border-t border-outline-variant">
-<p class="font-label-sm text-label-sm text-on-surface-variant" id="paginationInfo">Showing 0 entries</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant" id="paginationInfoOrders">Showing 0 entries</p>
 </div>
 </section>
 </div>
@@ -530,6 +530,9 @@
 </div>
 
 <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden bento-shadow flex-1 flex flex-col min-h-0">
+
+
+
 <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar" id="productsTableContainer">
 <table class="w-full text-left border-collapse min-w-[1600px]">
 <thead class="bg-surface-container-low sticky top-0 z-10">
@@ -559,7 +562,7 @@
 </table>
 </div>
 <div class="px-lg py-md bg-surface-container-low flex justify-between items-center">
-<p id="paginationInfo" class="font-body-sm text-body-sm text-on-surface-variant">Showing 0 entries</p>
+<p id="paginationInfoProducts" class="font-body-sm text-body-sm text-on-surface-variant">Showing 0 entries</p>
 </div>
 </div>
 </div>
@@ -848,6 +851,7 @@ function switchTab(viewId) {
             { id: 'actions', label: 'Actions', defaultVisible: true }
         ];
 
+        localStorage.removeItem('panpuri_visible_columns');
         let visibleColumns = {};
         // Initialize from local storage or defaults
         try {
@@ -879,7 +883,12 @@ function switchTab(viewId) {
         // Initialize immediately
         setTimeout(() => {
             initColumnDropdown();
-            applyColumnVisibility();
+            
+        console.log('tbody after append:', tbody.children.length);
+        console.log('Table height:', tbody.offsetHeight);
+
+        
+applyColumnVisibility();
         }, 500);
 
         function initColumnDropdown() {
@@ -974,7 +983,13 @@ function switchTab(viewId) {
                     <td class="px-md py-4 text-center font-bold text-status-gold">${p.Qty_Branch2 || 0}</td>
                     <td class="px-md py-4 text-center font-bold text-status-gold">${p.Qty_Branch3 || 0}</td>
                 `;
+                
+            try {
                 tbody.appendChild(tr);
+            } catch(e) {
+                document.getElementById('visual-debugger').innerText += '\nError appending row: ' + e.message;
+            }
+
             });
         }
 
@@ -1244,7 +1259,15 @@ function switchTab(viewId) {
             // Note: We don't have is_active in the 10 cols currently, but if we did, filter here.
         }
 
-        document.getElementById('paginationInfo').innerText = `Showing ${filtered.length} entries`;
+        document.getElementById('paginationInfoProducts').innerText = `Showing ${filtered.length} entries`;
+        
+
+        console.log('--- renderTable DEBUG ---');
+        console.log('Search query:', search);
+        console.log('allProducts.length:', allProducts.length);
+        console.log('filtered.length:', filtered.length);
+        console.log('tbody before append:', tbody.children.length);
+
 
         filtered.forEach((p, index) => {
             const tr = document.createElement('tr');
