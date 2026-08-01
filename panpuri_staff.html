@@ -199,9 +199,9 @@
 <div class="text-right">
 <p class="font-label-md text-label-md text-primary leading-none">Ariyasit P.</p>
 <select id="branchSelector" onchange="window.location.href='?branch='+this.value" class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider bg-transparent border-none cursor-pointer outline-none p-0 focus:ring-0">
-      <option value="Branch1">Branch 1 (DE40)</option>
-      <option value="Branch2">Branch 2 (DE12)</option>
-      <option value="Branch3">Branch 3 (DW41)</option>
+      <option value="Branch1">Branch 1 (TE3)</option>
+      <option value="Branch2">Branch 2 (TE1)</option>
+      <option value="Branch3">Branch 3 (TW4)</option>
   </select>
 </div>
 <img class="w-10 h-10 rounded-full border-2 border-secondary-fixed object-cover" data-alt="Portrait of branch manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxHj6qQSNrBYsIStDcyU5qlNyAUh0TIcuGKpmWaxj51Dlajl04CPjA5DgbScCUjvA6-r236aevUN2kkzbm9RAajmoJ29sE6-XV1cXLjoaL3A9GCFGwipsuSUPXK93CB5jYAuYeFD6hJpxyqC-VSvNY9qIUEYN4l2Ef1i6Fg3bjOXwuvtFjWdTgnlVgSa2slitNMmMZnEtoVBU1Fqb-kTqrhDDO3EoJ05t71nQEU0zxOPVZ8pduoiArcou3hCCKi3_gv97UUVwC-WA"/>
@@ -214,12 +214,12 @@
 <div class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-lg">
 <div>
 <nav class="flex text-on-surface-variant font-label-sm text-label-sm mb-2 uppercase tracking-widest">
-<span id="branchTitle">Branch 1 (DE40)</span>
+<span id="branchTitle">Branch 1 (TE3)</span>
 <span class="mx-2">/</span>
 <span class="text-secondary-fixed font-bold bg-primary px-2 py-0.5 rounded">Inventory Management</span>
 </nav>
 <h2 class="font-headline-xl text-headline-xl text-primary">Product Database</h2>
-<p class="text-body-md text-on-surface-variant mt-1">Real-time inventory for <span id="branchSubtitle">Branch 1 (DE40)</span> and regional visibility.</p>
+<p class="text-body-md text-on-surface-variant mt-1">Real-time inventory for <span id="branchSubtitle">Branch 1 (TE3)</span> and regional visibility.</p>
 </div>
 <div class="flex gap-md">
 <button onclick="openTransactionModal('receipt')" class="flex items-center gap-md px-8 py-3 bg-primary text-secondary-fixed font-label-md rounded-lg shadow-xl shadow-primary/20 hover:opacity-90 transition-all haptic-press">
@@ -249,9 +249,9 @@
 <th class="px-lg py-md">Product Name</th>
 <th class="px-lg py-md">Scent</th>
 <th class="px-lg py-md">Price (฿)</th>
-<th class="px-lg py-md text-center">DE40</th>
-<th class="px-lg py-md text-center">DE12</th>
-<th class="px-lg py-md text-center">DW41</th>
+<th class="px-lg py-md text-center">TE3</th>
+<th class="px-lg py-md text-center">TE1</th>
+<th class="px-lg py-md text-center">TW4</th>
 <th class="px-lg py-md">Status</th>
 </tr>
 </thead>
@@ -349,7 +349,7 @@
 <!-- Logs Modal -->
 <dialog id="logsModal" class="bg-white rounded-xl shadow-2xl p-0 w-[900px] max-w-[95vw] border border-outline-variant/30">
     <div class="p-lg border-b border-outline-variant/20 flex justify-between items-center bg-primary-container">
-        <h3 class="font-headline-md text-secondary-fixed flex items-center gap-2"><span class="material-symbols-outlined">history</span> DE40 Transaction History</h3>
+        <h3 class="font-headline-md text-secondary-fixed flex items-center gap-2"><span class="material-symbols-outlined">history</span> TE3 Transaction History</h3>
         <button onclick="document.getElementById('logsModal').close()" class="text-on-primary-container hover:text-white transition-colors p-1">
             <span class="material-symbols-outlined">close</span>
         </button>
@@ -381,7 +381,7 @@
     const urlParams = new URLSearchParams(window.location.search);
       const BRANCH = urlParams.get('branch') || 'Branch1';
       document.getElementById('branchSelector').value = BRANCH;
-      const BRANCH_NAMES = { 'Branch1': 'Branch 1 (DE40)', 'Branch2': 'Branch 2 (DE12)', 'Branch3': 'Branch 3 (DW41)' };
+      const BRANCH_NAMES = { 'Branch1': 'Branch 1 (TE3)', 'Branch2': 'Branch 2 (TE1)', 'Branch3': 'Branch 3 (TW4)' };
       document.getElementById('branchTitle').innerText = BRANCH_NAMES[BRANCH];
       document.getElementById('branchSubtitle').innerText = BRANCH_NAMES[BRANCH];
       const QTY_KEY = 'Qty_' + BRANCH;
@@ -428,9 +428,9 @@
             }, 50 + (index * 40));
 
             let statusHtml = '';
-            if (qtyDE40 >= 10) {
+            if (qtyTE3 >= 10) {
                 statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">In Stock</span>';
-            } else if (qtyDE40 > 0) {
+            } else if (qtyTE3 > 0) {
                 statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Low Stock</span>';
             } else {
                 statusHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Out of Stock</span>';
@@ -444,9 +444,9 @@
                 <td class="px-lg py-md font-semibold text-primary">${p.Description || '-'}</td>
                 <td class="px-lg py-md text-status-gold font-label-sm text-xs italic">${p.scent || '-'}</td>
                 <td class="px-lg py-md font-semibold text-primary">฿ ${price}</td>
-                <td class="px-lg py-md text-center font-bold text-primary text-lg ${qtyDE40 === 0 ? 'text-error' : ''}">${qtyDE40}</td>
-                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyDE12}</td>
-                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyDW41}</td>
+                <td class="px-lg py-md text-center font-bold text-primary text-lg ${qtyTE3 === 0 ? 'text-error' : ''}">${qtyTE3}</td>
+                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyTE1}</td>
+                <td class="px-lg py-md text-center text-outline-variant font-mono">${qtyTW4}</td>
                 <td class="px-lg py-md">${statusHtml}</td>
             `;
             tbody.appendChild(tr);
@@ -516,7 +516,7 @@
             const currentStock = parseInt(product[QTY_KEY]) || 0;
             const alreadyStaged = scannedItems.find(s => s.product_code === code)?.qty || 0;
             if (qty + alreadyStaged > currentStock) {
-                alert(`Insufficient stock! Only ${currentStock} available in DE40.`);
+                alert(`Insufficient stock! Only ${currentStock} available in TE3.`);
                 return;
             }
         }

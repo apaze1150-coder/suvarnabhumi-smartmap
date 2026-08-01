@@ -1385,10 +1385,10 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         try { logs = await readCsv(STOCK_LOGS_CSV); } catch(e) {}
     }
 
-    // 1. Sales & Order Comparison (DE40, DE12, DW41)
-    const stores = ['de40', 'de12', 'dw41'];
-    const salesByStore = { de40: 0, de12: 0, dw41: 0 };
-    const ordersByStore = { de40: 0, de12: 0, dw41: 0 };
+    // 1. Sales & Order Comparison (TE3, TE1, TW4)
+    const stores = ['te3', 'te1', 'tw4'];
+    const salesByStore = { te3: 0, te1: 0, tw4: 0 };
+    const ordersByStore = { te3: 0, te1: 0, tw4: 0 };
     
     orders.forEach(o => {
         const sid = (o.store_id || '').toLowerCase();
@@ -1406,9 +1406,9 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         let q3 = parseInt(p.Qty_Branch3) || 0;
         
         let branches = [];
-        if(q1 < 5) branches.push('DE40');
-        if(q2 < 5) branches.push('DE12');
-        if(q3 < 5) branches.push('DW41');
+        if(q1 < 5) branches.push('TE3');
+        if(q2 < 5) branches.push('TE1');
+        if(q3 < 5) branches.push('TW4');
         
         if (branches.length > 0) {
             lowStockAlerts.push({
@@ -1445,9 +1445,9 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
     res.json({
         success: true,
         salesComparison: {
-            stores: ['DE40 Flagship', 'DE12 EmQuartier', 'DW41 Boutique'],
-            sales: [salesByStore.de40, salesByStore.de12, salesByStore.dw41],
-            orders: [ordersByStore.de40, ordersByStore.de12, ordersByStore.dw41]
+            stores: ['TE3 Flagship', 'TE1 EmQuartier', 'TW4 Boutique'],
+            sales: [salesByStore.te3, salesByStore.te1, salesByStore.tw4],
+            orders: [ordersByStore.te3, ordersByStore.te1, ordersByStore.tw4]
         },
         lowStockAlerts,
         topSellers,
@@ -1473,16 +1473,16 @@ const ADMIN_PASSWORD = '6515';
 
 // Store credentials: store_id -> password
 const STORE_CREDENTIALS = {
-  'DE40': '6570',
-  'DE12': '6515',
-  'DW41': '6555'
+  'TE3': '6570',
+  'TE1': '6515',
+  'TW4': '6555'
 };
 
 // Store info for display
 const STORE_INFO = {
-  'DE40': { name: 'PANPURI Concourse D East (Gate 1-4)', location: 'Concourse D East, Level 4', zone: 'DE40' },
-  'DE12': { name: 'PANPURI Concourse D East (Gate 1-2)', location: 'Concourse D East, Level 4', zone: 'DE12' },
-  'DW41': { name: 'PANPURI Concourse D West (Gate 5-8)', location: 'Concourse D West, Level 4', zone: 'DW41' }
+  'TE3': { name: 'PANPURI Concourse D East (Gate 1-4)', location: 'Concourse D East, Level 4', zone: 'TE3' },
+  'TE1': { name: 'PANPURI Concourse D East (Gate 1-2)', location: 'Concourse D East, Level 4', zone: 'TE1' },
+  'TW4': { name: 'PANPURI Concourse D West (Gate 5-8)', location: 'Concourse D West, Level 4', zone: 'TW4' }
 };
 
 // --- CSV write helper for orders & products ---
@@ -1547,14 +1547,14 @@ const ORDER_HEADERS = ['order_id','order_number','store_id','customer_name','fli
 
 function getStoreSettings() {
   if (!fs.existsSync(STORE_SETTINGS_FILE)) {
-    const defaults = { DE40: { accepting_orders: true }, DE12: { accepting_orders: true }, DW41: { accepting_orders: true } };
+    const defaults = { TE3: { accepting_orders: true }, TE1: { accepting_orders: true }, TW4: { accepting_orders: true } };
     fs.writeFileSync(STORE_SETTINGS_FILE, JSON.stringify(defaults, null, 2));
     return defaults;
   }
   try {
     return JSON.parse(fs.readFileSync(STORE_SETTINGS_FILE, 'utf8'));
   } catch(e) {
-    return { DE40: { accepting_orders: true }, DE12: { accepting_orders: true }, DW41: { accepting_orders: true } };
+    return { TE3: { accepting_orders: true }, TE1: { accepting_orders: true }, TW4: { accepting_orders: true } };
   }
 }
 
@@ -1583,12 +1583,12 @@ app.get('/api/products', async (req, res) => {
         sub_category: p['Sub-Category'],
         scent: p.Scent,
         price: p.Price,
-        de40: p.Qty_Branch1,
-        de12: p.Qty_Branch2,
-        dw41: p.Qty_Branch3,
-        qty_de40: p.Qty_Branch1,
-        qty_de12: p.Qty_Branch2,
-        qty_dw41: p.Qty_Branch3,
+        te3: p.Qty_Branch1,
+        te1: p.Qty_Branch2,
+        tw4: p.Qty_Branch3,
+        qty_te3: p.Qty_Branch1,
+        qty_te1: p.Qty_Branch2,
+        qty_tw4: p.Qty_Branch3,
         image: p.Image,
         size: p.Size,
         Size: p.Size,
@@ -1728,8 +1728,8 @@ app.get('/api/orders', async (req, res) => {
     let orders = [];
     try { orders = await readCsv(ORDERS_CSV); } catch(e) { orders = []; }
 
-    // Staff only sees their store's orders; admin sees all
-    const filtered = (store_id && password !== ADMIN_PASSWORD)
+    // Staff only sees their store's orders; admin sees all (unless they specify a store)
+    const filtered = store_id
       ? orders.filter(o => o.store_id === store_id)
       : orders;
 
@@ -1810,12 +1810,12 @@ app.get('/api/admin/products', async (req, res) => {
         sub_category: p['Sub-Category'],
         scent: p.Reference,
         price: p.Price,
-        de40: p.Qty_Branch1,
-        de12: p.Qty_Branch2,
-        dw41: p.Qty_Branch3,
-        qty_de40: p.Qty_Branch1,
-        qty_de12: p.Qty_Branch2,
-        qty_dw41: p.Qty_Branch3,
+        te3: p.Qty_Branch1,
+        te1: p.Qty_Branch2,
+        tw4: p.Qty_Branch3,
+        qty_te3: p.Qty_Branch1,
+        qty_te1: p.Qty_Branch2,
+        qty_tw4: p.Qty_Branch3,
         image: p.Image,
         size: p.Size,
         scent_notes: p.Scent_Notes,
@@ -1890,7 +1890,7 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
       
       if (idx !== -1 && idx < products.length) {
         // Log stock changes
-        const storesMap = { Qty_Branch1: 'de40', Qty_Branch2: 'de12', Qty_Branch3: 'dw41' };
+        const storesMap = { Qty_Branch1: 'te3', Qty_Branch2: 'te1', Qty_Branch3: 'tw4' };
         for (const [qtyField, frontendField] of Object.entries(storesMap)) {
           const changedVal = changes[qtyField] !== undefined ? changes[qtyField] : changes[frontendField];
           
@@ -1949,9 +1949,9 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
           Scent: (changes.Scent || changes.scent || '').trim(),
           Price: (changes.Price || changes.price || '0').toString(),
           Image: (changes.Image || changes.image || '').trim(),
-          Qty_Branch1: (changes.Qty_Branch1 || changes.de40 || '0').toString(),
-          Qty_Branch2: (changes.Qty_Branch2 || changes.de12 || '0').toString(),
-          Qty_Branch3: (changes.Qty_Branch3 || changes.dw41 || '0').toString(),
+          Qty_Branch1: (changes.Qty_Branch1 || changes.te3 || '0').toString(),
+          Qty_Branch2: (changes.Qty_Branch2 || changes.te1 || '0').toString(),
+          Qty_Branch3: (changes.Qty_Branch3 || changes.tw4 || '0').toString(),
           Size: (changes.Size || changes.size || '').trim(),
           Description_Customer: (changes.Description_Customer || '').trim(),
           Scent_Notes: (changes.Scent_Notes || '').trim(),
@@ -2232,8 +2232,8 @@ app.post('/api/staff/stock-transaction', async (req, res) => {
 
     const branchKey = branch.toLowerCase();
     let qtyField = 'Qty_Branch1';
-    if (branchKey === 'de12') qtyField = 'Qty_Branch2';
-    if (branchKey === 'dw41') qtyField = 'Qty_Branch3';
+    if (branchKey === 'te1') qtyField = 'Qty_Branch2';
+    if (branchKey === 'tw4') qtyField = 'Qty_Branch3';
 
     const multiplier = type === 'receipt' ? 1 : -1;
     const transTypeStr = type === 'receipt' ? 'GOODS RECEIPT' : 'STOCK TRANSFER OUT';

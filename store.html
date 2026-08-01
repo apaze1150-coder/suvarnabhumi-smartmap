@@ -279,9 +279,9 @@
                         <label class="text-xs font-bold text-royal-gold uppercase tracking-tighter">Store Location</label>
                         <select class="w-full bg-white/5 border border-white/20 text-white rounded-sm focus:border-royal-gold focus:ring-1 focus:ring-royal-gold transition-all" id="login-store">
                             <option class="text-black" disabled selected value="">Select Boutique</option>
-                            <option class="text-black" value="DE40">DE40 - D East (Gate 1-4)</option>
-                            <option class="text-black" value="DE12">DE12 - D East (Gate 1-2)</option>
-                            <option class="text-black" value="DW41">DW41 - D West (Gate 5-8)</option>
+                            <option class="text-black" value="TE1">TE1 - TOUCH OF THAILAND EAST</option>
+                            <option class="text-black" value="TE3">TE3 - PANPURI</option>
+                            <option class="text-black" value="TW4">TW4 - Sents of Thailand</option>
                         </select>
                     </div>
                     <div class="space-y-2">
@@ -307,7 +307,7 @@
                 <span class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</span>
                 <div class="flex flex-col border-l border-outline-variant/40 pl-6 ml-2">
                     <span id="header-store-name" class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">D East (Gate 1-4)</span>
-                    <span class="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider mt-0.5">Store ID: <span id="header-store-id">DE40</span></span>
+                    <span class="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider mt-0.5">Store ID: <span id="header-store-id">TE3</span></span>
                 </div>
             </div>
             
@@ -337,8 +337,8 @@
                             <span class="material-symbols-outlined text-[24px]">person</span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-bold text-sm text-on-surface leading-tight">DE40 Store</span>
-                            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider mt-0.5">Flagship Boutique</span>
+                            <span id="sidebar-store-id" class="font-bold text-sm text-on-surface leading-tight">TE3 Store</span>
+                            <span id="sidebar-store-type" class="text-[10px] text-on-surface-variant uppercase tracking-wider mt-0.5">Flagship Boutique</span>
                         </div>
                     </div>
                 </div>
@@ -643,9 +643,9 @@
                                         <th class="px-lg py-md">Category</th>
                                         <th class="px-lg py-md">Sub-category</th>
                                         <th class="px-lg py-md">Price (฿)</th>
-                                        <th class="px-lg py-md text-center">DE40</th>
-                                        <th class="px-lg py-md text-center">DE12</th>
-                                        <th class="px-lg py-md text-center">DW41</th>
+                                        <th class="px-lg py-md text-center">TE3</th>
+                                        <th class="px-lg py-md text-center">TE1</th>
+                                        <th class="px-lg py-md text-center">TW4</th>
                                         <th class="px-lg py-md">Status</th>
                                         <th class="px-lg py-md text-right">Actions</th>
                                     </tr>
@@ -725,30 +725,30 @@
                             <h3 class="font-bold text-lg text-on-surface mb-6">Store Comparison</h3>
                             
                             <div class="space-y-6 flex-1" id="dash-store-comparison">
-                                <!-- DE40 -->
+                                <!-- TE3 -->
                                 <div>
                                     <div class="flex justify-between items-end mb-2">
-                                        <span class="font-bold text-sm">DE40 Flagship</span>
+                                        <span class="font-bold text-sm">TE3 Flagship</span>
                                         <span class="font-bold text-sm text-[#D4AF37]">฿ 64.2k</span>
                                     </div>
                                     <div class="w-full bg-surface-container-high rounded-full h-3">
                                         <div class="bg-[#1C1C1E] h-3 rounded-full" style="width: 75%"></div>
                                     </div>
                                 </div>
-                                <!-- DE12 -->
+                                <!-- TE1 -->
                                 <div>
                                     <div class="flex justify-between items-end mb-2">
-                                        <span class="font-bold text-sm">DE12 EmQuartier</span>
+                                        <span class="font-bold text-sm">TE1 EmQuartier</span>
                                         <span class="font-bold text-sm text-on-surface">฿ 48.1k</span>
                                     </div>
                                     <div class="w-full bg-surface-container-high rounded-full h-3">
                                         <div class="bg-[#D4AF37] h-3 rounded-full" style="width: 55%"></div>
                                     </div>
                                 </div>
-                                <!-- DW41 -->
+                                <!-- TW4 -->
                                 <div>
                                     <div class="flex justify-between items-end mb-2">
-                                        <span class="font-bold text-sm">DW41 Boutique</span>
+                                        <span class="font-bold text-sm">TW4 Boutique</span>
                                         <span class="font-bold text-sm text-on-surface">฿ 30.2k</span>
                                     </div>
                                     <div class="w-full bg-surface-container-high rounded-full h-3">
@@ -760,7 +760,7 @@
                             <div class="mt-6 bg-[#FDF9F1] p-4 rounded-lg border border-[#D4AF37]/20 flex items-start gap-3">
                                 <span class="material-symbols-outlined text-[#D4AF37]">lightbulb</span>
                                 <p class="text-sm text-[#8B7322] font-medium leading-relaxed">
-                                    DE40 Flagship continues to lead in overall sales, contributing to 45% of total revenue this month. Recommend replenishing top sellers to maintain momentum.
+                                    TE3 Flagship continues to lead in overall sales, contributing to 45% of total revenue this month. Recommend replenishing top sellers to maintain momentum.
                                 </p>
                             </div>
                         </div>
@@ -1009,9 +1009,9 @@ if (gl) {
 <script>
 // ==================== APP LOGIC ====================
 const STORES = {
-    'DE40': { name: 'D East (Gate 1-4)', pw: '6570' },
-    'DE12': { name: 'D East (Gate 1-2)', pw: '6515' },
-    'DW41': { name: 'D West (Gate 5-8)', pw: '6555' }
+    'TE3': { name: 'D East (Gate 1-4)', pw: '6570' },
+    'TE1': { name: 'D East (Gate 1-2)', pw: '6515' },
+    'TW4': { name: 'D West (Gate 5-8)', pw: '6555' }
 };
 
 let currentStore = "";
@@ -1069,6 +1069,14 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
         document.getElementById('header-store-id').textContent = store;
         document.getElementById('header-store-name').textContent = STORES[store].name;
         document.getElementById('rcp-store').textContent = STORES[store].name;
+        
+        // Update sidebar
+        document.getElementById('sidebar-store-id').textContent = store + ' Store';
+        let storeType = 'Boutique';
+        if (store === 'TE3') storeType = 'Flagship Boutique';
+        if (store === 'TE1') storeType = 'Touch of Thailand';
+        if (store === 'TW4') storeType = 'Sents of Thailand';
+        document.getElementById('sidebar-store-type').textContent = storeType;
         
         document.getElementById('view-login').style.opacity = '0';
         setTimeout(() => {
@@ -1566,9 +1574,9 @@ async function printOrder(orderId) {
     
     // Store Location Mapping
     let storeName = currentStore || "Boutique";
-    if (currentStore === 'DE40') storeName = "D East Gate 1-4 (DE40)";
-    if (currentStore === 'DE12') storeName = "D East Gate 1-4 (DE12)";
-    if (currentStore === 'DW41') storeName = "D West (DW41)";
+    if (currentStore === 'TE3') storeName = "D East Gate 1-4 (TE3)";
+    if (currentStore === 'TE1') storeName = "D East Gate 1-4 (TE1)";
+    if (currentStore === 'TW4') storeName = "D West (TW4)";
 
     // 1. Try Sunmi JS SDK (Requires Sunmi Browser)
     if (window.sunmiInnerPrinter || (window.sunmi && window.sunmi.printText)) {
@@ -1767,9 +1775,9 @@ function renderProducts() {
             <td class="px-lg py-sm font-body-sm text-on-surface-variant">${p.category || '-'}</td>
             <td class="px-lg py-sm font-body-sm text-on-surface-variant">${p.sub_category || p['Sub-Category'] || '-'}</td>
             <td class="px-lg py-sm font-body-sm font-bold text-primary">฿${parseFloat(p.price || 0).toLocaleString()}</td>
-            <td class="px-lg py-sm text-center font-bold ${currentStore==='DE40' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_de40 || p.de40 || 0}</td>
-            <td class="px-lg py-sm text-center font-bold ${currentStore==='DE12' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_de12 || p.de12 || 0}</td>
-            <td class="px-lg py-sm text-center font-bold ${currentStore==='DW41' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_dw41 || p.dw41 || 0}</td>
+            <td class="px-lg py-sm text-center font-bold ${currentStore==='TE3' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_te3 || p.te3 || 0}</td>
+            <td class="px-lg py-sm text-center font-bold ${currentStore==='TE1' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_te1 || p.te1 || 0}</td>
+            <td class="px-lg py-sm text-center font-bold ${currentStore==='TW4' ? 'text-primary bg-primary/5 rounded-lg' : 'text-on-surface-variant'}">${p.qty_tw4 || p.tw4 || 0}</td>
             <td class="px-lg py-sm">${statusHtml}</td>
             <td class="px-lg py-sm text-right">
                 <button onclick="openDrawer('${p.product_code}')" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors inline-flex" title="View Details">
@@ -2425,10 +2433,10 @@ function updateDashboardInsights() {
     // 1. Update Inventory Insights
     const inventoryContainer = document.getElementById('dash-inventory-insights');
     if (inventoryContainer && allProducts && allProducts.length > 0) {
-        const qtyField = 'qty_' + (currentStore || 'de40').toLowerCase();
+        const qtyField = 'qty_' + (currentStore || 'te3').toLowerCase();
         // Get products with lowest stock
         const lowStock = allProducts.map(p => {
-            const stock = parseInt(p[qtyField] || p[(currentStore||'de40').toLowerCase()] || p.Qty_Branch1 || 0);
+            const stock = parseInt(p[qtyField] || p[(currentStore||'te3').toLowerCase()] || p.Qty_Branch1 || 0);
             return { ...p, stock };
         }).sort((a,b) => a.stock - b.stock).slice(0, 3);
         
@@ -2513,9 +2521,9 @@ function updateDashboardInsights() {
         let maxSales = 0;
         const salesData = [];
         const STORES_LIST = [
-            { id: 'DE40', name: 'DE40 Flagship' },
-            { id: 'DE12', name: 'DE12 EmQuartier' },
-            { id: 'DW41', name: 'DW41 Boutique' }
+            { id: 'TE3', name: 'TE3 Flagship' },
+            { id: 'TE1', name: 'TE1 EmQuartier' },
+            { id: 'TW4', name: 'TW4 Boutique' }
         ];
         
         STORES_LIST.forEach(st => {
@@ -2690,11 +2698,11 @@ function updateTrueAnalytics() {
     // 4. Velocity Table
     const tableEl = document.getElementById('ta-velocity-table');
     if (tableEl && allProducts) {
-        const qtyField = 'qty_' + (currentStore || 'de40').toLowerCase();
+        const qtyField = 'qty_' + (currentStore || 'te3').toLowerCase();
         
         const skuData = Object.keys(skuSales).map(pid => {
             const prod = allProducts.find(p => p.Description === skuSales[pid].name || p.name === skuSales[pid].name || p.product_name === skuSales[pid].name);
-            const stock = prod ? parseInt(prod[qtyField] || prod[(currentStore||'de40').toLowerCase()] || prod.Qty_Branch1 || 0) : 0;
+            const stock = prod ? parseInt(prod[qtyField] || prod[(currentStore||'te3').toLowerCase()] || prod.Qty_Branch1 || 0) : 0;
             const sales = skuSales[pid].sales;
             const dailyVel = (sales / 30).toFixed(1); // Assuming 30 days data
             const daysSupply = dailyVel > 0 ? Math.round(stock / dailyVel) : 999;

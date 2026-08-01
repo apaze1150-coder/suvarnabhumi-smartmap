@@ -519,9 +519,9 @@
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-status-gold">store</span>
                 <select id="branchFilter" class="w-full pl-10 pr-4 py-3 bg-white border-2 border-outline-variant rounded-lg text-body-sm focus:border-secondary transition-all appearance-none">
                     <option value="all">All Branches</option>
-                    <option value="de40">DE40</option>
-                    <option value="de12">DE12</option>
-                    <option value="dw41">DW41</option>
+                    <option value="te3">TE3</option>
+                    <option value="te1">TE1</option>
+                    <option value="tw4">TW4</option>
                 </select>
             </div>
         </div>
@@ -1461,9 +1461,9 @@ async function loadDashboardStats() {
             
             // Map old store IDs to new shop numbers (from DB)
             const oldToNewStoreId = {
-                'de40': 'te3',
-                'de12': 'te1',
-                'dw41': 'tw4'
+                'te3': 'te1',
+                'te1': 'te3',
+                'tw4': 'tw4'
             };
 
             orders.forEach(o => {
@@ -1778,9 +1778,9 @@ function exportStockLogsCSV() {
         }
         if (branchFilter !== 'all' && !(log.performed_by && log.performed_by.toLowerCase().includes(branchFilter))) {
             // Note: In a real system branch might be tracked differently, but let's assume it's in ref_no or performed_by or product location. 
-            // The prompt says Add Branch Selector (All Branches, DE40, DE12, DW41).
+            // The prompt says Add Branch Selector (All Branches, TE3, TE1, TW4).
             // For now, if no branch field exists directly in logs, we loosely filter by string.
-            // If branch is in ref_no (e.g. DE40-TRF-1234) we can check that.
+            // If branch is in ref_no (e.g. TE3-TRF-1234) we can check that.
             const logStr = JSON.stringify(log).toLowerCase();
             if(!logStr.includes(branchFilter)) return false;
         }
@@ -1869,16 +1869,16 @@ function exportStockLogsCSV() {
                     <input type="number" id="newProductPrice" required min="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
                 <div>
-                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (DE40)</label>
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (TE3)</label>
                     <input type="number" id="newProductStock" required min="0" value="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
                 <div>
-                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (DE12)</label>
-                    <input type="number" id="newProductStockDE12" required min="0" value="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (TE1)</label>
+                    <input type="number" id="newProductStockTE1" required min="0" value="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
                 <div>
-                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (DW41)</label>
-                    <input type="number" id="newProductStockDW41" required min="0" value="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
+                    <label class="block text-label-sm text-on-surface-variant mb-1">Initial Stock (TW4)</label>
+                    <input type="number" id="newProductStockTW4" required min="0" value="0" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 focus:border-primary">
                 </div>
             </div>
             
@@ -2054,8 +2054,8 @@ async function saveNewProduct(e) {
         Size: (document.getElementById('newProductSize') ? document.getElementById('newProductSize').value : '') || (existing ? (existing.Size || existing.size) : ''),
         Price: document.getElementById('newProductPrice').value || (existing ? existing.Price : ''),
         Qty_Branch1: document.getElementById('newProductStock').value || (existing ? existing.Qty_Branch1 : '0'),
-        Qty_Branch2: document.getElementById('newProductStockDE12').value || (existing ? existing.Qty_Branch2 : '0'),
-        Qty_Branch3: document.getElementById('newProductStockDW41').value || (existing ? existing.Qty_Branch3 : '0'),
+        Qty_Branch2: document.getElementById('newProductStockTE1').value || (existing ? existing.Qty_Branch2 : '0'),
+        Qty_Branch3: document.getElementById('newProductStockTW4').value || (existing ? existing.Qty_Branch3 : '0'),
         Image: existing ? existing.Image : ''
     };
     
@@ -2114,9 +2114,9 @@ async function saveNewProduct(e) {
                               <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">Size</th>
                               <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">Price</th>
                               <th class="p-3 border-r border-outline-variant/30 font-medium w-[100px]">Image URL</th>
-                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">DE40 (1)</th>
-                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">DE12 (2)</th>
-                              <th class="p-3 font-medium w-[80px]">DW41 (3)</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">TE3 (1)</th>
+                              <th class="p-3 border-r border-outline-variant/30 font-medium w-[80px]">TE1 (2)</th>
+                              <th class="p-3 font-medium w-[80px]">TW4 (3)</th>
                           </tr>
                       </thead>
                   </table>
