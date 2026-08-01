@@ -2527,10 +2527,11 @@
                 }
             }
 
+            let startX = sMatch ? 500 : 489;
+            let startY = sMatch ? 250 : 227;
+
             // 4. Draw Path Line (Green dashed line) for D, C, E, F, G gates
             if (svg) {
-                let startX = sMatch ? 500 : 489;
-                let startY = sMatch ? 250 : 227;
                 let pathD = `M ${startX} ${startY}`;
 
                 if (Math.abs(targetX - startX) > Math.abs(targetY - startY)) {
