@@ -265,6 +265,25 @@
     /* Hide the top translate bar and fix body shift */
     .skiptranslate > iframe.goog-te-banner-frame { display: none !important; }
     body { top: 0px !important; }
+
+    /* Map Navigation Animations */
+    .path-animated {
+        stroke-dasharray: 6 6;
+        animation: dash 1s linear infinite;
+    }
+    @keyframes dash {
+        to {
+            stroke-dashoffset: -12;
+        }
+    }
+    .map-pulse {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
 </style>
 <script>
     // Anti-flicker for boutique navigation
@@ -2189,12 +2208,14 @@
                 if(span) span.style.fontVariationSettings = "'FILL' 0";
             });
 
-            if (pageId === 'home-view') {
+            if (pageId === 'home-view' && navHome) {
                 navHome.classList.add('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
-                navHome.querySelector('span').style.fontVariationSettings = "'FILL' 1";
-            } else if (pageId === 'map-view') {
+                const span = navHome.querySelector('span');
+                if (span) span.style.fontVariationSettings = "'FILL' 1";
+            } else if (pageId === 'map-view' && navMap) {
                 navMap.classList.add('text-[#00ffff]', 'bg-white/5', 'drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]');
-                navMap.querySelector('span').style.fontVariationSettings = "'FILL' 1";
+                const span = navMap.querySelector('span');
+                if (span) span.style.fontVariationSettings = "'FILL' 1";
                 setTimeout(() => fitMapToScreen(), 50);
             } else if (pageId === 'page-preorder' || pageId === 'view-panpuri-boutique') {
                 if (navPreorder) {
@@ -2563,7 +2584,17 @@
             `;
             document.getElementById('map-image-container').appendChild(pin);
 
-            fitMapToScreen();
+            // Zoom and Pan to the target location
+            if (mapPanzoom) {
+                setTimeout(() => {
+                    const targetScale = 2.0; 
+                    const panX = 500 - targetX;
+                    const panY = 250 - targetY;
+                    
+                    mapPanzoom.pan(panX, panY, { animate: true, relative: false });
+                    mapPanzoom.zoom(targetScale, { animate: true });
+                }, 100);
+            }
         }
 
         function closeRouteCard() {

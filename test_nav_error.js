@@ -8,7 +8,7 @@ const puppeteer = require('puppeteer');
     page.on('pageerror', error => console.log('PAGE ERROR:', error.message));
     
     await page.goto('http://localhost:3000/#');
-    await page.waitForTimeout(2000); // wait for load
+    await new Promise(r => setTimeout(r, 2000));
     
     // Evaluate to click the Navigate to Gate button
     await page.evaluate(() => {
@@ -20,7 +20,7 @@ const puppeteer = require('puppeteer');
         }
     });
     
-    await page.waitForTimeout(2000); // wait for animation
+    await new Promise(r => setTimeout(r, 2000)); // wait for animation
     
     await browser.close();
 })();
