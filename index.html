@@ -2181,11 +2181,11 @@
 
         // --- 5. UI PAGE NAVIGATION UTILITIES ---
         function showPage(pageId) {
-            // Update URL so refreshing works correctly
+            // Update URL so refreshing works correctly without reloading the whole page
             if (pageId === 'home-view') {
-                window.history.pushState(null, '', 'index.html');
+                window.history.pushState(null, '', window.location.pathname);
             } else if (pageId === 'map-view') {
-                window.history.pushState(null, '', 'index.html?view=map');
+                window.history.pushState(null, '', window.location.pathname + '?view=map');
             }
 
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
@@ -3879,12 +3879,12 @@
     <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
         <div class="px-6 w-full flex items-center justify-between relative">
             <!-- Home -->
-            <div id="nav-home" class="flex flex-col items-center gap-1 cursor-pointer transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html'">
+            <div id="nav-home" class="flex flex-col items-center gap-1 cursor-pointer transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('home-view')">
                 <span class="material-symbols-outlined text-[#001a3d] hover:text-[#d8aa3d] transition-colors">home</span>
                 <span class="text-[9px] uppercase font-bold text-[#001a3d] hover:text-[#d8aa3d] tracking-tight transition-colors">Home</span>
             </div>
             <!-- Navigate -->
-            <div id="nav-map" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html?view=map'">
+            <div id="nav-map" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('map-view')">
                 <span class="material-symbols-outlined">map</span>
                 <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
             </div>
