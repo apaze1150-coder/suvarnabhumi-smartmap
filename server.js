@@ -1934,6 +1934,19 @@ app.post('/api/admin/products', async (req, res) => {
   }
 });
 
+let productsLock = false;
+async function withProductsLock(fn) {
+    while (productsLock) {
+        await new Promise(r => setTimeout(r, 50));
+    }
+    productsLock = true;
+    try {
+        return await fn();
+    } finally {
+        productsLock = false;
+    }
+}
+
 app.post('/api/admin/products/batch-update', async (req, res) => {
   const { password, updates, insertAfterCode } = req.body;
   // Fix: require password always - reject if missing or wrong
@@ -1941,8 +1954,10 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
   if (!updates || typeof updates !== 'object') return res.status(400).json({ error: 'Invalid updates payload' });
 
   try {
-    let products = [];
-    try { products = await readCsv(PRODUCTS_CSV); } catch(e) {}
+    let updatedCount = 0;
+    await withProductsLock(async () => {
+      let products = [];
+      try { products = await readCsv(PRODUCTS_CSV); } catch(e) {}
     
     let logs = [];
     if (fs.existsSync(STOCK_LOGS_CSV)) {
@@ -1961,6 +1976,8 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
       } else {
         idx = products.findIndex(p => p.Code === code);
       }
+      
+      console.log(`Updating code=${code}, idx=${idx}, products[idx].Code=${products[idx] ? products[idx].Code : 'undef'}`);
       
       if (idx !== -1 && idx < products.length) {
         // Log stock changes
@@ -2048,6 +2065,7 @@ app.post('/api/admin/products/batch-update', async (req, res) => {
     
     await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
     await writeCsvGeneric(STOCK_LOGS_CSV, logs, STOCK_LOG_HEADERS);
+    }); // end withProductsLock
     console.log(`[Admin] Batch updated ${updatedCount} products`);
     res.json({ success: true, updatedCount });
   } catch (err) {
