@@ -78,7 +78,9 @@ async function readCsv(filePath) {
   
   if (!table) return [];
   try {
-    const res = await db.query('SELECT * FROM ' + table);
+    // Order panpuri_products by sort_order to preserve insertion order
+    const orderClause = (table === 'panpuri_products') ? ' ORDER BY sort_order ASC NULLS LAST' : '';
+    const res = await db.query('SELECT * FROM ' + table + orderClause);
     return res.rows;
   } catch(e) {
     console.error('DB Error reading', table, e);
@@ -1524,14 +1526,23 @@ async function writeCsvGeneric(filePath, rows, headers) {
       return;
     }
     const cols = headers.map(h => '"' + h + '"').join(', ');
-    for (let row of dedupedRows) {
+    for (let i = 0; i < dedupedRows.length; i++) {
+      const row = dedupedRows[i];
       let vals = headers.map(h => {
         if (h === 'items_json' && typeof row[h] === 'string') return row[h];
         if (h === 'items_json' && typeof row[h] === 'object') return JSON.stringify(row[h]);
         return row[h];
       });
-      let placeholders = headers.map((_, i) => '$' + (i+1)).join(', ');
-      await client.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
+      let placeholders = headers.map((_, j) => '$' + (j+1)).join(', ');
+      // For panpuri_products, also set sort_order to preserve position
+      if (table === 'panpuri_products') {
+        await client.query(
+          'INSERT INTO ' + table + ' (' + cols + ', sort_order) VALUES (' + placeholders + ', $' + (headers.length + 1) + ')',
+          [...vals, i + 1]
+        );
+      } else {
+        await client.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
+      }
     }
     await client.query('COMMIT');
   } catch(e) { 
@@ -1818,8 +1829,14 @@ app.get('/api/admin/products', async (req, res) => {
         qty_tw4: p.Qty_Branch3,
         image: p.Image,
         size: p.Size,
-        scent_notes: p.Scent_Notes,
-        Scent_Notes: p.Scent_Notes,
+        Size: p.Size,
+        // Fix: map Description_Customer, Scent_Notes, How_to_Use so frontend can read them
+        description_customer: p.Description_Customer || '',
+        Description_Customer: p.Description_Customer || '',
+        scent_notes: p.Scent_Notes || '',
+        Scent_Notes: p.Scent_Notes || '',
+        how_to_use: p.How_to_Use || '',
+        How_to_Use: p.How_to_Use || '',
         is_active: p.is_active !== 'false'
     }));
     res.json(mappedProducts);

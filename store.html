@@ -263,9 +263,10 @@
 
     <!-- BEGIN: Login Screen -->
     <div class="absolute inset-0 flex items-center justify-center z-50 transition-opacity duration-500" id="view-login">
-        <!-- Shader Background -->
-        <div class="absolute inset-0 bg-royal-navy overflow-hidden">
-            <canvas class="w-full h-full" id="shader-canvas"></canvas>
+        <!-- Aura Background Layer -->
+        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#000000]">
+            <video src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/floating_flowers.mp4" playsinline muted loop autoplay class="w-full h-full object-cover object-bottom opacity-60"></video>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
         </div>
         <!-- Login Card -->
         <div class="relative z-10 w-full max-w-sm px-6 animate-fade-in" data-purpose="login-card">
@@ -1408,6 +1409,54 @@ function renderOrders() {
         let statusBadge = '';
         let opacityClass = 'opacity-100';
         
+        // Status Progress Bar config
+        const statusSteps = [
+            { key: 'pending',   label: 'Waiting',   icon: 'schedule' },
+            { key: 'confirmed', label: 'Confirmed',  icon: 'task_alt' },
+            { key: 'preparing', label: 'Preparing',  icon: 'local_mall' },
+            { key: 'ready',     label: 'Ready',      icon: 'check_circle' },
+            { key: 'collected', label: 'Collected',  icon: 'inventory' }
+        ];
+        const statusOrder = ['pending','confirmed','preparing','ready','collected'];
+        const currentStepIdx = statusOrder.indexOf(o.status);
+        const progressPercent = o.status === 'cancelled' ? 0 : Math.round(((currentStepIdx) / (statusSteps.length - 1)) * 100);
+        
+        // Progress bar color
+        let progressColor = '#525f76'; // default primary
+        if (o.status === 'ready' || o.status === 'collected') progressColor = '#1a8a3a';
+        else if (o.status === 'preparing' || o.status === 'confirmed') progressColor = '#725c10';
+        else if (o.status === 'cancelled') progressColor = '#ba1a1a';
+        
+        const statusProgressBar = o.status !== 'cancelled' && o.status !== 'out_of_stock' ? `
+        <div class="mb-4 mt-1">
+            <div class="flex justify-between items-center mb-2">
+                ${statusSteps.map((step, idx) => {
+                    const isActive = idx <= currentStepIdx;
+                    const isCurrent = idx === currentStepIdx;
+                    return `
+                    <div class="flex flex-col items-center gap-1 flex-1 ${ idx < statusSteps.length - 1 ? 'relative' : '' }">
+                        ${ idx < statusSteps.length - 1 ? `
+                        <div class="absolute top-4 left-1/2 w-full h-0.5 z-0" style="background:${isActive && idx < currentStepIdx ? progressColor : '#e1e2e4'}"></div>
+                        ` : '' }
+                        <div class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${ isCurrent ? 'ring-2 ring-offset-1' : '' }"
+                            style="background:${isActive ? progressColor : '#e1e2e4'}; ring-color:${progressColor};">
+                            <span class="material-symbols-outlined text-[16px]" style="color:${isActive ? '#fff' : '#75777d'}">${step.icon}</span>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-center leading-tight" style="color:${isCurrent ? progressColor : '#75777d'}">${step.label}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div class="w-full bg-surface-variant rounded-full h-1.5 mt-1">
+                <div class="h-1.5 rounded-full transition-all duration-500" style="width:${progressPercent}%; background:${progressColor};"></div>
+            </div>
+        </div>` : `
+        <div class="mb-4">
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${ o.status === 'cancelled' ? 'bg-error-container text-on-error-container' : 'bg-surface-variant text-on-surface-variant' }">
+                <span class="material-symbols-outlined text-[14px]">block</span>
+                ${ o.status === 'cancelled' ? 'Cancelled' : 'Out of Stock' }
+            </span>
+        </div>`;
+        
         if (o.status === 'pending') {
             statusBadge = `<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> Waiting</span>`;
         } else if (o.status === 'confirmed' || o.status === 'preparing') {
@@ -1429,15 +1478,16 @@ function renderOrders() {
                 <span class="material-symbols-outlined">sync_alt</span> Next: ${STATUS_LABEL[nextStatus]}
             </button>` : '';
             
-        const printBtn = o.status === 'ready' ? `
+        // Print button is now always visible
+        const printBtn = `
             <button onclick="printOrder('${o.order_id}')" class="flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-outline-variant text-on-surface-variant font-label-md haptic-press hover:bg-surface-container transition-all">
                 <span class="material-symbols-outlined">print</span> Print
-            </button>` : '';
+            </button>`;
 
         return `
         <div class="order-card-animate group bg-white border border-outline-variant hover:border-secondary transition-all duration-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md ${opacityClass}" style="animation-delay: ${index * 50}ms;">
             <div class="p-lg">
-                <div class="flex flex-wrap justify-between items-start gap-md mb-lg">
+                <div class="flex flex-wrap justify-between items-start gap-md mb-2">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <h3 class="font-headline-md text-primary">${esc(o.order_number)}</h3>
@@ -1450,6 +1500,8 @@ function renderOrders() {
                         <p class="text-label-sm text-on-surface-variant uppercase">${items.length} Items</p>
                     </div>
                 </div>
+                
+                ${statusProgressBar}
                 
                 <div class="flex items-center gap-4 mb-lg">
                     <div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg border border-outline-variant/30">
@@ -1572,6 +1624,14 @@ async function printOrder(orderId) {
     const items = Array.isArray(o.items) ? o.items : [];
     const dt = new Date(o.created_at).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     
+    // Helper: strip Chinese/Japanese/Korean characters from a string
+    function stripCJK(str) {
+        return (str || '').replace(/[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF]/g, '').trim();
+    }
+    
+    // Clean customer name – remove trailing CJK characters
+    const cleanCustomer = stripCJK(o.customer_name || '-');
+    
     // Store Location Mapping
     let storeName = currentStore || "Boutique";
     if (currentStore === 'TE3') storeName = "D East Gate 1-4 (TE3)";
@@ -1588,28 +1648,33 @@ async function printOrder(orderId) {
             if(printer.setAlignment) printer.setAlignment(0);
             printer.printText(`Store: ${storeName}\\n`);
             printer.printText(`Order: ${o.order_number || o.order_id}\\n`);
-            printer.printText(`Customer: ${o.customer_name || '-'}\\n`);
+            printer.printText(`Customer: ${cleanCustomer}\\n`);
             printer.printText(`Flight: ${o.flight_number || '-'}\\n`);
             printer.printText(`Time: ${dt}\\n`);
             printer.printText("--------------------------------\\n");
+            // Column header: Code | Description | Qty | Price
+            printer.printText(`${'CODE'.padEnd(10)}${'DESCRIPTION'.padEnd(14)}${'QTY'.padEnd(5)}${'PRICE'.padStart(7)}\\n`);
+            printer.printText("--------------------------------\\n");
 
             let totalItems = 0;
+            let totalAmount = 0;
             for (let i of items) {
                 let qty = parseInt(i.qty) || 0;
+                let unitPrice = parseFloat(i.price) || 0;
+                let lineTotal = qty * unitPrice;
                 totalItems += qty;
-                let desc = (i.name || '').substring(0, 18);
-                if (i.scent) desc += ` ${i.scent}`.substring(0, 6);
-                desc = desc.substring(0, 20);
-                
-                let line = `${qty}x ${desc}`.padEnd(24, ' ');
-                let price = `${(i.price * qty).toLocaleString()}`.padStart(8, ' ');
-                printer.printText(line + price + "\\n");
+                totalAmount += lineTotal;
+                const p = allProducts.find(x => x.product_code === i.product_code || x.product_id === i.product_id) || {};
+                const code = (p.Code || i.product_code || '-').toString().substring(0, 9);
+                const desc = (p.Description || i.name || '-').substring(0, 13);
+                const line = `${code.padEnd(10)}${desc.padEnd(14)}${qty.toString().padEnd(5)}${lineTotal.toLocaleString().padStart(7)}`;
+                printer.printText(line + "\\n");
             }
             
             printer.printText("--------------------------------\\n");
             if(printer.setAlignment) printer.setAlignment(2);
             printer.printText(`Total Items: ${totalItems}\\n`);
-            printer.printText(`Total Amount: ${parseFloat(o.total_price||0).toLocaleString()} THB\\n`);
+            printer.printText(`Total Amount: ${parseFloat(o.total_price||totalAmount).toLocaleString()} THB\\n`);
             
             if(printer.setAlignment) printer.setAlignment(1);
             printer.printText("\\nThank you for choosing Panpuri\\n");
@@ -1641,29 +1706,34 @@ async function printOrder(orderId) {
         escpos.push(ESC, 0x61, 0x00);
         escpos.push(...encoder.encode(`Store: ${storeName}\n`));
         escpos.push(...encoder.encode(`Order: ${o.order_number || o.order_id}\n`));
-        escpos.push(...encoder.encode(`Customer: ${o.customer_name || '-'}\n`));
+        escpos.push(...encoder.encode(`Customer: ${cleanCustomer}\n`));
         escpos.push(...encoder.encode(`Flight: ${o.flight_number || '-'}\n`));
         escpos.push(...encoder.encode(`Time: ${dt}\n`));
         escpos.push(...encoder.encode("--------------------------------\n"));
+        // Column header: Code | Description | Qty | Price
+        escpos.push(...encoder.encode(`${'CODE'.padEnd(10)}${'DESCRIPTION'.padEnd(14)}${'QTY'.padEnd(5)}${'PRICE'.padStart(7)}\n`));
+        escpos.push(...encoder.encode("--------------------------------\n"));
 
         let totalItems = 0;
+        let totalAmount = 0;
         for (let i of items) {
             let qty = parseInt(i.qty) || 0;
+            let unitPrice = parseFloat(i.price) || 0;
+            let lineTotal = qty * unitPrice;
             totalItems += qty;
-            let desc = (i.name || '').substring(0, 18);
-            if (i.scent) desc += ` ${i.scent}`.substring(0, 6);
-            desc = desc.substring(0, 20);
-            
-            let line = `${qty}x ${desc}`.padEnd(24, ' ');
-            let price = `${(i.price * qty).toLocaleString()}`.padStart(8, ' ');
-            escpos.push(...encoder.encode(line + price + "\n"));
+            totalAmount += lineTotal;
+            const p = allProducts.find(x => x.product_code === i.product_code || x.product_id === i.product_id) || {};
+            const code = (p.Code || i.product_code || '-').toString().substring(0, 9);
+            const desc = (p.Description || i.name || '-').substring(0, 13);
+            const line = `${code.padEnd(10)}${desc.padEnd(14)}${qty.toString().padEnd(5)}${lineTotal.toLocaleString().padStart(7)}`;
+            escpos.push(...encoder.encode(line + "\n"));
         }
         
         escpos.push(...encoder.encode("--------------------------------\n"));
         
         escpos.push(ESC, 0x61, 0x02);
         escpos.push(...encoder.encode(`Total Items: ${totalItems}\n`));
-        escpos.push(...encoder.encode(`Total Amount: ${parseFloat(o.total_price||0).toLocaleString()} THB\n`));
+        escpos.push(...encoder.encode(`Total Amount: ${parseFloat(o.total_price||totalAmount).toLocaleString()} THB\n`));
         
         escpos.push(ESC, 0x61, 0x01);
         escpos.push(...encoder.encode("\nThank you for choosing Panpuri\n"));

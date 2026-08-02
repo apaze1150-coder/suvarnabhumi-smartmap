@@ -529,13 +529,18 @@
 </main></div>
 
         <!-- 1b. PRE-ORDER PAGE -->
-        <div id="page-preorder" class="page-section absolute inset-0 pt-20 pb-40 overflow-y-auto bg-gray-50">
+        <div id="page-preorder" class="page-section absolute inset-0 pt-20 pb-40 overflow-y-auto bg-transparent">
+            <!-- Aura Background Layer -->
+            <div class="fixed inset-0 z-0 pointer-events-none">
+                <video src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/floating_flowers.mp4" playsinline muted loop autoplay class="w-full h-full object-cover object-bottom opacity-60 bg-[#000000]"></video>
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+            </div>
             <!-- Steps -->
-            <div id="preorder-step-select-store" class="max-w-lg mx-auto px-4 py-6">
+            <div id="preorder-step-select-store" class="max-w-lg mx-auto px-4 py-6 relative z-10">
     <!-- BEGIN: Premium Back Navigation -->
     <nav class="mb-10" data-purpose="navigation-area">
-        <button class="haptic-btn flex items-center gap-3 group text-[#000a1e] hover:bg-white/50 px-3 py-2 -ml-3 rounded-full" onclick="showPage('home-view')">
-            <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30">
+        <button class="haptic-btn flex items-center gap-3 group text-white hover:bg-white/10 px-3 py-2 -ml-3 rounded-full" onclick="showPage('home-view')">
+            <div class="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-transparent group-hover:border-white/40 group-hover:bg-white group-hover:text-black transition-all">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
                 </svg>
@@ -546,9 +551,9 @@
     <!-- END: Premium Back Navigation -->
     <!-- BEGIN: Brand Header -->
     <section class="mb-8" data-purpose="brand-info">
-        <h2 class="text-3xl font-extrabold tracking-[0.15em] mb-1 text-[#000a1e]">PAÑPURI</h2>
-        <h3 class="text-xl font-bold tracking-wider mb-4 text-[#000a1e]">PRE-ORDER</h3>
-        <p class="text-gray-500 text-sm font-medium">เลือกร้านค้าที่ต้องการรับสินค้า</p>
+        <h2 class="text-3xl font-extrabold tracking-[0.15em] mb-1 text-[#fdfbf6]">PAÑPURI</h2>
+        <h3 class="text-xl font-bold tracking-wider mb-4 text-[#c2ba9b]">PRE-ORDER</h3>
+        <p class="text-white/70 text-sm font-medium">เลือกร้านค้าที่ต้องการรับสินค้า</p>
     </section>
     <!-- END: Brand Header -->
     <!-- BEGIN: Store Selection List -->
@@ -557,11 +562,11 @@
         ⚠️ ร้านค้านี้ปิดรับ Order ชั่วคราว กรุณาเลือกร้านอื่นหรือลองใหม่ภายหลัง
     </div>
 </div>
-            <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-6 pb-40 space-y-4">
+            <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-6 pb-40 space-y-4 relative z-10">
                 <!-- Back Navigation -->
                 <div class="animate-fade-in-up stagger-1">
-                    <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-[#000a1e] transition-colors group">
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30">
+                    <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-white transition-colors group hover:text-[#c2ba9b]">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-transparent group-hover:border-[#c2ba9b] transition-all">
                             <svg class="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
                             </svg>
@@ -570,7 +575,7 @@
                     </a>
                 </div>
                 <header class="animate-fade-in-up stagger-1">
-                    <h1 class="text-2xl font-black text-[#000a1e] tracking-tight">Confirm Pre-order</h1>
+                    <h1 class="text-2xl font-black text-[#fdfbf6] tracking-tight">Confirm Pre-order</h1>
                 </header>
 
                 <!-- Order List & Confirmation Card -->
