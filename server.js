@@ -13,6 +13,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
+// Trust the reverse proxy (Render load balancer) to get real client IPs
+app.set('trust proxy', 1);
+
 // ── Security Headers (Helmet) ──────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false, // Disabled to allow CDN resources (Tailwind, Fonts, etc.)
