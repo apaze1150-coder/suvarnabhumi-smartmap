@@ -1,5 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -8,34 +11,84 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const IS_PROD = process.env.NODE_ENV === 'production';
 
-// Enable CORS and JSON body parsing
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ── Security Headers (Helmet) ──────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled to allow CDN resources (Tailwind, Fonts, etc.)
+  crossOriginEmbedderPolicy: false
+}));
 
-// Configure multer for image uploads
+// ── CORS: Restrict to allowed origins ─────────────────────────────
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,https://suvarnabhumi-smartmap.onrender.com,http://127.0.0.1:3000')
+  .split(',')
+  .map(o => o.trim());
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman) but log them
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('CORS: Origin not allowed'));
+  },
+  credentials: true
+}));
+
+// ── Rate Limiting ──────────────────────────────────────────────────
+// General API rate limit
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  message: { success: false, error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+// Strict limit for auth-sensitive endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { success: false, error: 'Too many attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/', apiLimiter);
+
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+// ── File Upload: restrict to images only ──────────────────────────
+const ALLOWED_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_EXT  = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'prod-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, 'prod-' + uniqueSuffix + ext);
   }
 });
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ALLOWED_MIME.includes(file.mimetype) && ALLOWED_EXT.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files (jpg, png, webp, gif) are allowed.'), false);
+  }
+};
+const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB max
 
-// Serve uploaded images statically
+// ── Static Files: serve only uploads directory (NOT root) ─────────
+// Specific HTML/CSS/JS files are served via explicit routes below
 const uploadDir = path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadDir));
 
-// Serve static frontend files
-app.use(express.static(__dirname));
+// Serve specific static asset folders only
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Serve index.html at root
 app.get('/', (req, res) => {
@@ -1471,13 +1524,13 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
 const PRODUCTS_CSV = path.join(__dirname, 'panpuri_products.csv');
 const ORDERS_CSV = path.join(__dirname, 'panpuri_orders.csv');
 const STORE_SETTINGS_FILE = path.join(__dirname, 'store_settings.json');
-const ADMIN_PASSWORD = '6515';
 
-// Store credentials: store_id -> password
+// ── Passwords from Environment Variables ──────────────────────────
+const ADMIN_PASSWORD     = process.env.ADMIN_PASSWORD     || '6515';
 const STORE_CREDENTIALS = {
-  'TE3': '6570',
-  'TE1': '6515',
-  'TW4': '6555'
+  'TE3': process.env.STORE_PASSWORD_TE3 || '6570',
+  'TE1': process.env.STORE_PASSWORD_TE1 || '6515',
+  'TW4': process.env.STORE_PASSWORD_TW4 || '6555'
 };
 
 // Store info for display
@@ -1880,7 +1933,8 @@ app.post('/api/admin/products', async (req, res) => {
 
 app.post('/api/admin/products/batch-update', async (req, res) => {
   const { password, updates, insertAfterCode } = req.body;
-  if (password && password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Unauthorized' });
+  // Fix: require password always - reject if missing or wrong
+  if (!password || password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Unauthorized' });
   if (!updates || typeof updates !== 'object') return res.status(400).json({ error: 'Invalid updates payload' });
 
   try {
