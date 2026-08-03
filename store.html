@@ -1403,6 +1403,9 @@ function updateStats() {
         initAnalyticsChart(dashOrders);
     }
     updateDashboardInsights(dashOrders);
+    if (typeof updateTrueAnalytics === 'function') updateTrueAnalytics(dashOrders);
+}
+
 function renderOrders() {
     filteredOrds = activeFilter === 'all' ? allOrders : allOrders.filter(o => o.status === activeFilter);
     
