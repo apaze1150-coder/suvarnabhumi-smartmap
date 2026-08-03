@@ -451,6 +451,10 @@
                 <div id="tab-content-true_analytics" class="hidden flex-col gap-6">
                     <!-- Date Filter Bar (Same as Dashboard) -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm">
+                        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/20">
+                            <label for="storeDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
+                            <input type="date" id="storeDatePicker" class="bg-transparent text-on-surface border-none outline-none font-bold text-sm cursor-pointer" onchange="if(typeof updateStats === 'function') updateStats()">
+                        </div>
                         <div class="flex flex-wrap gap-2">
                             <button class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-all">Today</button>
                             <button class="px-6 py-2 rounded-full bg-[#1C1C1E] text-white font-label-sm uppercase tracking-wider shadow-md">This Month</button>
@@ -665,14 +669,18 @@
                     
                     <!-- Date Filter Bar -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm">
+                        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/20">
+                            <label for="storeDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
+                            <input type="date" id="storeDatePicker" class="bg-transparent text-on-surface border-none outline-none font-bold text-sm cursor-pointer" onchange="if(typeof updateStats === 'function') updateStats()">
+                        </div>
                         <div class="flex flex-wrap gap-2">
                             <button class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-all">Today</button>
                             <button class="px-6 py-2 rounded-full bg-[#1C1C1E] text-white font-label-sm uppercase tracking-wider shadow-md">This Month</button>
                             <button class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-all">Last 30 Days</button>
                         </div>
                         <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/20">
-                            <span class="material-symbols-outlined text-on-surface-variant text-[20px]">calendar_today</span>
-                            <span class="font-bold text-sm text-on-surface">From Oct 01, 2023 To Oct 31, 2023</span>
+                            <label for="storeDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
+                            <input type="date" id="storeDatePicker" class="bg-transparent text-on-surface border-none outline-none font-bold text-sm cursor-pointer" onchange="if(typeof updateStats === 'function') updateStats()">
                         </div>
                     </div>
 
@@ -1119,7 +1127,7 @@ function switchTab(tab) {
     if (analyticsContent) {
         analyticsContent.style.display = tab === 'analytics' ? 'flex' : 'none';
         if (tab === 'analytics' && !window.analyticsChartInitialized) {
-            initAnalyticsChart();
+            initAnalyticsChart(dashOrders);
             window.analyticsChartInitialized = true;
         }
     }
@@ -1202,12 +1210,12 @@ function switchTab(tab) {
     }
 }
 
-function initAnalyticsChart() {
+function initAnalyticsChart(ordersList = allOrders) {
     const ctx = document.getElementById('peakHoursChart');
     if (!ctx) return;
     
     const hourCounts = [0, 0, 0, 0, 0];
-    allOrders.forEach(o => {
+    ordersList.forEach(o => {
         if (o.status === 'cancelled') return;
         const dt = new Date(o.created_at);
         const hr = dt.getHours();
@@ -1350,6 +1358,7 @@ async function loadOrders() {
 }
 
 function updateStats() {
+    // Global Live Stats (unfiltered)
     const pendingCount = allOrders.filter(o=>o.status==='pending').length;
     const preparingCount = allOrders.filter(o=>o.status==='preparing'||o.status==='confirmed').length;
     const readyCount = allOrders.filter(o=>o.status==='ready').length;
@@ -1357,26 +1366,52 @@ function updateStats() {
     document.getElementById('st-pending').textContent = pendingCount;
     document.getElementById('st-preparing').textContent = preparingCount;
     document.getElementById('st-ready').textContent = readyCount;
+
+    // Dashboard Specific Stats (filtered by date)
+    const datePicker = document.getElementById('storeDatePicker');
+    if (datePicker && !datePicker.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        datePicker.value = yyyy + '-' + mm + '-' + dd;
+    }
+    const selectedDate = datePicker ? datePicker.value : null;
+    
+    let dashOrders = allOrders;
+    if (selectedDate) {
+        dashOrders = allOrders.filter(o => {
+            if (!o.created_at) return false;
+            const orderDate = new Date(o.created_at);
+            const yyyy = orderDate.getFullYear();
+            const mm = String(orderDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(orderDate.getDate()).padStart(2, '0');
+            return yyyy + '-' + mm + '-' + dd === selectedDate;
+        });
+    }
+
+    const dashWaitingCount = dashOrders.filter(o=>o.status==='pending').length;
+    const dashReadyCount = dashOrders.filter(o=>o.status==='ready').length;
     
     const dashWaiting = document.getElementById('dash-waiting');
-    if (dashWaiting) dashWaiting.textContent = pendingCount;
+    if (dashWaiting) dashWaiting.textContent = dashWaitingCount;
     
     const dashReady = document.getElementById('dash-ready');
-    if (dashReady) dashReady.textContent = readyCount;
+    if (dashReady) dashReady.textContent = dashReadyCount;
     
     const dashTotalSales = document.getElementById('dash-total-sales');
     if (dashTotalSales) {
-        const totalSales = allOrders
+        const totalSales = dashOrders
             .filter(o => o.status !== 'cancelled')
             .reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
         dashTotalSales.textContent = '฿ ' + totalSales.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     }
     
     if (window.analyticsChartInitialized) {
-        initAnalyticsChart();
+        initAnalyticsChart(dashOrders);
     }
-    updateDashboardInsights();
-    if (typeof updateTrueAnalytics === 'function') updateTrueAnalytics();
+    updateDashboardInsights(dashOrders);
+    if (typeof updateTrueAnalytics === 'function') updateTrueAnalytics(dashOrders);
 }
 
 function renderOrders() {
@@ -2499,7 +2534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function updateDashboardInsights() {
+function updateDashboardInsights(ordersList = allOrders) {
     // 1. Update Inventory Insights
     const inventoryContainer = document.getElementById('dash-inventory-insights');
     if (inventoryContainer && allProducts && allProducts.length > 0) {
@@ -2546,7 +2581,7 @@ function updateDashboardInsights() {
     const topPerformersContainer = document.getElementById('dash-top-performers');
     if (topPerformersContainer && allOrders && allOrders.length > 0) {
         const productSales = {};
-        allOrders.forEach(o => {
+        ordersList.forEach(o => {
             if (o.status === 'cancelled') return;
             if (Array.isArray(o.items)) {
                 o.items.forEach(item => {
@@ -2629,8 +2664,15 @@ function updateDashboardInsights() {
 let taCategoryChartInstance = null;
 let taScentChartInstance = null;
 
-function updateTrueAnalytics() {
-    if (!allOrders || allOrders.length === 0) return;
+function updateTrueAnalytics(ordersList = allOrders) {
+    if (!ordersList || ordersList.length === 0) {
+        // Reset top metrics if no orders
+        document.getElementById('ta-revenue').innerText = '? 0';
+        document.getElementById('ta-items').innerText = '0';
+        document.getElementById('ta-orders').innerText = '0';
+        document.getElementById('ta-success').innerText = '0%';
+        return;
+    }
     
     // 1. Top Metrics
     let totalRevenue = 0;
@@ -2643,7 +2685,7 @@ function updateTrueAnalytics() {
     const timeBlocks = new Array(12).fill(0); // 12 blocks, 2 hours each starting at 06:00
     const skuSales = {};
 
-    allOrders.forEach(o => {
+    ordersList.forEach(o => {
         if (o.status === 'cancelled') return;
         activeOrders++;
         
