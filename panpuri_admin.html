@@ -2119,9 +2119,9 @@ async function saveNewProduct(e) {
         Qty_Branch1: document.getElementById('newProductStock').value || (existing ? existing.Qty_Branch1 : '0'),
         Qty_Branch2: document.getElementById('newProductStockTE1').value || (existing ? existing.Qty_Branch2 : '0'),
         Qty_Branch3: document.getElementById('newProductStockTW4').value || (existing ? existing.Qty_Branch3 : '0'),
-        Description_Customer: document.getElementById('newProductDescCust').value || (existing ? existing.Description_Customer : ''),
-        Scent_Notes: document.getElementById('newProductScentNotes').value || (existing ? existing.Scent_Notes : ''),
-        How_to_Use: document.getElementById('newProductHowToUse').value || (existing ? existing.How_to_Use : ''),
+        Description_Customer: (document.getElementById('newProductDescCust') ? document.getElementById('newProductDescCust').value : '') || (existing ? existing.Description_Customer : ''),
+        Scent_Notes: (document.getElementById('newProductScentNotes') ? document.getElementById('newProductScentNotes').value : '') || (existing ? existing.Scent_Notes : ''),
+        How_to_Use: (document.getElementById('newProductHowToUse') ? document.getElementById('newProductHowToUse').value : '') || (existing ? existing.How_to_Use : ''),
         Image: existing ? existing.Image : ''
     };
     

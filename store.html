@@ -1403,9 +1403,6 @@ function updateStats() {
         initAnalyticsChart(dashOrders);
     }
     updateDashboardInsights(dashOrders);
-    if (typeof updateTrueAnalytics === 'function') updateTrueAnalytics(dashOrders);
-}
-
 function renderOrders() {
     filteredOrds = activeFilter === 'all' ? allOrders : allOrders.filter(o => o.status === activeFilter);
     
@@ -1422,6 +1419,13 @@ function renderOrders() {
     }
 
     const wrap = document.getElementById('tab-content-orders');
+
+    // Compute a lightweight hash of the current filtered orders (id + status only)
+    const ordersHash = JSON.stringify(filteredOrds.map(o => ({id: o.order_id, status: o.status})));
+    // If the orders haven't changed since last render, skip updating to avoid image reloads
+    if (wrap._lastHash && wrap._lastHash === ordersHash) {
+        return; // nothing to update
+    }
     
     let newHtml = '';
     if (filteredOrds.length === 0) {
