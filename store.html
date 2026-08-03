@@ -1664,13 +1664,8 @@ async function printOrder(orderId) {
     const items = Array.isArray(o.items) ? o.items : [];
     const dt = new Date(o.created_at).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     
-    // Helper: strip Chinese/Japanese/Korean characters from a string
-    function stripCJK(str) {
-        return (str || '').replace(/[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF]/g, '').trim();
-    }
-    
-    // Clean customer name – remove trailing CJK characters
-    const cleanCustomer = stripCJK(o.customer_name || '-');
+    // Use customer name as-is (support all languages including CJK)
+    const cleanCustomer = (o.customer_name || '-').trim();
     
     // Store Location Mapping
     let storeName = currentStore || "Boutique";
