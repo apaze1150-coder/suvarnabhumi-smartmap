@@ -196,12 +196,19 @@
 
 <!-- View: Dashboard -->
 <div class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop space-y-lg custom-scrollbar">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-md gap-4">
+    <h3 class="text-title-lg font-bold text-on-surface">Daily Sales Dashboard</h3>
+    <div class="flex items-center gap-3">
+        <label for="dashboardDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
+        <input type="date" id="dashboardDatePicker" class="bg-surface-container-high text-on-surface border border-outline-variant rounded-lg px-4 py-2 text-body-md focus:ring-2 focus:ring-primary focus:border-primary shadow-sm transition-all cursor-pointer" onchange="if (typeof loadDashboardStats === 'function') loadDashboardStats()">
+    </div>
+</div>
 <!-- Global Stats Bento Grid -->
 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
 <div class="staggered-item bg-primary-container text-on-primary p-lg rounded-xl shadow-sm border border-outline-variant" style="animation-delay: 50ms;">
-<p class="text-label-sm text-on-primary-container uppercase tracking-widest mb-2">Total Orders (24h)</p>
+<p class="text-label-sm text-on-primary-container uppercase tracking-widest mb-2">Total Orders (Selected)</p>
 <div class="flex items-end justify-between">
-<span class="font-headline-xl text-headline-xl">1,284</span>
+<span id="dash-total-orders" class="font-headline-xl text-headline-xl">1,284</span>
 <span class="text-secondary font-bold flex items-center gap-1 text-label-md">
 <span class="material-symbols-outlined text-[16px]">trending_up</span> +12%
                         </span>
@@ -210,21 +217,21 @@
 <div class="staggered-item bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant" style="animation-delay: 100ms;">
 <p class="text-label-sm text-outline uppercase tracking-widest mb-2">Pending</p>
 <div class="flex items-end justify-between">
-<span class="font-headline-xl text-headline-xl text-on-surface">42</span>
+<span id="dash-pending" class="font-headline-xl text-headline-xl text-on-surface">0</span>
 <span class="material-symbols-outlined text-status-gold" style="font-variation-settings: 'FILL' 1;">pending</span>
 </div>
 </div>
 <div class="staggered-item bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant" style="animation-delay: 150ms;">
 <p class="text-label-sm text-outline uppercase tracking-widest mb-2">Preparing</p>
 <div class="flex items-end justify-between">
-<span class="font-headline-xl text-headline-xl text-on-surface">158</span>
+<span id="dash-preparing" class="font-headline-xl text-headline-xl text-on-surface">0</span>
 <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">stockpot</span>
 </div>
 </div>
 <div class="staggered-item bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant" style="animation-delay: 200ms;">
 <p class="text-label-sm text-outline uppercase tracking-widest mb-2">Ready for Pickup</p>
 <div class="flex items-end justify-between">
-<span class="font-headline-xl text-headline-xl text-on-surface">312</span>
+<span id="dash-ready" class="font-headline-xl text-headline-xl text-on-surface">0</span>
 <span class="material-symbols-outlined text-green-600" style="font-variation-settings: 'FILL' 1;">check_circle</span>
 </div>
 </div>
@@ -1469,13 +1476,60 @@ async function loadDashboardStats() {
             });
             
             // Map old store IDs to new shop numbers (from DB)
+            const datePicker = document.getElementById('dashboardDatePicker');
+            if (datePicker && !datePicker.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                datePicker.value = yyyy + '-' + mm + '-' + dd;
+            }
+            const selectedDate = datePicker ? datePicker.value : null;
+            
+            let filteredOrders = orders;
+            if (selectedDate) {
+                filteredOrders = orders.filter(o => {
+                    if (!o.created_at) return false;
+                    const orderDate = new Date(o.created_at);
+                    const yyyy = orderDate.getFullYear();
+                    const mm = String(orderDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(orderDate.getDate()).padStart(2, '0');
+                    return yyyy + '-' + mm + '-' + dd === selectedDate;
+                });
+            }
+            
+            // Update Total Orders text in DOM
+            const totalOrdersTextEl = document.querySelector('p.text-label-sm.text-on-primary-container');
+            if(totalOrdersTextEl) {
+                totalOrdersTextEl.innerText = 'TOTAL ORDERS (' + selectedDate + ')';
+            }
+            
+            
+            let pendingCount = 0;
+            let preparingCount = 0;
+            let readyCount = 0;
+            filteredOrders.forEach(o => {
+                const st = (o.status || '').toLowerCase();
+                if (st === 'pending') pendingCount++;
+                else if (st === 'preparing') preparingCount++;
+                else if (st === 'ready_for_pickup' || st === 'ready') readyCount++;
+            });
+            const dashTotal = document.getElementById('dash-total-orders');
+            if (dashTotal) dashTotal.innerText = filteredOrders.length.toLocaleString();
+            const dashPending = document.getElementById('dash-pending');
+            if (dashPending) dashPending.innerText = pendingCount.toLocaleString();
+            const dashPreparing = document.getElementById('dash-preparing');
+            if (dashPreparing) dashPreparing.innerText = preparingCount.toLocaleString();
+            const dashReady = document.getElementById('dash-ready');
+            if (dashReady) dashReady.innerText = readyCount.toLocaleString();
+
             const oldToNewStoreId = {
                 'te3': 'te1',
                 'te1': 'te3',
                 'tw4': 'tw4'
             };
 
-            orders.forEach(o => {
+            filteredOrders.forEach(o => {
                 let sid = (o.store_id || '').toLowerCase();
                 if (oldToNewStoreId[sid]) {
                     sid = oldToNewStoreId[sid];
@@ -1494,7 +1548,7 @@ async function loadDashboardStats() {
             
             // 3. Top 5 Best Sellers
             const productSales = {};
-            orders.forEach(o => {
+            filteredOrders.forEach(o => {
                 let items = [];
                 try { items = Array.isArray(o.items) ? o.items : JSON.parse(o.items_json || '[]'); } catch(e) {}
                 items.forEach(item => {
@@ -1520,7 +1574,7 @@ async function loadDashboardStats() {
                 itemsSold[lsid] = 0;
             });
             
-            orders.forEach(o => {
+            filteredOrders.forEach(o => {
                 let sid = (o.store_id || '').toLowerCase();
                 if (oldToNewStoreId[sid]) {
                     sid = oldToNewStoreId[sid];
