@@ -1596,23 +1596,36 @@ async function writeCsvGeneric(filePath, rows, headers) {
       return;
     }
     const cols = headers.map(h => '"' + h + '"').join(', ');
-    for (let i = 0; i < dedupedRows.length; i++) {
-      const row = dedupedRows[i];
-      let vals = headers.map(h => {
-        if (h === 'items_json' && typeof row[h] === 'string') return row[h];
-        if (h === 'items_json' && typeof row[h] === 'object') return JSON.stringify(row[h]);
-        return row[h];
-      });
-      let placeholders = headers.map((_, j) => '$' + (j+1)).join(', ');
-      // For panpuri_products, also set sort_order to preserve position
-      if (table === 'panpuri_products') {
-        await client.query(
-          'INSERT INTO ' + table + ' (' + cols + ', sort_order) VALUES (' + placeholders + ', $' + (headers.length + 1) + ')',
-          [...vals, i + 1]
-        );
-      } else {
-        await client.query('INSERT INTO ' + table + ' (' + cols + ') VALUES (' + placeholders + ')', vals);
+    const isProducts = (table === 'panpuri_products');
+    const colsSQL = isProducts ? cols + ', sort_order' : cols;
+    
+    // Batch insert: build multi-row VALUES in chunks of 50 to avoid param limits
+    const BATCH_SIZE = 50;
+    for (let batchStart = 0; batchStart < dedupedRows.length; batchStart += BATCH_SIZE) {
+      const batch = dedupedRows.slice(batchStart, batchStart + BATCH_SIZE);
+      const allVals = [];
+      const valueClauses = [];
+      const colCount = isProducts ? headers.length + 1 : headers.length;
+      
+      for (let i = 0; i < batch.length; i++) {
+        const row = batch[i];
+        const rowVals = headers.map(h => {
+          if (h === 'items_json' && typeof row[h] === 'string') return row[h];
+          if (h === 'items_json' && typeof row[h] === 'object') return JSON.stringify(row[h]);
+          return row[h];
+        });
+        if (isProducts) rowVals.push(batchStart + i + 1); // sort_order
+        
+        const offset = i * colCount;
+        const placeholders = rowVals.map((_, j) => '$' + (offset + j + 1)).join(', ');
+        valueClauses.push('(' + placeholders + ')');
+        allVals.push(...rowVals);
       }
+      
+      await client.query(
+        'INSERT INTO ' + table + ' (' + colsSQL + ') VALUES ' + valueClauses.join(', '),
+        allVals
+      );
     }
     await client.query('COMMIT');
   } catch(e) { 

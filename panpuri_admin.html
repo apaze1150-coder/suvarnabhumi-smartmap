@@ -2135,6 +2135,10 @@ async function saveNewProduct(e) {
         payload.insertAfterCode = window.insertAfterCode;
     }
     
+    // Optimistic UI: close modal immediately for snappy feel
+    closeAddProductModal();
+    if (typeof showToast === 'function') showToast('Saving product...');
+    
     try {
         const res = await fetch('/api/admin/products/batch-update', {
             method: 'POST', 
@@ -2144,16 +2148,18 @@ async function saveNewProduct(e) {
         const data = await res.json();
         
         if (data.success || data.success === undefined) {
-            closeAddProductModal();
+            if (typeof showToast === 'function') showToast('Product saved!');
             if (typeof loadProducts === 'function') {
                 loadProducts();
             }
         } else {
             alert('Error adding product: ' + (data.error || 'Unknown error'));
+            if (typeof loadProducts === 'function') loadProducts(); // reload to revert
         }
     } catch(err) {
         console.error(err);
         alert('Connection error');
+        if (typeof loadProducts === 'function') loadProducts(); // reload to revert
     }
 }
 </script>
