@@ -3412,7 +3412,8 @@
                     errEl.classList.remove('hidden');
                 }
             } catch(e) {
-                errEl.textContent = 'Unable to connect to server';
+                console.error("Order error", e);
+                errEl.textContent = 'Error: ' + (e.message || 'Unable to connect to server');
                 errEl.classList.remove('hidden');
             }
             btn.disabled = false;
