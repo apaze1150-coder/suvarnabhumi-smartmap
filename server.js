@@ -98,6 +98,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Serve index.html at /index.html as well
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Serve admin.html at /admin
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
@@ -111,6 +116,16 @@ app.get('/store', (req, res) => {
 // Serve PANPURI Admin Dashboard at /panpuri-admin
 app.get('/panpuri-admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'panpuri_admin.html'));
+});
+
+// Serve store_directory.html
+app.get('/store_directory.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'store_directory.html'));
+});
+
+// Serve store_selection.html
+app.get('/store_selection.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'store_selection.html'));
 });
 
 // CSV Database Paths

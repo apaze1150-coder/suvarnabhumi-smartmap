@@ -565,8 +565,8 @@
             <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-6 pb-40 space-y-4 relative z-10">
                 <!-- Back Navigation -->
                 <div class="animate-fade-in-up stagger-1">
-                    <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-white transition-colors group hover:text-[#c2ba9b]">
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-transparent group-hover:border-[#c2ba9b] transition-all">
+                    <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-[#000a1e] transition-colors group">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30 transition-all">
                             <svg class="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
                             </svg>
@@ -575,7 +575,7 @@
                     </a>
                 </div>
                 <header class="animate-fade-in-up stagger-1">
-                    <h1 class="text-2xl font-black text-[#fdfbf6] tracking-tight">Confirm Pre-order</h1>
+                    <h1 class="text-2xl font-black text-[#000a1e] tracking-tight">Confirm Pre-order</h1>
                 </header>
 
                 <!-- Order List & Confirmation Card -->
@@ -957,6 +957,15 @@
 
             <!-- Cancel navigation banner removed, now inside store toast -->
 
+            
+            <!-- Floating Cancel Navigation Banner Button -->
+            <div id="cancel-route-banner" class="absolute top-36 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto hidden transition-all duration-300">
+                <button onclick="clearSearch()" class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/90 cursor-pointer text-xs group tracking-wide">
+                    <span class="material-symbols-outlined text-base group-hover:rotate-90 transition-transform">cancel</span>
+                    <span>ปิดการนำทาง</span>
+                </button>
+            </div>
+
             <!-- Full Screen Map Canvas -->
             <div class="absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden flex items-center justify-center" id="panzoom-wrapper">
                 <div class="relative w-[1000px] h-[500px] shrink-0" id="map-image-container">
@@ -996,7 +1005,7 @@
 
                     <!-- Legacy Path Overlay for Flights (keep for gate navigation compatibility) -->
                     <svg id="route-gate-c" class="absolute inset-0 w-full h-full pointer-events-none hidden z-20" viewBox="0 0 1000 500" preserveAspectRatio="none">
-                        <path d="M 489 227 L 216 223 L 217 151" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 6" class="path-animated"></path>
+                        <path d="M 489 227 L 216 223 L 217 151" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="6 6" class="path-animated"></path>
                         <circle cx="489" cy="227" r="6" fill="#000a1e" stroke="#fff" stroke-width="2"></circle>
                     </svg>
                 </div>
@@ -1533,7 +1542,7 @@
                     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     pathElement.setAttribute('d', d);
                     pathElement.setAttribute('fill', 'none');
-                    pathElement.setAttribute('stroke', '#22c55e'); // Green path line
+                    pathElement.setAttribute('stroke', '#0ea5e9'); // Green path line
                     pathElement.setAttribute('stroke-width', '2');
                     pathElement.setAttribute('stroke-dasharray', '6 6');
                     pathElement.setAttribute('stroke-linecap', 'round');
@@ -2548,7 +2557,7 @@
                 const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 pathElement.setAttribute('d', pathD);
                 pathElement.setAttribute('fill', 'none');
-                pathElement.setAttribute('stroke', '#22c55e');
+                pathElement.setAttribute('stroke', '#0ea5e9');
                 pathElement.setAttribute('stroke-width', '2.5');
                 pathElement.setAttribute('stroke-dasharray', '6 6');
                 pathElement.setAttribute('class', 'path-animated transition-all duration-300');
