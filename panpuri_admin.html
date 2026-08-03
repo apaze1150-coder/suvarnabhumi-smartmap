@@ -970,8 +970,7 @@ applyColumnVisibility();
                 const id = e.target.getAttribute('data-id');
                 const field = e.target.getAttribute('data-field');
                 const val = e.target.innerText;
-                const originalIndex = e.target.getAttribute('data-index');
-                if(!unsavedChanges[id]) unsavedChanges[id] = { _originalIndex: originalIndex };
+                if(!unsavedChanges[id]) unsavedChanges[id] = {};
                 unsavedChanges[id][field] = val;
             }
         });
@@ -993,6 +992,15 @@ applyColumnVisibility();
         async function commitChanges() {
             if (Object.keys(unsavedChanges).length === 0) return;
             const payload = { ...unsavedChanges };
+            // Update local memory to prevent revert on next renderTable
+            for (const code in payload) {
+                const idx = allProducts.findIndex(p => p.Code == code);
+                if (idx !== -1) {
+                    for (const field in payload[code]) {
+                        allProducts[idx][field] = payload[code][field];
+                    }
+                }
+            }
             unsavedChanges = {}; 
             
             try {
@@ -1011,6 +1019,7 @@ applyColumnVisibility();
                     toast.classList.add('opacity-0');
                     setTimeout(() => toast.remove(), 500);
                 }, 2000);
+
             } catch (err) {
                 console.error('Failed to auto-save changes:', err);
             }
@@ -2056,6 +2065,9 @@ async function saveNewProduct(e) {
         Qty_Branch1: document.getElementById('newProductStock').value || (existing ? existing.Qty_Branch1 : '0'),
         Qty_Branch2: document.getElementById('newProductStockTE1').value || (existing ? existing.Qty_Branch2 : '0'),
         Qty_Branch3: document.getElementById('newProductStockTW4').value || (existing ? existing.Qty_Branch3 : '0'),
+        Description_Customer: document.getElementById('newProductDescCust').value || (existing ? existing.Description_Customer : ''),
+        Scent_Notes: document.getElementById('newProductScentNotes').value || (existing ? existing.Scent_Notes : ''),
+        How_to_Use: document.getElementById('newProductHowToUse').value || (existing ? existing.How_to_Use : ''),
         Image: existing ? existing.Image : ''
     };
     
