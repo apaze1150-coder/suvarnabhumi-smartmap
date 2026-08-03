@@ -451,10 +451,6 @@
                 <div id="tab-content-true_analytics" class="hidden flex-col gap-6">
                     <!-- Date Filter Bar (Same as Dashboard) -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm">
-                        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/20">
-                            <label for="storeDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
-                            <input type="date" id="storeDatePicker" class="bg-transparent text-on-surface border-none outline-none font-bold text-sm cursor-pointer" onchange="if(typeof updateStats === 'function') updateStats()">
-                        </div>
                         <div class="flex flex-wrap gap-2">
                             <button class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-all">Today</button>
                             <button class="px-6 py-2 rounded-full bg-[#1C1C1E] text-white font-label-sm uppercase tracking-wider shadow-md">This Month</button>
@@ -669,10 +665,6 @@
                     
                     <!-- Date Filter Bar -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm">
-                        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/20">
-                            <label for="storeDatePicker" class="text-label-md text-on-surface-variant font-medium">Select Date:</label>
-                            <input type="date" id="storeDatePicker" class="bg-transparent text-on-surface border-none outline-none font-bold text-sm cursor-pointer" onchange="if(typeof updateStats === 'function') updateStats()">
-                        </div>
                         <div class="flex flex-wrap gap-2">
                             <button class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-all">Today</button>
                             <button class="px-6 py-2 rounded-full bg-[#1C1C1E] text-white font-label-sm uppercase tracking-wider shadow-md">This Month</button>
@@ -2666,11 +2658,6 @@ let taScentChartInstance = null;
 
 function updateTrueAnalytics(ordersList = allOrders) {
     if (!ordersList || ordersList.length === 0) {
-        // Reset top metrics if no orders
-        document.getElementById('ta-revenue').innerText = '? 0';
-        document.getElementById('ta-items').innerText = '0';
-        document.getElementById('ta-orders').innerText = '0';
-        document.getElementById('ta-success').innerText = '0%';
         return;
     }
     
