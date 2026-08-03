@@ -2393,4 +2393,19 @@ app.get('/api/staff/stock-logs', async (req, res) => {
   }
 });
 
+// GLOBAL API 404 HANDLER
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, error: 'API route not found: ' + req.method + ' ' + req.originalUrl });
+});
+
+// GLOBAL ERROR HANDLER
+app.use((err, req, res, next) => {
+  console.error('GLOBAL ERROR:', err);
+  if (req.originalUrl.startsWith('/api')) {
+    res.status(err.status || 500).json({ success: false, error: err.message || 'Internal Server Error', type: err.type });
+  } else {
+    next(err);
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
