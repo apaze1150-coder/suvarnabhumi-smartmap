@@ -28,9 +28,8 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,ht
   .map(o => o.trim());
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman) but log them
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('CORS: Origin not allowed'));
+    // Relaxed CORS for production issues: allow all origins dynamically
+    callback(null, true);
   },
   credentials: true
 }));
