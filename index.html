@@ -3383,7 +3383,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ store_id: preorderStoreId, customer_name: name, flight_number: flight, items })
                 });
-                const data = await res.json();
+                let data;
+                let rawText = '';
+                try {
+                    rawText = await res.text();
+                    data = JSON.parse(rawText);
+                } catch(err) {
+                    throw new Error('NON-JSON: ' + rawText.substring(0, 100));
+                }
                 if (data.success) {
                     lastCompletedOrderNumber = data.order_number;
                     
