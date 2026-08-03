@@ -1423,12 +1423,12 @@ function renderOrders() {
 
     const wrap = document.getElementById('tab-content-orders');
     
+    let newHtml = '';
     if (filteredOrds.length === 0) {
-        wrap.innerHTML = `<div class="text-center py-20 text-on-surface-variant font-headline-md">No orders found.</div>`;
-        return;
-    }
+        newHtml = `<div class="text-center py-20 text-on-surface-variant font-headline-md">No orders found.</div>`;
+    } else {
     
-    wrap.innerHTML = filteredOrds.map((o, index) => {
+    newHtml = filteredOrds.map((o, index) => {
         const items = Array.isArray(o.items) ? o.items : [];
         const dt = new Date(o.created_at);
         const timeStr = dt.toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) + ' · ' + dt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
@@ -1591,6 +1591,12 @@ function renderOrders() {
             </div>
         </div>`;
     }).join('');
+    }
+
+    if (wrap._lastHTML !== newHtml) {
+        wrap.innerHTML = newHtml;
+        wrap._lastHTML = newHtml;
+    }
 }
 
 async function updateOrderStatus(orderId, newStatus, note) {
