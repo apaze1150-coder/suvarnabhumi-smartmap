@@ -3065,7 +3065,20 @@
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
-                allProducts = data.products || [];
+                allProducts = (data.products || []).map(p => ({
+                    ...p,
+                    product_id: p.Code || p.product_id,
+                    category: p.Category || p.category,
+                    sub_category: p['Sub-Category'] || p.sub_category,
+                    scent: p.Scent || p.scent,
+                    description: p.Description || p.description,
+                    size: p.Size || p.size,
+                    price: p.Price || p.price,
+                    image: p.Image || p.image,
+                    qty_te3: p.Qty_Branch1 || p.qty_te3,
+                    qty_te1: p.Qty_Branch2 || p.qty_te1,
+                    qty_tw4: p.Qty_Branch3 || p.qty_tw4
+                }));
                 renderCategoriesUI();
                 // We don't renderProductGrid() here because filterProducts('all') will handle it.
             } catch(e) {
