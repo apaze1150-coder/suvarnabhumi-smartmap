@@ -121,9 +121,15 @@ app.get('/panpuri-admin', (req, res) => {
 app.get('/store_directory.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'store_directory.html'));
 });
+app.get('/store_directory', (req, res) => {
+  res.sendFile(path.join(__dirname, 'store_directory.html'));
+});
 
 // Serve store_selection.html
 app.get('/store_selection.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'store_selection.html'));
+});
+app.get('/store_selection', (req, res) => {
   res.sendFile(path.join(__dirname, 'store_selection.html'));
 });
 
@@ -614,66 +620,28 @@ app.get('/api/flight-status', async (req, res) => {
   
   const cleanFlightId = flight_id.toUpperCase().replace(/\s+/g, '');
 
-  // --- DEMO OVERRIDE ---
-  
-  if ((cleanFlightId === 'TG679' || cleanFlightId === 'THA679') && !custom_gate) {
-      console.log("Applying demo override for TG679 to Gate D4");
-      return res.json({
-        flight_id: 'TG679',
-        gate: 'D4',
-        boarding_time: '23:45',
-        status: 'On Time',
-        gate_node_id: 'Node_Gate_D4',
-        walk_time_mins: 4
-      });
-  }
-
-  if (cleanFlightId === 'EK385' && !custom_gate) {
-      console.log("Applying demo override for EK385 to Gate S116");
+  // --- CSV OVERRIDE ---
+  try {
+    const overrides = await readCsv(path.join(__dirname, 'flight_override.csv'));
+    const override = overrides.find(o => o.flight_id.toUpperCase() === cleanFlightId || (o.flight_id.toUpperCase() === 'TK069' && cleanFlightId === 'THY069') || (o.flight_id.toUpperCase() === 'TG679' && cleanFlightId === 'THA679'));
+    if (override && !custom_gate) {
+      console.log(`Applying CSV override for ${cleanFlightId} to Gate ${override.gate}`);
       const walkTimes = await readCsv(WALK_TIME_CSV);
-      const walkInfo = walkTimes.find(w => w.gate_zone === 'SAT-1');
-      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 15;
+      const gateZone = getZoneFromGate(override.gate);
+      const walkInfo = walkTimes.find(w => w.gate_zone.toUpperCase() === gateZone.toUpperCase());
+      const walk_time_mins = override.gate === 'TBD' ? 0 : (walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 10);
       
       return res.json({
-        flight_id: 'EK385',
-        gate: 'S116',
-        boarding_time: '01:45',
+        flight_id: override.flight_id,
+        gate: override.gate,
+        boarding_time: override.boarding_time || '00:00',
         status: 'Scheduled',
-        gate_node_id: 'Node_Gate_S116',
+        gate_node_id: override.gate === 'TBD' ? null : resolveGateToNode(override.gate),
         walk_time_mins: walk_time_mins
       });
-  }
-
-  if (cleanFlightId === 'QR829' && !custom_gate) {
-      console.log("Applying demo override for QR829 to Gate S111A");
-      const walkTimes = await readCsv(WALK_TIME_CSV);
-      const walkInfo = walkTimes.find(w => w.gate_zone === 'SAT-1');
-      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 15;
-      
-      return res.json({
-        flight_id: 'QR829',
-        gate: 'S111A',
-        boarding_time: '02:20',
-        status: 'Scheduled',
-        gate_node_id: 'Node_Gate_S101',
-        walk_time_mins: walk_time_mins
-      });
-  }
-
-  if (cleanFlightId === 'EY401' && !custom_gate) {
-      console.log("Applying demo override for EY401 to Gate C6");
-      const walkTimes = await readCsv(WALK_TIME_CSV);
-      const walkInfo = walkTimes.find(w => w.gate_zone === 'C');
-      const walk_time_mins = walkInfo ? parseInt(walkInfo.walk_time_mins, 10) : 7;
-      
-      return res.json({
-        flight_id: 'EY401',
-        gate: 'C6',
-        boarding_time: '02:30',
-        status: 'Scheduled',
-        gate_node_id: 'Node_Gate_C6',
-        walk_time_mins: walk_time_mins
-      });
+    }
+  } catch (e) {
+    console.error('Failed to read flight_override.csv:', e.message);
   }
   // ---------------------
 
@@ -691,11 +659,13 @@ app.get('/api/flight-status', async (req, res) => {
     // 2. High-fidelity Dynamic Generator Fallback
     if (!flightData) {
       const airline = cleanFlightId.match(/^([A-Z]{2,3})/)?.[1] || 'TG';
-      let gate = 'D4';
+      const hash = Math.abs(hashString(cleanFlightId));
+      
+      const possibleGates = ['D4', 'D5', 'D6', 'C1', 'C2', 'C3', 'E1', 'E2', 'F1', 'F2', 'G1', 'S111', 'S112', 'S114', 'S116'];
+      let gate = possibleGates[hash % possibleGates.length];
 
       // Generate dynamic status relative to server clock
       const now = new Date();
-      const hash = Math.abs(hashString(cleanFlightId));
       const minsFromNow = 25 + (hash % 50); // Deterministic offset
       const boardingTimeObj = new Date(now.getTime() + minsFromNow * 60 * 1000);
       
