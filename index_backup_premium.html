@@ -5,7 +5,7 @@
 
     <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 
@@ -88,18 +88,18 @@
                         "margin-desktop": "32px"
                     },
                     "fontFamily": {
-                        "headline": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "body": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "body": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
                         "label": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "headline-lg": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "headline-xl": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "label-md": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-lg": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-xl": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "label-md": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
                         "body-sm": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
                         "body-md": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
                         "body-lg": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "headline-md": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "label-sm": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
-                        "headline-xl-mobile": ["Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"]
+                        "headline-md": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "label-sm": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-xl-mobile": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"]
                     },
                     "fontSize": {
                         "headline-lg": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
@@ -291,54 +291,6 @@
         document.write('<style id="anti-flicker">#home-view { display: none !important; }</style>');
     }
 </script>
-
-    <!-- Premium UI Upgrades -->
-    <style>
-        /* Smooth interactions for all interactive elements */
-        button, a, input, select {
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        
-        button:active {
-            transform: scale(0.97);
-        }
-
-        /* Glassmorphism for panels */
-        .bg-surface-container, .bg-white, .bg-surface-container-lowest {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-        
-        /* Specific overrides for floating panels to ensure they look premium */
-        .fixed.z-50, .absolute.z-40, .sticky {
-            background-color: rgba(255, 255, 255, 0.85) !important;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03) !important;
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        }
-        
-        .dark .fixed.z-50, .dark .absolute.z-40, .dark .sticky {
-            background-color: rgba(25, 28, 30, 0.85) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5) !important;
-        }
-
-        /* Refined scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(150, 150, 150, 0.3);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(150, 150, 150, 0.5);
-        }
-    </style>
-
 </head>
 
 <body class="bg-surface font-body text-on-surface antialiased overflow-hidden flex flex-col h-screen w-screen">
@@ -934,10 +886,10 @@
             </div>
 
             <!-- Left-Side Floating Toggleable Category Panel -->
-            <div class="absolute top-[140px] left-6 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
+            <div class="absolute top-24 left-6 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
                 <!-- Floating Round Action Button -->
                 <button id="toggle-sidebar" onclick="toggleCategoryPanel()" title="Toggle Categories Filter" class="bg-white/95 backdrop-blur-md text-primary hover:text-[#B59115] shadow-lg rounded-2xl w-12 h-12 flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer group">
-                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">tune</span>
+                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">filter_list</span>
                 </button>
 
                 <!-- Collapsible Glassmorphism Panel (Default Hidden / Collapsed) -->
