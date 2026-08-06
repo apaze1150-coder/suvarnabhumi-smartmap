@@ -1423,8 +1423,8 @@ function renderOrders() {
 
     const wrap = document.getElementById('tab-content-orders');
 
-    // Compute a lightweight hash of the current filtered orders (id + status only)
-    const ordersHash = JSON.stringify(filteredOrds.map(o => ({id: o.order_id, status: o.status})));
+    // Compute a lightweight hash of the current filtered orders & products
+    const ordersHash = JSON.stringify(filteredOrds.map(o => ({id: o.order_id, status: o.status, note: o.staff_note}))) + '_' + allProducts.length + '_' + activeFilter;
     // If the orders haven't changed since last render, skip updating to avoid image reloads
     if (wrap._lastHash && wrap._lastHash === ordersHash) {
         return; // nothing to update
@@ -1604,6 +1604,7 @@ function renderOrders() {
         wrap.innerHTML = newHtml;
         wrap._lastHTML = newHtml;
     }
+    wrap._lastHash = ordersHash;
 }
 
 async function updateOrderStatus(orderId, newStatus, note) {

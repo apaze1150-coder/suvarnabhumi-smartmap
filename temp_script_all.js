@@ -1,77 +1,115 @@
 
+
+
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#44474d",
+                        "inverse-surface": "#2e3132",
+                        "on-background": "#191c1e",
+                        "surface-container-low": "#f3f4f6",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "secondary": "#725c10",
+                        "primary-fixed-dim": "#bac7e2",
+                        "secondary-container": "#ffe088",
+                        "on-secondary-container": "#786216",
+                        "background": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface-bright": "#f8f9fb",
+                        "on-primary-fixed-variant": "#3b475d",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-tint": "#525f76",
+                        "primary-fixed": "#d6e3ff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f8f9fb",
+                        "error-container": "#ffdad6",
+                        "outline": "#75777d",
+                        "primary-container": "#0f1c30",
+                        "on-primary-fixed": "#0f1c30",
+                        "surface-variant": "#e1e2e4",
+                        "tertiary-container": "#1c1b1b",
+                        "on-tertiary-container": "#858383",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#edeef0",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-secondary-fixed": "#241a00",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "tertiary": "#000000",
+                        "status-gold": "#735C00",
+                        "secondary-fixed-dim": "#e1c46f",
+                        "on-surface": "#191c1e",
+                        "on-primary-container": "#78849d",
+                        "outline-variant": "#c5c6cd",
+                        "on-secondary-fixed-variant": "#574500",
+                        "inverse-primary": "#bac7e2",
+                        "secondary-fixed": "#ffe088",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "surface-dim": "#d9dadc",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-error": "#ffffff",
+                        "charcoal-surface": "#1A1A1A",
+                        "on-error-container": "#93000a",
+                        "primary": "#000000",
+                        "navy-luxury": "#000a1e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "baseline": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "body": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "label": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-lg": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-xl": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "label-md": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "body-sm": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "body-md": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "body-lg": ["Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-md": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "label-sm": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+                        "headline-xl-mobile": ["Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    
+
     // Anti-flicker for boutique navigation
     if (window.location.search.includes('boutiqueStore=')) {
         document.write('<style id="anti-flicker">#home-view { display: none !important; }</style>');
     }
-</script>
-</head>
 
-<body class="bg-surface font-body text-on-surface antialiased overflow-hidden flex flex-col h-screen w-screen">
 
-    <!-- TopAppBar (ถอดปุ่ม Staff Mode ออกแล้ว) -->
-    <header class="bg-[#001a3d] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
-    <!-- Left: Hamburger & Logo -->
-    <div class="flex items-center gap-4 relative">
-        <!-- Hamburger Menu -->
-        <button class="text-white hover:text-[#d8aa3d] transition-colors focus:outline-none" onclick="toggleMainSidebar()">
-            <span class="material-symbols-outlined text-3xl">menu</span>
-        </button>
-        
-        <!-- Dropdown Menu -->
-        
-
-        <!-- Logo -->
-        <img src="https://s3-ap-southeast-1.amazonaws.com/kpc-prod-web-static/frontend/img/svg/v2/logo-kingpower.svg" alt="King Power" class="h-6 md:h-8 object-contain">
-    </div>
-    
-    <!-- Right: Lang Switcher -->
-    <div id="google_translate_element" class="hidden"></div><div class="flex items-center gap-3">
-        <!-- Language Switcher -->
-        
-        <div class="relative inline-block text-left" id="lang-dropdown-container">
-          <div>
-            <button type="button" class="inline-flex w-full justify-center items-center gap-x-1.5 rounded-full bg-[#1a3355] px-3 py-1.5 text-xs font-semibold text-white shadow-sm border border-white/5 hover:bg-[#1a3355]/80 focus:outline-none transition-all" id="lang-menu-button" aria-expanded="true" aria-haspopup="true" onclick="document.getElementById('lang-dropdown-menu').classList.toggle('hidden')">
-              <img id="current-lang-flag" src="https://flagcdn.com/w20/us.png" alt="English" class="w-4 h-3 object-cover rounded-sm">
-              <span id="current-lang-text">English</span>
-              <span class="material-symbols-outlined text-[16px]">expand_more</span>
-            </button>
-          </div>
-          <div id="lang-dropdown-menu" class="hidden absolute right-0 z-[100] mt-2 w-32 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden" role="menu" aria-orientation="vertical" aria-labelledby="lang-menu-button" tabindex="-1">
-            <div class="py-1" role="none">
-              <a href="#" class="text-[#001a3d] block px-4 py-2.5 text-xs font-bold hover:bg-gray-100 flex items-center gap-3 transition-colors" role="menuitem" tabindex="-1" onclick="setLangAndUpdateUI('en', 'English', 'https://flagcdn.com/w20/us.png'); event.preventDefault();">
-                <img src="https://flagcdn.com/w20/us.png" alt="English" class="w-4 h-3 object-cover rounded-sm shadow-sm"> English
-              </a>
-              <a href="#" class="text-[#001a3d] block px-4 py-2.5 text-xs font-bold hover:bg-gray-100 flex items-center gap-3 transition-colors" role="menuitem" tabindex="-1" onclick="setLangAndUpdateUI('zh-CN', '中文', 'https://flagcdn.com/w20/cn.png'); event.preventDefault();">
-                <img src="https://flagcdn.com/w20/cn.png" alt="Chinese" class="w-4 h-3 object-cover rounded-sm shadow-sm"> 中文
-              </a>
-            </div>
-          </div>
-        </div>
-        
-    </div>
-</header>
-
-    <!-- Main Sidebar Drawer -->
-    <div id="main-sidebar-backdrop" onclick="toggleMainSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden transition-opacity"></div>
-    <div id="main-sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[100] transform -translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
-        <div class="p-6 border-b flex justify-between items-center bg-[#3B465A] text-white">
-            <h2 class="font-bold text-xl">Menu</h2>
-            <button onclick="toggleMainSidebar()" class="text-white hover:bg-white/20 p-2 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        <div class="flex-grow overflow-y-auto p-4 space-y-2">
-            <!-- Add other menu items here in the future -->
-        </div>
-        <div class="p-4 border-t mt-auto">
-            <button onclick="window.location.href='/admin'" class="w-full flex items-center gap-3 p-4 text-sm text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors font-bold text-left">
-                <span class="material-symbols-outlined text-[#d8aa3d] text-xl">admin_panel_settings</span>
-                Staff Mode
-            </button>
-        </div>
-    </div>
-
-    <script>
         function toggleMainSidebar() {
             const sidebar = document.getElementById('main-sidebar');
             const backdrop = document.getElementById('main-sidebar-backdrop');
@@ -97,751 +135,8 @@
                 }
             }
         }
-    </script>
+    
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-grow relative w-full h-full overflow-hidden">
-
-        <!-- 1. HOME VIEW -->
-        <div id="home-view" class="page-section active absolute inset-0 overflow-y-auto pb-40"><main class="w-full">
-    <!-- Hero Image -->
-    <div class="w-full relative h-[300px] md:h-[500px] lg:h-[650px] xl:h-[800px] 2xl:h-[900px] overflow-hidden bg-[#001a3d]">
-        <img alt="Suvarnabhumi Airport" class="absolute inset-0 w-full h-full object-cover object-[center_75%]" src="uploads/kingpower%20suvarnabhumi-airport.png" onerror="this.src='https://www.kingpower.com/images/default-image.jpg'">
-    </div>
-
-    <div class="w-full max-w-6xl mx-auto px-5 pt-8 space-y-8 md:space-y-10">
-        
-        <!-- Greeting & Concierge -->
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-[#d8aa3d] text-[10px] font-bold uppercase tracking-widest mb-1">Your Private Concierge</p>
-                <h2 class="text-3xl font-extrabold leading-tight text-[#001a3d] tracking-tight">
-                    SUVARNABHUMI<br>
-                    <span class="text-gray-500 font-light">AIRPORT</span>
-                </h2>
-            </div>
-            <button class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors">
-                <span class="material-symbols-outlined text-[#001a3d]">chat</span>
-            </button>
-        </div>
-
-        <!-- Ask AI Search Bar -->
-        <div class="bg-white p-2 rounded-3xl shadow-sm border border-gray-100 flex items-center">
-            <div class="pl-3 pr-2 flex items-center justify-center">
-                <span class="material-symbols-outlined text-[#d8aa3d] text-xl">auto_awesome</span>
-            </div>
-            <input type="text" class="flex-grow bg-transparent border-none py-2 text-sm focus:ring-0 outline-none text-gray-700" placeholder="Ask AI: Find Thai luxury gifts..." id="home-ai-search-input" onkeyup="if(event.key === 'Enter') executeHomeAISearch()">
-            <button class="bg-[#001a3d] text-white p-3 rounded-2xl shadow-md flex items-center justify-center" onclick="executeHomeAISearch()">
-                <span class="material-symbols-outlined text-sm">search</span>
-            </button>
-        </div>
-
-        <div class="flex flex-col gap-6 w-full">
-            <!-- Current Journey -->
-            <div class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl relative overflow-hidden flex-1 cursor-pointer" onclick="showPage('map-view')">
-                <div class="flex justify-between items-start mb-5">
-                    <div>
-                        <p class="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1">Current Journey</p>
-                        <h3 class="text-white text-4xl md:text-5xl font-extrabold tracking-tight" id="flight-number-display">TG679</h3>
-                    </div>
-                    <div class="text-right">
-            <div id="flight-status-badge" class="flex items-center gap-2 justify-end mb-1">
-                <span class="w-1.5 h-1.5 bg-[#d8aa3d] rounded-full animate-pulse"></span>
-                <h4 id="flight-route-display" class="text-[#d8aa3d] text-xs md:text-sm font-bold uppercase tracking-widest italic">Boarding</h4>
-            </div>
-            <div class="flex items-baseline justify-end gap-1.5 mt-2 group relative cursor-pointer" onclick="editGateManual(); event.stopPropagation();" title="Click to edit Gate">
-                <p class="text-white/80 text-sm md:text-base font-semibold uppercase tracking-widest">Gate</p>
-                <p id="flight-gate-display" class="text-white text-3xl md:text-4xl font-black uppercase tracking-tight">D4</p>
-            
-            <button class="text-white/40 group-hover:text-white transition-colors p-1 active:scale-95 duration-150">
-                <span class="material-symbols-outlined text-sm md:text-base">edit</span>
-            </button>
-        </div>
-        </div>
-                </div>
-                
-                <div class="bg-[#1a3355] rounded-2xl p-4 border border-white/5 flex justify-between items-center cursor-pointer" id="navigate-gate-btn-container" onclick="navigateToGate();">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-[#2d4669] rounded-xl flex items-center justify-center shadow-inner">
-                            <span class="material-symbols-outlined text-[#d8aa3d] text-lg font-bold">navigation</span>
-                        </div>
-                        <div>
-                            <p class="text-white text-[11px] md:text-xs font-bold uppercase tracking-wider">Navigate to Gate</p>
-                            <p class="text-white/60 text-[10px] mt-0.5" id="flight-status-text">4 Min Walk from here</p>
-                        </div>
-                    </div>
-                    <button class="bg-[#d8aa3d] text-[#001a3d] px-5 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform" onclick="navigateToGate(); event.stopPropagation();">Start</button>
-                </div>
-            </div>
-
-            <!-- Track Another Flight -->
-            <div class="bg-white rounded-[1.5rem] p-4 flex flex-col justify-center gap-4 shadow-sm flex-1">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-gray-400 text-lg">warning</span>
-                    <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-700">Track Another Flight</span>
-                </div>
-                <div class="flex gap-2">
-                    <input class="flex-grow bg-[#f3f4f6] border-none rounded-xl py-3 px-4 text-xs md:text-sm font-bold tracking-tight focus:ring-1 focus:ring-[#001a3d] outline-none" placeholder="E.G. TG679" type="text" id="flight-input" onkeyup="if(event.key === 'Enter') { trackFlightLive(null, true); }">
-                    <button class="bg-[#001a3d] text-white px-6 py-3 rounded-xl text-[10px] md:text-xs font-bold uppercase shadow-md active:scale-95 transition-transform" onclick="trackFlightLive(null, true);">Track</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4 Grid Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            <!-- Shops -->
-            <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer" onclick="window.location.href='store_directory.html'">
-                <img src="uploads/preview-1.jpg" onerror="this.src='https://www.kingpower.com/images/default-image.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Shops">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Shops</h4>
-            </div>
-            <!-- Dining -->
-            <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&amp;fit=crop&amp;q=80&amp;w=500" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Dining">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Dining</h4>
-            </div>
-            <!-- Pick Up Counter -->
-            <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=500" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Pick Up Counter">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#001a3d]/90 via-[#001a3d]/40 to-transparent"></div>
-                <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest leading-tight">Pick Up<br>Counter</h4>
-            </div>
-            <!-- Explore Map -->
-            <div class="bg-[#d8aa3d] rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-[#c99a2c] transition-colors" onclick="showPage('map-view')">
-                <span class="material-symbols-outlined text-[#001a3d] text-4xl md:text-5xl lg:text-6xl mb-3">location_on</span>
-                <h4 class="text-[#001a3d] text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Explore Map</h4>
-            </div>
-        </div>
-
-        <!-- PANPURI Pre-order -->
-        <div onclick="window.location.href='store_selection.html'" class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl border border-white/5 flex flex-col gap-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
-            <div class="flex justify-between items-start pointer-events-none">
-                <div>
-                    <h3 class="text-white text-xl font-bold tracking-[0.2em]">PAÑPURI</h3>
-                    <p class="text-[#d8aa3d] text-[10px] mt-2 mb-2 font-light">Pre-order now and pick up at the store before boarding</p>
-                </div>
-                <span class="border border-[#d8aa3d]/40 text-[#d8aa3d] text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">Pre-Order</span>
-            </div>
-            
-            <div class="relative rounded-xl overflow-hidden h-48 md:h-72 lg:h-[400px] xl:h-[500px] group">
-                <img src="uploads/panpuri_Banner.jpg" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Panpuri Products">
-                <div class="absolute inset-0 bg-black/40"></div>
-                <div class="absolute inset-0 flex items-center justify-center px-4 text-center">
-                    <p class="text-white text-xs font-bold tracking-widest uppercase">Explore the wellness collection</p>
-                </div>
-            </div>
-
-            <button onclick="event.stopPropagation(); window.location.href='store_selection.html'" class="w-full bg-[#d8aa3d] text-[#001a3d] py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c99a2c] active:scale-95 transition-all shadow-md pointer-events-auto">
-                <span class="material-symbols-outlined text-sm">shopping_bag</span>
-                PRE-ORDER PANPURI
-            </button>
-        </div>
-
-    </div>
-</main></div>
-
-        <!-- 1b. PRE-ORDER PAGE -->
-        <div id="page-preorder" class="page-section absolute inset-0 pt-20 pb-40 overflow-y-auto bg-transparent">
-            <!-- Aura Background Layer -->
-            <div class="fixed inset-0 z-0 pointer-events-none">
-                <video src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/floating_flowers.mp4" playsinline muted loop autoplay class="w-full h-full object-cover object-bottom opacity-60 bg-[#000000]"></video>
-                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
-            </div>
-            <!-- Steps -->
-            <div id="preorder-step-select-store" class="max-w-lg mx-auto px-4 py-6 relative z-10">
-    <!-- BEGIN: Premium Back Navigation -->
-    <nav class="mb-10" data-purpose="navigation-area">
-        <button class="haptic-btn flex items-center gap-3 group text-white hover:bg-white/10 px-3 py-2 -ml-3 rounded-full" onclick="showPage('home-view')">
-            <div class="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-transparent group-hover:border-white/40 group-hover:bg-white group-hover:text-black transition-all">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold tracking-tight uppercase">BACK</span>
-        </button>
-    </nav>
-    <!-- END: Premium Back Navigation -->
-    <!-- BEGIN: Brand Header -->
-    <section class="mb-8" data-purpose="brand-info">
-        <h2 class="text-3xl font-extrabold tracking-[0.15em] mb-1 text-[#fdfbf6]">PAÑPURI</h2>
-        <h3 class="text-xl font-bold tracking-wider mb-4 text-[#c2ba9b]">PRE-ORDER</h3>
-        <p class="text-white/70 text-sm font-medium">เลือกร้านค้าที่ต้องการรับสินค้า</p>
-    </section>
-    <!-- END: Brand Header -->
-    <!-- BEGIN: Store Selection List -->
-    <div id="preorder-store-list" class="space-y-4" data-purpose="store-list"></div>
-    <div id="preorder-store-closed-notice" class="hidden mt-4 bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700 font-semibold text-center">
-        ⚠️ ร้านค้านี้ปิดรับ Order ชั่วคราว กรุณาเลือกร้านอื่นหรือลองใหม่ภายหลัง
-    </div>
-</div>
-            <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-6 pb-40 space-y-4 relative z-10">
-                <!-- Back Navigation -->
-                <div class="animate-fade-in-up stagger-1">
-                    <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-[#000a1e] transition-colors group">
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30 transition-all">
-                            <svg class="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-                            </svg>
-                        </div>
-                        <span class="font-bold text-sm">กลับเลือกสินค้า</span>
-                    </a>
-                </div>
-                <header class="animate-fade-in-up stagger-1">
-                    <h1 class="text-2xl font-black text-[#000a1e] tracking-tight">Confirm Pre-order</h1>
-                </header>
-
-                <!-- Order List & Confirmation Card -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-fade-in-up stagger-2">
-                    <!-- Header -->
-                    <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="font-bold text-sm text-[#000a1e] tracking-tight">รายการสินค้า — <span id="cart-store-name"></span></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Item List -->
-                    <div id="cart-summary" class="divide-y divide-gray-100">
-                        <!-- Dynamic Content Goes Here -->
-                    </div>
-
-                    <!-- Summary Section & Customer Info -->
-                    <div class="p-5 bg-gray-50/50 border-t border-gray-200 flex flex-col md:flex-row gap-6">
-                        <!-- Customer Info Form -->
-                        <div class="flex-grow space-y-4">
-                            <h2 class="font-black text-[15px] text-[#000a1e]">Customer Information</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1.5">
-                                    <label class="text-[13px] font-bold text-gray-500" for="order-customer-name">Full Name *</label>
-                                    <input class="w-full h-11 px-4 border border-gray-300 rounded-lg text-sm font-semibold text-[#000a1e] placeholder-gray-400 focus:outline-none focus:border-[#000a1e] focus:ring-1 focus:ring-[#000a1e] transition-all" id="order-customer-name" placeholder="Enter your full name" type="text">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label class="text-[13px] font-bold text-gray-500" for="order-flight-number">Flight Number *</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="material-symbols-outlined text-gray-400 text-[18px]">flight</span>
-                                        </div>
-                                        <input class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg text-sm font-bold uppercase text-[#000a1e] placeholder-gray-400 focus:outline-none focus:border-[#000a1e] focus:ring-1 focus:ring-[#000a1e] transition-all" id="order-flight-number" placeholder="e.g. TG679" type="text">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Total Column -->
-                        <div class="md:w-64 flex flex-col items-end justify-end space-y-1">
-                            <div class="flex items-center gap-3 mt-2">
-                                <span class="text-sm font-bold text-gray-500" id="cart-total-qty">Total (0 items)</span>
-                                <span class="text-2xl text-[#000a1e] font-black" id="cart-total-price">฿0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="order-error-msg" class="hidden bg-red-50 border border-red-200 rounded-xl p-3.5 text-sm text-red-700 font-semibold mb-4 text-center"></div>
-
-                <!-- Action Button -->
-                <div class="animate-fade-in-up stagger-3 flex justify-end mt-4">
-                    <button onclick="submitPreorder()" id="submit-order-btn" class="w-full md:w-80 bg-[#000a1e] text-[#ffe088] h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-[15px] tracking-wide shadow-lg shadow-[#000a1e]/20 hover:bg-black active:scale-[0.98] transition-all">
-                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                        Confirm Pre-order
-                    </button>
-                </div>
-            </div>
-            <div id="preorder-step-done" class="hidden max-w-lg mx-auto px-4 py-10 text-center">
-                <div class="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <span class="material-symbols-outlined text-green-600 text-5xl">check_circle</span>
-                </div>
-                <h2 class="text-2xl font-black text-gray-900 mb-2">Order Successful! 🎉</h2>
-                <p class="text-gray-500 text-sm mb-4">The store is processing your order</p>
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6">
-                    <p class="text-xs text-amber-600 font-bold uppercase tracking-wide mb-1">Order Number</p>
-                    <p id="done-order-number" class="text-3xl font-black text-amber-700">KP-2024-0001</p>
-                    <p class="text-xs text-gray-500 mt-2">Please save this number to track your order status</p>
-                </div>
-                <button onclick="showPreorderStep('track')" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold mb-3 hover:bg-gray-800 active:scale-95 transition-all">
-                    🔍 Track Order Status
-                </button>
-                <button onclick="window.location.href='index.html'" class="w-full border border-gray-200 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-50 active:scale-95 transition-all">
-                    BACK
-                </button>
-            </div>
-            <div id="preorder-step-track" class="hidden max-w-lg mx-auto px-4 py-6">
-                <button onclick="showPreorderStep('done')" class="flex items-center gap-1 text-xs font-bold text-gray-500 mb-6 hover:text-gray-800 transition-all">
-                    <span class="material-symbols-outlined text-base">arrow_back</span> Back
-                </button>
-                <h2 class="text-lg font-black text-gray-900 mb-4">Track Order</h2>
-                <div class="flex gap-2 mb-4">
-                    <input id="track-order-input" type="text" placeholder="Order Number e.g. KP-2024-0001" class="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:ring-2 focus:ring-amber-400">
-                    <button onclick="trackOrder()" class="bg-gray-900 text-white px-5 rounded-xl font-bold text-sm hover:bg-gray-700 active:scale-95 transition-all">
-                        <span class="material-symbols-outlined">search</span>
-                    </button>
-                </div>
-                <div id="order-history-list" class="flex flex-col gap-2 mb-4"></div>
-                <div id="track-result" class="hidden"></div>
-            </div>
-        </div>
-
-
-        <!-- PANPURI BOUTIQUE VIEW -->
-        <div id="view-panpuri-boutique" class="page-section absolute top-20 right-0 bottom-0 left-0 z-[100] bg-background text-on-background font-body-md overflow-y-auto custom-scrollbar">
-<!-- Mobile Sidebar Backdrop -->
-<div id="boutique-sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleBoutiqueSidebar()"></div>
-<!-- Desktop/Mobile SideNavBar -->
-<aside id="boutique-sidebar" class="flex fixed left-0 top-0 lg:top-20 h-full lg:h-[calc(100%-5rem)] w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-50 overflow-hidden transform -translate-x-full transition-transform duration-300 lg:translate-x-0">
-<div class="mb-xl px-4">
-<div onclick="showPage('home-view')" class="flex items-center gap-3 group text-[#000a1e] hover:bg-white/50 px-3 py-2 -ml-3 rounded-full cursor-pointer transition-all mb-4">
-    <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-        </svg>
-    </div>
-    <span class="font-label-md text-label-md tracking-wider uppercase">BACK</span>
-</div>
-<h1 class="font-headline-md text-headline-md text-navy-luxury tracking-tight">Collections</h1>
-<p class="text-label-sm text-on-surface-variant font-bold text-[#c4a46d]" id="boutique-store-name">Royal Horizon Boutique</p>
-</div>
-<nav id="boutique-sidebar-categories" class="flex-1 flex flex-col gap-xs overflow-y-auto custom-scrollbar px-2">
-<!-- Dynamic Categories Rendered Here -->
-</nav>
-<div class="pt-md mt-auto border-t border-outline-variant flex flex-col gap-xs">
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">help</span>
-<span class="font-label-md text-label-md">Support</span>
-</a>
-<a class="flex items-center gap-3 text-navy-luxury px-4 py-2 hover:text-error transition-colors cursor-pointer" onclick="exitBoutique()">
-<span class="material-symbols-outlined text-[20px]">logout</span>
-<span class="font-label-md text-label-md">Exit</span>
-</a>
-</div>
-</aside>
-<!-- Main Content Canvas -->
-<main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
-<!-- Mobile Back to Store Selection -->
-<div class="bg-surface px-4 py-2 lg:hidden flex border-b border-gray-100">
-    <button onclick="confirmExitToStoreSelection()" class="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors text-xs font-bold w-full rounded-lg bg-gray-50 px-3 py-2 border border-gray-200">
-        <span class="material-symbols-outlined text-sm">arrow_back</span>
-        เลือกร้านค้าใหม่ (Change Store)
-    </button>
-</div>
-<!-- Top Navigation -->
-<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-30 px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-outline-variant/30">
-<div class="flex items-center gap-4">
-<button class="lg:hidden p-2 text-on-surface" onclick="toggleBoutiqueSidebar()">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<div class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</div>
-</div>
-<div class="flex items-center gap-sm">
-<div class="hidden md:flex bg-surface-container rounded-full px-4 py-2 items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search collection..." type="text">
-</div>
-<button class="p-2 relative haptic-active" onclick="checkoutBoutique()">
-<span class="material-symbols-outlined">shopping_bag</span>
-<span class="absolute top-0 right-0 w-4 h-4 bg-secondary rounded-full text-[10px] font-bold text-white flex items-center justify-center hidden boutique-cart-badge"></span>
-</button>
-<button class="p-2 hidden md:block">
-<span class="material-symbols-outlined">location_on</span>
-</button>
-</div>
-</header>
-<!-- Product Listing Container -->
-<div class="px-margin-mobile lg:px-margin-desktop py-lg max-w-7xl mx-auto">
-<!-- Category Pills -->
-<div id="boutique-category-pills" class="flex gap-sm overflow-x-auto pb-md no-scrollbar mb-lg">
-<!-- Dynamic Pills Rendered Here -->
-</div>
-<!-- Bento Grid Product Layout -->
-<div id="boutique-product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-lg">
-    <!-- Products will be dynamically rendered here -->
-</div>
-</div>
-</main>
-<!-- Mobile Bottom Navigation Bar -->
-<nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-[55]">
-<a class="flex flex-col items-center gap-1 text-on-primary-container hover:text-white transition-colors cursor-pointer" onclick="exitBoutique()">
-<span class="material-symbols-outlined">home</span>
-<span class="text-label-sm uppercase">Home</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="text-label-sm uppercase">Orders</span>
-</a>
-<div class="relative -top-6">
-<button class="bg-secondary text-secondary-container w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform relative" onclick="checkoutBoutique()">
-<span class="material-symbols-outlined text-[32px]">shopping_cart</span>
-<span class="absolute top-0 right-0 w-5 h-5 bg-error rounded-full text-[12px] font-bold text-white flex items-center justify-center hidden boutique-cart-badge border-2 border-primary-container"></span>
-</button>
-</div>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
-<span class="material-symbols-outlined">local_offer</span>
-<span class="text-[10px] uppercase">Promotion</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-on-primary-container" href="https://onepass.kingpower.com/u/signup/identifier?state=hqFo2SBaVWhLeDAyY0FpM0toUm83TzVoTmxoQkhJT2tmY3cyQaFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIGJGM21NMXEyRUNEdzJvWFlta1AtcE9DeHNocmZoZVIxo2NpZNkgMDFuVkNjRk44bWFudWpjQ1hhdTI3TXVqMmlrN3I3bjKlb3JnaWS0b3JnX3NoY2Fybk4za2tHNkxyTDWnb3JnbmFtZaNnd2w&amp;ui_locales=en" target="_blank">
-<span class="material-symbols-outlined">person_add</span>
-<span class="text-[10px] uppercase">สมัครสมาชิก</span>
-</a>
-</nav>
-<!-- Interactive Product Detail Drawer -->
-<div class="fixed inset-0 z-[60] invisible overflow-hidden" id="productDrawer">
-<!-- Backdrop -->
-<div class="absolute inset-0 bg-primary/40 opacity-0 transition-opacity duration-300" id="drawerBackdrop" onclick="closeDrawer()"></div>
-<!-- Drawer Panel -->
-<div class="absolute right-0 top-0 h-full w-full max-w-lg bg-surface-container-lowest drawer-transition translate-x-full shadow-2xl flex flex-col" id="drawerPanel">
-<div class="p-md flex items-center justify-between border-b border-outline-variant">
-<button class="p-2 haptic-active" onclick="closeDrawer()">
-<span class="material-symbols-outlined">close</span>
-</button>
-<div class="font-headline-md text-headline-md tracking-wider">DETAILS</div>
-<button class="p-2 haptic-active">
-<span class="material-symbols-outlined">share</span>
-</button>
-</div>
-<div class="flex-1 overflow-y-auto custom-scrollbar">
-<div class="aspect-square bg-surface-container relative">
-<button class="absolute top-4 left-4 bg-white/80 backdrop-blur-md rounded-full w-10 h-10 flex items-center justify-center text-primary shadow-md z-10 haptic-active lg:hidden" onclick="closeDrawer()">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-<img class="w-full h-full object-cover" data-alt="A luxurious high-resolution detail shot of a PAÑPURI aromatherapy product." id="drawerImage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFOkqgiKd4TsY0BzFSC6WOU4d5It2GSUVJwCqSYoUJZAJN0Y6PItcZV8Yf0qTUE9EB7aDhnu0XpXxwN5TEo4Cid4JdzG2yDd1oL6KkIbWAHWveCnIG4I2xTff0iZ4wp_mEbKn08wZrDKIwjL93Y3W0s0c7Ae7nQeokNCgrDmB7TAhndUOIr0RDmeKlxiK3domCHLsyJJq7XSrWYPJ8zgDK83XKGAsHVOHKQbrw9MB5sZIKsCgmSjEIHjxMIN7FPebu5H4TQe-2BB0">
-</div>
-<div class="p-margin-desktop space-y-lg">
-<div>
-<p class="text-label-sm text-secondary uppercase tracking-widest mb-2" id="drawerCategory">Bath &amp; Body</p>
-<h2 class="font-headline-xl text-headline-xl text-primary" id="drawerTitle">Product Title</h2>
-<div class="flex items-center justify-between w-full mt-4">
-<div class="flex items-end gap-2">
-<span class="text-headline-md font-bold text-pink-600" id="drawerPrice">฿1,450</span>
-</div>
-<span class="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full" id="drawerStock">คงเหลือ: 0</span>
-</div>
-<div class="mt-2 text-body-sm text-on-surface-variant font-bold tracking-widest">SKU : <span id="drawerSKU"></span></div>
-</div>
-<div class="flex items-center justify-between py-md border-y border-outline-variant">
-<div class="flex flex-col">
-<span class="text-label-sm text-on-surface-variant mb-1">SIZE</span>
-<span class="font-headline-md" id="drawerSize">330 ml</span>
-</div>
-<div class="flex items-center bg-surface-container rounded-full px-2">
-<button onclick="changeDrawerQty(-1)" class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">remove</span></button>
-<span id="drawerQtyDisplay" class="w-10 text-center font-bold">1</span>
-<button onclick="changeDrawerQty(1)" class="w-10 h-10 flex items-center justify-center haptic-active"><span class="material-symbols-outlined">add</span></button>
-</div>
-</div>
-<!-- Accordions -->
-<div class="space-y-sm">
-<details class="group border-b border-outline-variant pb-sm" open="">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">DESCRIPTION</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p id="drawerDescCustomer" class="text-body-sm text-on-surface-variant pt-xs whitespace-pre-wrap">A sophisticated blend of botanical extracts designed to rejuvenate the skin while providing a calming sensory experience. Free from sulfates and parabens.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">SCENT NOTES</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p id="drawerScentNotes" class="text-body-sm text-on-surface-variant pt-xs whitespace-pre-wrap">Top: Thai Jasmine, Mint. Heart: Ylang Ylang, Damask Rose. Base: Sandalwood, Cedarwood.</p>
-</details>
-<details class="group border-b border-outline-variant pb-sm">
-<summary class="flex items-center justify-between cursor-pointer list-none py-sm">
-<span class="font-label-md text-label-md">HOW TO USE</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<p id="drawerHowToUse" class="text-body-sm text-on-surface-variant pt-xs whitespace-pre-wrap">Apply to wet skin, massage gently to create a rich lather, then rinse thoroughly. Suitable for daily use.</p>
-</details>
-</div>
-</div>
-</div>
-<div id="drawer-bottom-area" class="px-6 pt-6 bg-surface-container-lowest border-t border-outline-variant">
-<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl">
-<span class="material-symbols-outlined">shopping_cart</span>
-                    ADD TO CART
-                </button>
-</div>
-</div>
-</div>
-        </div>
-
-
-        <!-- 2. MAP VIEW -->
-        <div id="map-view" class="page-section absolute inset-0 w-full h-full bg-surface">
-            <!-- Admin Top Status Bar (Positioned below fixed header) -->
-            <div id="admin-status-bar" class="hidden absolute top-[72px] left-0 w-full bg-red-600 text-white font-bold py-2.5 px-6 text-center text-xs z-[100] flex justify-between items-center shadow-md">
-                <span>⚠️ ADMIN MODE ACTIVE: Drag pins to position, or click map to place a pin.</span>
-                <div class="flex gap-2">
-                    <button onclick="adminShowAllPins()" class="bg-white text-[#002147] font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">SHOW ALL SHOPS</button>
-                    <button onclick="exitAdminMode()" class="bg-white text-red-600 font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">EXIT ADMIN</button>
-                </div>
-            </div>
-            <div class="absolute top-[72px] left-0 w-full px-6 pt-2 z-40 pointer-events-none">
-                <div class="max-w-xl mx-auto pointer-events-auto flex flex-col gap-2">
-                    <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl p-1.5 flex items-center gap-3 border border-outline-variant/30">
-                        <div class="pl-4 text-primary/40"><span class="material-symbols-outlined">search</span></div>
-                        <input id="map-search-input" class="w-full border-none focus:ring-0 text-on-surface bg-transparent font-bold placeholder:text-on-surface-variant/50 py-2.5" placeholder="Ask AI or search brands..." type="text" onkeypress="handleMapSearchEnter(event); if(event.key === 'Enter') triggerMapAISearch(this.value);">
-                        <!-- Cancel Button (Hidden by default, shown when input has value) -->
-                        <button id="clear-search-btn" onclick="clearSearch(); document.getElementById('map-ai-summary-box')?.classList.add('hidden');" class="hidden text-on-surface-variant hover:text-primary active:scale-95 transition-all p-2 rounded-full">
-                            <span class="material-symbols-outlined text-sm">close</span>
-                        </button>
-                        <button onclick="searchMapLive(); triggerMapAISearch(document.getElementById('map-search-input').value);" class="bg-[#000a1e] text-white p-2.5 rounded-xl mr-1 shadow-md flex items-center justify-center gap-1">
-                            <span class="material-symbols-outlined text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 text-sm" style="background-image: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">auto_awesome</span>
-                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                        </button>
-                    </div>
-                    
-                    <!-- AI Suggestion Chips for Map (Removed to prevent overlapping Floor Selector) -->
-
-                    <!-- AI Summary Box (Hidden by default) -->
-                    <div id="map-ai-summary-box" class="hidden bg-white/95 backdrop-blur-xl shadow-lg rounded-2xl p-4 border border-[#B59115]/30 animate-[slideDown_0.3s_ease-out]">
-                        <p id="map-ai-summary-content" class="text-xs text-on-surface-variant leading-relaxed"></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Left-Side Floating Toggleable Category Panel -->
-            <div class="absolute top-24 left-6 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
-                <!-- Floating Round Action Button -->
-                <button id="toggle-sidebar" onclick="toggleCategoryPanel()" title="Toggle Categories Filter" class="bg-white/95 backdrop-blur-md text-primary hover:text-[#B59115] shadow-lg rounded-2xl w-12 h-12 flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer group">
-                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">filter_list</span>
-                </button>
-
-                <!-- Collapsible Glassmorphism Panel (Default Hidden / Collapsed) -->
-                <div id="category-panel-content" class="hidden opacity-0 scale-95 origin-top-left transition-all duration-300 w-80 md:w-96 bg-white/95 backdrop-blur-xl shadow-2xl rounded-2xl border border-outline-variant/30 p-4">
-                    <!-- Panel Header -->
-                    <div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 mb-3">
-                        <div class="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-wider">
-                            <span class="material-symbols-outlined text-base text-[#B59115]">category</span>
-                            <span>Shop Categories</span>
-                        </div>
-                        <button onclick="toggleCategoryPanel(false)" class="text-on-surface-variant hover:text-primary p-1 rounded-full active:scale-90 transition-all cursor-pointer">
-                            <span class="material-symbols-outlined text-base">close</span>
-                        </button>
-                    </div>
-
-                    <!-- 3-Column Grid Category Options -->
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="selectCategoryFilter('all')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="all">
-                            <span class="text-xl">✨</span>
-                            <span class="text-[10px] font-bold leading-tight">All Shops</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('Perfumes &amp; Cosmetics')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="Perfumes &amp; Cosmetics">
-                            <span class="material-symbols-outlined text-xl">sanitizer</span>
-                            <span class="text-[10px] font-bold leading-tight">Perfumes</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('BOUTIQUES')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="BOUTIQUES">
-                            <span class="text-xl">🛍️</span>
-                            <span class="text-[10px] font-bold leading-tight">Boutiques</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('WATCH &amp; JEWELLERY')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="WATCH &amp; JEWELLERY">
-                            <span class="text-xl">⌚</span>
-                            <span class="text-[10px] font-bold leading-tight">Watches</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('LOCAL FOOD')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="LOCAL FOOD">
-                            <span class="text-xl">🍲</span>
-                            <span class="text-[10px] font-bold leading-tight">Local Food</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('Thai Product')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="Thai Product">
-                            <svg class="w-6 h-4 rounded-xs shadow-xs border border-black/10 shrink-0 my-0.5" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
-                              <rect width="900" height="600" fill="#EF3340"></rect>
-                              <rect y="100" width="900" height="400" fill="#FFFFFF"></rect>
-                              <rect y="200" width="900" height="200" fill="#00247D"></rect>
-                            </svg>
-                            <span class="text-[10px] font-bold leading-tight">Thai Product</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('Royal Project')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="Royal Project">
-                            <span class="text-xl">👑</span>
-                            <span class="text-[10px] font-bold leading-tight">Royal Project</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('Sports')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="Sports">
-                            <span class="text-xl">👟</span>
-                            <span class="text-[10px] font-bold leading-tight">Sports</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('ELECTRONICS')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="ELECTRONICS">
-                            <span class="text-xl">💻</span>
-                            <span class="text-[10px] font-bold leading-tight">Electronics</span>
-                        </button>
-                        <button onclick="selectCategoryFilter('OTHER')" class="category-btn bg-surface-container-low hover:bg-primary hover:text-white border border-outline-variant/20 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all cursor-pointer group active:scale-95" data-category="OTHER">
-                            <span class="text-xl">🌐</span>
-                            <span class="text-[10px] font-bold leading-tight">Other</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cancel navigation banner removed, now inside store toast -->
-
-            
-            <!-- Floating Cancel Navigation Banner Button -->
-            <div id="cancel-route-banner" class="absolute top-36 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto hidden transition-all duration-300">
-                <button onclick="clearSearch()" class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/90 cursor-pointer text-xs group tracking-wide">
-                    <span class="material-symbols-outlined text-base group-hover:rotate-90 transition-transform">cancel</span>
-                    <span>Cancel Navigation</span>
-                </button>
-            </div>
-
-            <!-- Full Screen Map Canvas -->
-            <div class="absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden flex items-center justify-center" id="panzoom-wrapper">
-                <div class="relative w-[1000px] h-[500px] shrink-0" id="map-image-container">
-                    <img id="currentMapSvg" alt="Airport Level Floor Plan" class="absolute inset-0 w-full h-full object-fill select-none pointer-events-none transition-all duration-300" src="/uploads/4.svg" onerror="this.src='https://placehold.co/1000x500/ffffff/1e293b?text=Suvarnabhumi+Map+Loaded';">
-                        
-                    <!-- Thai Pavilion Overlays (Floor 4 only) -->
-                    <img src="/uploads/Thai%20Pavilion.svg" alt="Thai Pavilion" class="thai-pavilion-icon absolute z-10 w-3 h-3 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-md pointer-events-none" style="left: 767px; top: 223px;">
-                    <img src="/uploads/Thai%20Pavilion.svg" alt="Thai Pavilion" class="thai-pavilion-icon absolute z-10 w-3 h-3 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-md pointer-events-none" style="left: 217px; top: 223px;">
-
-                    <!-- Dynamic SVG Path Overlay -->
-                    <svg id="route-path-svg" class="absolute inset-0 w-full h-full pointer-events-none z-20" viewBox="0 0 1000 500" preserveAspectRatio="none">
-                    </svg>
-
-                    <!-- Gate D1-D8 Overlay (Level 3 only) -->
-                    <!-- Removed per user request -->
-                    <svg id="gate-d-overlay-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 1000 500" preserveAspectRatio="none" style="display:none;">
-                    </svg>
-
-                    <!-- Gate D5 Cover and Shuttle Train Label (Floor 3 only) -->
-                    <div id="d5-shuttle-overlay" class="absolute z-10 flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2 pointer-events-none" style="left: 500px; top: 172px; display: none;">
-                        <!-- Cover for the original D5 text (matching the grey block color) -->
-                        <div class="absolute w-[44px] h-[30px] bg-[#b4b4b4] z-0" style="top: -8px;"></div>
-                        <!-- New Label Box -->
-                        <div class="relative bg-[#ececec] border border-dashed border-gray-500 rounded-md py-0.5 px-1.5 flex flex-col items-center justify-center z-20" style="width: 115px; margin-top: -130px;">
-                            <div class="border border-gray-500 rounded-sm px-0.5 flex items-center justify-center bg-transparent mb-0.5">
-                                <span class="material-symbols-outlined text-[11px] text-gray-800">train</span>
-                            </div>
-                            <span class="text-[8px] text-gray-800 font-medium leading-tight">Shuttle Train to</span>
-                            <div class="flex items-center gap-0.5 text-gray-800 font-semibold tracking-tight -ml-1">
-                                <span class="material-symbols-outlined text-[13px] transform rotate-90 text-gray-600">flight</span>
-                                <span class="text-[12px] font-bold tracking-wider">S101-S128</span>
-                            </div>
-                            <!-- Dashed line pointing down -->
-                            <div class="absolute w-px h-[100px] border-l border-dashed border-gray-500" style="bottom: -100px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Legacy Path Overlay for Flights (keep for gate navigation compatibility) -->
-                    <svg id="route-gate-c" class="absolute inset-0 w-full h-full pointer-events-none hidden z-20" viewBox="0 0 1000 500" preserveAspectRatio="none">
-                        <path d="M 489 227 L 216 223 L 217 151" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="6 6" class="path-animated"></path>
-                        <circle cx="489" cy="227" r="6" fill="#000a1e" stroke="#fff" stroke-width="2"></circle>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Interactive Store Results List Cards -->
-            <div id="results-container" class="absolute top-[55vh] bottom-0 left-0 md:top-auto md:bottom-28 md:left-6 w-full md:w-[420px] px-6 md:px-0 z-[60] pointer-events-none flex flex-col gap-3 pb-[120px] md:max-h-[50vh] overflow-y-auto no-scrollbar hidden transition-all duration-300">
-                <!-- Google Maps Cards will be dynamically inserted here -->
-            </div>
-
-            <!-- Floor Selector Controls -->
-            <div class="absolute right-6 top-48 flex flex-col gap-2.5 z-30">
-                <div class="flex flex-col bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-outline-variant/30">
-                    <button onclick="switchFloor(4)" id="floor-4-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 bg-primary text-white shadow-sm">4F</button>
-                    <button onclick="switchFloor(3)" id="floor-3-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 text-primary hover:bg-black/5 mt-1">3F</button>
-                    <button onclick="switchFloor('SAT-1')" id="floor-sat-btn" class="w-10 h-10 rounded-xl font-extrabold text-[10px] flex items-center justify-center transition-all duration-200 text-primary hover:bg-black/5 mt-1">SAT</button>
-                </div>
-            </div>
-
-            <!-- Zoom Controls -->
-            <div class="absolute right-6 bottom-32 flex flex-col gap-3 z-30">
-                <button id="zoom-in" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">add</span></button>
-                <button id="zoom-out" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">remove</span></button>
-                <button id="zoom-reset" class="w-10 h-10 bg-[#B59115] text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">my_location</span></button>
-                <button id="admin-toggle-btn" onclick="toggleAdminMode()" class="w-10 h-10 bg-white/90 text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">lock</span></button>
-            </div>
-        </div>
-
-        <!-- AIRPORT AI OVERVIEW MODAL Popup -->
-        <div id="ai-modal" class="fixed inset-0 z-[100] bg-black/60 hidden flex-col justify-end backdrop-blur-sm">
-            <div class="bg-surface w-full h-[90vh] rounded-t-3xl overflow-hidden flex flex-col relative animate-[slideUp_0.3s_ease-out]">
-                <!-- Header -->
-                <div class="bg-[#001b3d] p-4 flex justify-between items-center text-white shadow-md z-20">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[#ffe088]">travel_explore</span>
-                        <h3 class="font-bold text-sm">Airport AI Assistant</h3>
-                    </div>
-                    <button onclick="closeAIModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>
-                
-                <!-- Search Input Area inside modal -->
-                <div class="bg-white border-b border-outline-variant/30 p-4 shadow-sm z-20 flex-shrink-0">
-                    <div class="relative flex items-center bg-[#f8fafc] border border-outline-variant/30 rounded-2xl px-4 py-2 shadow-inner">
-                        <span class="material-symbols-outlined text-blue-600 text-lg mr-2">auto_awesome</span>
-                        <input id="ai-modal-input" type="text" class="w-full bg-transparent border-none text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-0 px-0" placeholder="Ask about stores, products, or airport services..." onkeypress="if(event.key === 'Enter') processAiSearch(this.value)">
-                        <button onclick="processAiSearch(document.getElementById('ai-modal-input').value)" class="ml-2 bg-blue-600 text-white w-8 h-8 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-colors">
-                            <span class="material-symbols-outlined text-sm">search</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Scrollable Content Area -->
-                <div class="flex-grow overflow-y-auto p-4 bg-slate-50 space-y-4" id="ai-results-container">
-                    <!-- Initial Welcome State (overwritten upon search) -->
-                    <div id="ai-welcome-state" class="text-center py-10 flex flex-col items-center">
-                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                            <span class="material-symbols-outlined text-3xl">smart_toy</span>
-                        </div>
-                        <h4 class="font-bold text-lg text-slate-800 mb-2">How can I help you today?</h4>
-                        <p class="text-sm text-slate-500 max-w-xs mb-6">Ask me anything about Suvarnabhumi Airport, duty-free shopping, or specific products.</p>
-                        
-                        <div class="flex flex-wrap gap-2 justify-center max-w-sm">
-                            <button onclick="processAiSearch('VAT Refund Location')" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs hover:bg-slate-50">VAT Refund Location</button>
-                            <button onclick="processAiSearch('Best Thai Souvenirs')" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs hover:bg-slate-50">Best Thai Souvenirs</button>
-                            <button onclick="processAiSearch('Currency Exchange')" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs hover:bg-slate-50">Currency Exchange</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Search Results Area (Hidden initially) -->
-                    <div id="ai-search-results" class="hidden space-y-4 pb-10">
-                        <!-- AI Answer Card -->
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="material-symbols-outlined text-blue-600">auto_awesome</span>
-                                <h4 class="font-bold text-sm text-slate-800">AI Overview</h4>
-                            </div>
-                            <div id="ai-overview-text" class="text-sm text-slate-600 leading-relaxed">
-                                <!-- Generated text goes here -->
-                            </div>
-                        </div>
-
-                        <!-- General Knowledge Info Card (Dynamic) -->
-                        <div id="ai-knowledge-card" class="hidden bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                            <div class="flex items-start gap-3">
-                                <span class="material-symbols-outlined text-blue-600 mt-0.5">info</span>
-                                <div>
-                                    <h4 id="ai-knowledge-title" class="font-bold text-sm text-blue-900 mb-1">Information</h4>
-                                    <p id="ai-knowledge-text" class="text-xs text-blue-800 leading-relaxed"></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recommendations Section -->
-                        <div id="ai-recommendations-section" class="hidden">
-                            <h4 class="font-bold text-sm text-slate-800 mb-3 ml-1">Recommended Matches</h4>
-                            <div id="ai-recommendations-list" class="space-y-3">
-                                <!-- Cards injected here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-
-
-    <!-- Image Popup Modal -->
-    <div id="image-popup-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-[#000a1e]/80 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <div class="relative w-[90%] max-w-2xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
-            <button onclick="closeImagePopup()" class="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-colors z-10 border border-gray-200">
-                <span class="material-symbols-outlined font-bold">close</span>
-            </button>
-            <div class="w-full h-[60vh] flex items-center justify-center p-8 bg-gray-50">
-                <img id="image-popup-img" src="" alt="Product Image" class="max-w-full max-h-full object-contain drop-shadow-sm">
-            </div>
-        </div>
-    </div>
-
-    <!-- JS Integration for Live API Backend -->
-    <script>
 
 
         let mapPanzoom;
@@ -1818,6 +1113,8 @@
                         <button onclick="event.stopPropagation(); cancelNavigationWithConfirm()" class="mt-3 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
                             <span class="material-symbols-outlined text-sm">close</span>
                             Cancel Navigation
+                        </button>
+                    `;
                 }
 
                 let cardInner = '';
@@ -3242,8 +2539,8 @@
 
             if (step === 'confirm') renderCartSummary();
         }
-</script>
-    <script type="text/javascript">
+
+
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({pageLanguage: 'th', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
         }
@@ -3495,17 +2792,9 @@
                 }, 300);
             }
         }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-    <!-- Image Lightbox Modal -->
-    <div id="image-lightbox" onclick="closeImagePreview()" class="fixed inset-0 bg-black/80 z-[200] hidden flex-col items-center justify-center p-4 backdrop-blur-sm cursor-pointer transition-opacity duration-300 opacity-0">
-        <button onclick="closeImagePreview()" class="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full text-white flex items-center justify-center transition-all backdrop-blur-md">
-            <span class="material-symbols-outlined text-2xl">close</span>
-        </button>
-        <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain cursor-default" onclick="event.stopPropagation()">
-    </div>
+    
 
-    <script>
+
         let orderToCancel = null;
 
         function closeCancelOrderModal() {
@@ -3649,52 +2938,8 @@
         }
 
         
-    </script>
-    <!-- Floating Track Order Button -->
-    <div id="floating-track-btn" class="hidden fixed bottom-28 right-4 z-[90] animate-bounce">
-        <button onclick="showPage('page-preorder'); showPreorderStep('track');" class="bg-gray-900 text-[#ffe088] w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gray-900/40 hover:scale-110 transition-transform relative border-2 border-[#ffe088]">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">1</span>
-        </button>
-    </div>
-
-
-<div id="main-mobile-menubar" class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none transition-transform duration-300 ease-in-out transform translate-y-0">
-    <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
-        <div class="px-6 w-full flex items-center justify-between relative">
-            <!-- Home -->
-            <div id="nav-home" class="flex flex-col items-center gap-1 cursor-pointer transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('home-view')">
-                <span class="material-symbols-outlined text-[#001a3d] hover:text-[#d8aa3d] transition-colors">home</span>
-                <span class="text-[9px] uppercase font-bold text-[#001a3d] hover:text-[#d8aa3d] tracking-tight transition-colors">Home</span>
-            </div>
-            <!-- Navigate -->
-            <div id="nav-map" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('map-view')">
-                <span class="material-symbols-outlined">map</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
-            </div>
-            <!-- Center Floating Pre-Order button -->
-            <div class="relative w-14 flex justify-center cursor-pointer transition-all duration-200 active:scale-95" onclick="window.location.href='store_selection.html'">
-                <div class="absolute -top-10 w-14 h-14 bg-[#d8aa3d] shadow-lg border-4 border-white flex items-center justify-center hover:scale-105 active:shadow-[0_0_20px_rgba(216,170,61,0.9)] transition-all" style="border-radius: 50%;">
-                    <span class="material-symbols-outlined text-[#001a3d] font-bold text-xl">add</span>
-                </div>
-                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-tight mt-6">Pre-Order</span>
-            </div>
-            <!-- AI Assist -->
-            <div id="nav-ai" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="openAIModal()">
-                <span class="material-symbols-outlined">auto_awesome</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">AI Assist</span>
-            </div>
-            <!-- Member -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='https://powerpass.kingpower.com/en/landing?channel=MEMBER_WEBSITE&location=KPT_SVB_AIRPORT&refCode=05MC&isRegister=true'">
-                <span class="material-symbols-outlined">card_membership</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">Member</span>
-            </div>
-        </div>
-    </div>
-</div>
-
     
-    <script>
+
         function executeHomeAISearch() {
             const input = document.getElementById('home-ai-search-input');
             if (input && input.value.trim() !== '') {
@@ -3713,9 +2958,8 @@
                 }, 300);
             }
         }
-    </script>
     
-        <script>
+
             function setLangAndUpdateUI(lang, text, flagUrl) {
                 const textEl = document.getElementById('current-lang-text');
                 const flagEl = document.getElementById('current-lang-flag');
@@ -3737,9 +2981,8 @@
                     menu.classList.add('hidden');
                 }
             });
-        </script>
         
-<script>
+
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
