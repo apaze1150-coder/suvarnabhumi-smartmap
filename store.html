@@ -302,26 +302,40 @@
     <!-- BEGIN: Dashboard Screen -->
     <div id="view-dashboard" class="hidden h-full flex flex-col w-full animate-fade-in overflow-hidden bg-surface">
         
-        <!-- TopNavBar (Always visible on Desktop) -->
-        <header class="hidden md:flex flex-none w-full z-50 bg-white border-b border-outline-variant/40 h-20 px-8 justify-between items-center shadow-sm">
+        <!-- Unified Top Header (Always visible on Desktop) -->
+        <header class="hidden md:flex flex-none w-full z-50 bg-white border-b border-outline-variant/20 h-20 px-8 justify-between items-center shadow-sm">
             <div class="flex items-center gap-6">
-                <span class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary">PAÑPURI</span>
-                <div class="flex flex-col border-l border-outline-variant/40 pl-6 ml-2">
-                    <span id="header-store-name" class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">D East (Gate 1-4)</span>
-                    <span class="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider mt-0.5">Store ID: <span id="header-store-id">TE3</span></span>
+                <span class="font-headline-lg text-headline-lg tracking-widest uppercase text-primary font-black">PAÑPURI</span>
+                <div class="flex flex-col border-l border-outline-variant/30 pl-6 ml-2">
+                    <span id="header-store-name" class="font-headline-md text-base font-bold text-on-surface leading-tight">D East (Gate 1-4)</span>
+                    <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider mt-0.5">Store ID: <span id="header-store-id">TE3</span></span>
                 </div>
             </div>
             
-            <nav class="flex gap-8 items-center h-full">
-                <button onclick="switchTab('analytics')" id="top-nav-tab-analytics" class="text-primary border-b-2 border-primary font-bold pb-1 h-full flex items-center pt-1 transition-colors">Dashboard</button>
-                <button onclick="switchTab('orders')" id="top-nav-tab-orders" class="text-on-surface-variant hover:text-primary transition-colors h-full flex items-center border-b-2 border-transparent">Orders</button>
-                <button onclick="switchTab('products')" id="top-nav-tab-products" class="text-on-surface-variant hover:text-primary transition-colors h-full flex items-center border-b-2 border-transparent">Inventory</button>
-                <button class="text-on-surface-variant hover:text-primary transition-colors h-full flex items-center border-b-2 border-transparent">Staff</button>
-            </nav>
+            <div class="flex items-center gap-8 bg-surface-container-low px-6 py-2 rounded-xl border border-outline-variant/20 shadow-inner">
+                <div class="flex items-center gap-3">
+                    <span class="font-label-md text-xs text-on-surface-variant uppercase tracking-widest">Waiting</span>
+                    <span class="font-headline-md text-lg text-primary font-black" id="st-pending">0</span>
+                </div>
+                <div class="w-px h-6 bg-outline-variant/30"></div>
+                <div class="flex items-center gap-3">
+                    <span class="font-label-md text-xs text-on-surface-variant uppercase tracking-widest">Preparing</span>
+                    <span class="font-headline-md text-lg text-primary font-black" id="st-preparing">0</span>
+                </div>
+                <div class="w-px h-6 bg-outline-variant/30"></div>
+                <div class="flex items-center gap-3">
+                    <span class="font-label-md text-xs text-on-surface-variant uppercase tracking-widest">Ready</span>
+                    <span class="font-headline-md text-lg text-primary font-black" id="st-ready">0</span>
+                </div>
+            </div>
             
             <div class="flex items-center gap-6">
-                <span class="material-symbols-outlined text-outline">location_on</span>
-                <button class="px-6 py-2 rounded-full border border-outline-variant font-label-md text-sm uppercase tracking-widest hover:bg-surface-container-low transition-all haptic-press" onclick="location.reload()">
+                <div class="flex flex-col text-right">
+                    <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Terminal Time</span>
+                    <span class="font-headline-md text-sm text-primary tabular-nums font-bold" id="live-clock">--:--:--</span>
+                </div>
+                <div class="w-px h-8 bg-outline-variant/30"></div>
+                <button class="px-6 py-2 rounded-full border border-outline-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container-low transition-all haptic-press text-primary font-bold" onclick="location.reload()">
                     Logout
                 </button>
             </div>
@@ -331,11 +345,11 @@
         <div class="flex-1 flex flex-row w-full overflow-hidden relative">
             
             <!-- Sidebar (Desktop only) -->
-            <aside class="hidden md:flex flex-col w-72 h-full bg-white border-r border-outline-variant/40 flex-shrink-0 z-40 relative">
-                <div class="p-6 border-b border-outline-variant/20 flex flex-col items-center">
-                    <div class="w-full flex items-center gap-4 bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
-                        <div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center text-secondary">
-                            <span class="material-symbols-outlined text-[24px]">person</span>
+            <aside class="hidden md:flex flex-col w-72 h-full bg-white border-r border-outline-variant/20 flex-shrink-0 z-40 relative shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+                <div class="p-6 border-b border-outline-variant/10 flex flex-col items-center">
+                    <div class="w-full flex items-center gap-4 bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/20 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined text-[24px]">storefront</span>
                         </div>
                         <div class="flex flex-col">
                             <span id="sidebar-store-id" class="font-bold text-sm text-on-surface leading-tight">TE3 Store</span>
@@ -345,72 +359,47 @@
                 </div>
             
             <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
-                <a href="#" onclick="switchTab('analytics')" id="side-tab-analytics" class="flex items-center gap-4 px-4 py-3 bg-secondary-container/50 text-on-surface rounded-xl transition-all border-l-4 border-secondary-fixed shadow-sm">
-                    <span class="material-symbols-outlined text-secondary">dashboard</span>
-                    <span class="font-bold text-sm tracking-wide uppercase">Dashboard</span>
+                <a href="#" onclick="switchTab('analytics')" id="side-tab-analytics" class="flex items-center gap-4 px-4 py-3 bg-[#ffe088]/10 text-primary rounded-xl transition-all border-l-4 border-primary shadow-sm">
+                    <span class="material-symbols-outlined text-primary">dashboard</span>
+                    <span class="font-black text-sm tracking-wide uppercase">Dashboard</span>
                 </a>
-                <a href="#" onclick="switchTab('orders')" id="side-tab-orders" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent">
+                <a href="#" onclick="switchTab('orders')" id="side-tab-orders" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent hover:text-primary">
                     <span class="material-symbols-outlined">receipt_long</span>
                     <span class="font-bold text-sm tracking-wide uppercase">Live Orders</span>
                 </a>
-                <a href="#" onclick="switchTab('products')" id="side-tab-products" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent">
+                <a href="#" onclick="switchTab('products')" id="side-tab-products" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent hover:text-primary">
                     <span class="material-symbols-outlined">inventory_2</span>
                     <span class="font-bold text-sm tracking-wide uppercase">Inventory</span>
                 </a>
-                <a href="#" onclick="switchTab('true_analytics')" id="side-tab-true_analytics" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent">
+                <a href="#" onclick="switchTab('true_analytics')" id="side-tab-true_analytics" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent hover:text-primary">
                     <span class="material-symbols-outlined">bar_chart</span>
                     <span class="font-bold text-sm tracking-wide uppercase">Analytics</span>
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent">
+                <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all border-l-4 border-transparent hover:text-primary">
                     <span class="material-symbols-outlined">settings</span>
                     <span class="font-bold text-sm tracking-wide uppercase">Settings</span>
                 </a>
-
             </nav>
 
-            <div class="p-6 border-t border-outline-variant/20 space-y-4 bg-surface-container-lowest">
-                <div class="flex items-center justify-between px-2 bg-surface p-3 rounded-lg border border-outline-variant/10">
+            <div class="p-6 border-t border-outline-variant/10 space-y-4 bg-white">
+                <div class="flex items-center justify-between px-2 bg-surface p-3 rounded-lg border border-outline-variant/10 shadow-inner">
                     <span id="toggle-label" class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Accepting</span>
-                    <div id="toggle-track" class="w-10 h-5 bg-green-500 rounded-full cursor-pointer relative transition-colors duration-300 shadow-inner" onclick="toggleAcceptOrders()">
+                    <div id="toggle-track" class="w-10 h-5 bg-green-500 rounded-full cursor-pointer relative transition-colors duration-300 shadow-sm" onclick="toggleAcceptOrders()">
                         <div id="toggle-thumb" class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 transform translate-x-5 shadow-sm"></div>
                     </div>
                 </div>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all">
+                <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all hover:text-primary">
                     <span class="material-symbols-outlined">help</span>
                     <span class="font-bold text-sm tracking-wide uppercase">Support</span>
                 </a>
-                <button id="btn-logout" class="w-full flex items-center gap-4 px-4 py-3 text-error hover:bg-error-container/80 rounded-xl transition-all haptic-press text-left">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span class="font-bold text-sm uppercase tracking-widest">Logout</span>
-                </button>
             </div>
         </aside>
 
         <!-- Main Content Wrapper -->
-        <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
+        <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-[#f8f9fb]">
             
             <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto no-scrollbar pb-24 md:pb-8 w-full bg-background pt-4 md:pt-0" id="main-content">
-            
-            <!-- Stats Summary Bar -->
-            <section class="bg-primary-container text-white py-4 px-margin-desktop sticky top-0 z-30 flex flex-wrap gap-8 items-center justify-between lg:justify-start">
-                <div class="flex items-center gap-3">
-                    <span class="font-label-md text-on-primary-container uppercase tracking-widest">Waiting</span>
-                    <span class="font-headline-md text-secondary-fixed" id="st-pending">0</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="font-label-md text-on-primary-container uppercase tracking-widest">Preparing</span>
-                    <span class="font-headline-md text-secondary-fixed" id="st-preparing">0</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="font-label-md text-on-primary-container uppercase tracking-widest">Ready</span>
-                    <span class="font-headline-md text-secondary-fixed" id="st-ready">0</span>
-                </div>
-                <div class="flex items-center gap-3 lg:ml-auto">
-                    <span class="font-label-md text-on-primary-container uppercase tracking-widest">Live Terminal Time</span>
-                    <span class="font-headline-md text-secondary-fixed-dim tabular-nums" id="live-clock">--:--:--</span>
-                </div>
-            </section>
+            <main class="flex-1 overflow-y-auto no-scrollbar pb-24 md:pb-12 w-full pt-8 px-4 md:px-8" id="main-content">
             
             <div class="p-lg max-w-7xl mx-auto space-y-lg w-full">
                 <!-- Tab Navigation & Filters (Orders) -->
@@ -678,36 +667,38 @@
 
                     <!-- Row 1: Executive Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-[#1C1C1E] text-white p-6 rounded-xl flex items-center justify-between shadow-md relative overflow-hidden">
+                        <div class="bg-white p-8 rounded-2xl flex items-center justify-between shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] border border-outline-variant/20 hover:shadow-lg hover:border-primary/20 transition-all duration-300 relative overflow-hidden group">
                             <div class="relative z-10">
-                                <p class="text-white/70 text-label-sm uppercase font-bold tracking-widest mb-2">Total Sales</p>
-                                <h3 id="dash-total-sales" class="font-headline-lg text-4xl text-[#D4AF37]">฿ 0</h3>
+                                <p class="text-on-surface-variant text-[10px] uppercase font-bold tracking-[0.2em] mb-3">Total Sales</p>
+                                <h3 id="dash-total-sales" class="font-headline-lg text-4xl text-primary font-black tracking-tight">฿ 0</h3>
                             </div>
-                            <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center relative z-10">
-                                <span class="material-symbols-outlined text-3xl text-[#D4AF37]">payments</span>
+                            <div class="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center relative z-10 group-hover:bg-[#ffe088]/20 group-hover:scale-110 transition-all duration-300">
+                                <span class="material-symbols-outlined text-3xl text-primary">payments</span>
                             </div>
-                            <!-- Decorative element -->
-                            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                            <!-- Decorative glow -->
+                            <div class="absolute -right-12 -bottom-12 w-40 h-40 bg-[#ffe088]/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl flex items-center justify-between shadow-sm border border-outline-variant/20">
-                            <div>
-                                <p class="text-on-surface-variant text-label-sm uppercase font-bold tracking-widest mb-2">Waiting</p>
-                                <h3 id="dash-waiting" class="font-headline-lg text-4xl text-on-surface">0</h3>
+                        <div class="bg-white p-8 rounded-2xl flex items-center justify-between shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] border border-outline-variant/20 hover:shadow-lg hover:border-blue-500/20 transition-all duration-300 relative overflow-hidden group">
+                            <div class="relative z-10">
+                                <p class="text-on-surface-variant text-[10px] uppercase font-bold tracking-[0.2em] mb-3">Waiting</p>
+                                <h3 id="dash-waiting" class="font-headline-lg text-4xl text-primary font-black tracking-tight">0</h3>
                             </div>
-                            <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-on-surface-variant">hourglass_empty</span>
+                            <div class="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center relative z-10 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                                <span class="material-symbols-outlined text-3xl text-blue-600">hourglass_empty</span>
                             </div>
+                            <div class="absolute -right-12 -bottom-12 w-40 h-40 bg-blue-100/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         </div>
 
-                        <div class="bg-[#FDF9F1] p-6 rounded-xl flex items-center justify-between shadow-sm border border-[#D4AF37]/30">
-                            <div>
-                                <p class="text-[#8B7322] text-label-sm uppercase font-bold tracking-widest mb-2">Ready</p>
-                                <h3 id="dash-ready" class="font-headline-lg text-4xl text-[#D4AF37]">0</h3>
+                        <div class="bg-white p-8 rounded-2xl flex items-center justify-between shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] border border-outline-variant/20 hover:shadow-lg hover:border-green-500/20 transition-all duration-300 relative overflow-hidden group">
+                            <div class="relative z-10">
+                                <p class="text-on-surface-variant text-[10px] uppercase font-bold tracking-[0.2em] mb-3">Ready</p>
+                                <h3 id="dash-ready" class="font-headline-lg text-4xl text-primary font-black tracking-tight">0</h3>
                             </div>
-                            <div class="w-16 h-16 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-[#D4AF37]">check_circle</span>
+                            <div class="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center relative z-10 group-hover:bg-green-50 group-hover:scale-110 transition-all duration-300">
+                                <span class="material-symbols-outlined text-3xl text-green-600">check_circle</span>
                             </div>
+                            <div class="absolute -right-12 -bottom-12 w-40 h-40 bg-green-100/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         </div>
                     </div>
 
@@ -1119,7 +1110,7 @@ function switchTab(tab) {
     if (analyticsContent) {
         analyticsContent.style.display = tab === 'analytics' ? 'flex' : 'none';
         if (tab === 'analytics' && !window.analyticsChartInitialized) {
-            initAnalyticsChart(dashOrders);
+            initAnalyticsChart(typeof allOrders !== 'undefined' ? allOrders : []);
             window.analyticsChartInitialized = true;
         }
     }
@@ -1225,21 +1216,22 @@ function initAnalyticsChart(ordersList = allOrders) {
     }
 
     window.peakChartInstance = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: ['08:00', '12:00', '16:00', '20:00', '22:00'],
             datasets: [{
                 label: 'Order Volume',
                 data: hourCounts,
-                backgroundColor: [
-                    '#1C1C1E', // Black
-                    '#D4AF37', // Gold
-                    '#1C1C1E',
-                    '#D4AF37',
-                    '#1C1C1E'
-                ],
-                borderRadius: 4,
-                barThickness: 32
+                borderColor: '#191c1e', // primary color
+                backgroundColor: 'rgba(255, 224, 136, 0.2)', // royal gold with transparency for fill
+                borderWidth: 3,
+                tension: 0.4, // Smooth curve
+                fill: true,
+                pointBackgroundColor: '#ffe088',
+                pointBorderColor: '#191c1e',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -1832,46 +1824,66 @@ function filterStoreProducts(cat, btnElem) {
 }
 
 function renderProducts() {
-    const list = document.getElementById('products-list');
-    if(!list) return;
-    
-    // Filter
-    let displayList = currentStoreCategory === 'all' 
-        ? allProducts 
-        : allProducts.filter(p => p.category && (p.category.toUpperCase() === currentStoreCategory.toUpperCase() || p.category.toUpperCase().startsWith(currentStoreCategory.toUpperCase())));
+    try {
+        const list = document.getElementById('products-list');
+        if(!list) return;
         
-    const searchTerm = document.getElementById('search-products') ? document.getElementById('search-products').value.toLowerCase().trim() : '';
-    if(searchTerm) {
-        displayList = displayList.filter(p => (p.product_name||'').toLowerCase().includes(searchTerm) || (p.product_code||'').toLowerCase().includes(searchTerm));
-    }
-
-    if (displayList.length === 0) {
-        list.innerHTML = '<tr><td colspan="11" class="text-center text-on-surface-variant py-12 font-body-lg">No products found.</td></tr>';
-        return;
-    }
-
-    list.innerHTML = displayList.map(p => {
-        const qtyKey = `qty_${currentStore.toLowerCase()}`;
-        const qty = parseInt(p[qtyKey]) || 0;
-        const lowStock = qty > 0 && qty < 5;
-        const outOfStock = qty <= 0;
-        const imgUrl = p.image && p.image.startsWith('http') ? p.image : (p.image ? '/uploads/' + p.image : 'https://placehold.co/400x400/ffffff/1e293b?text=Image+Not+Found');
-        
-        let statusHtml = '';
-        if (outOfStock) {
-            statusHtml = '<span class="bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-bold tracking-wider">OUT OF STOCK</span>';
-        } else if (lowStock) {
-            statusHtml = '<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[10px] font-bold tracking-wider">LOW STOCK</span>';
-        } else {
-            statusHtml = '<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold tracking-wider">IN STOCK</span>';
+        // Filter
+        let displayList = currentStoreCategory === 'all' 
+            ? allProducts 
+            : allProducts.filter(p => p.category && (String(p.category).toUpperCase() === currentStoreCategory.toUpperCase() || String(p.category).toUpperCase().startsWith(currentStoreCategory.toUpperCase())));
+            
+        const searchInput = document.getElementById('search-products');
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        if(searchTerm) {
+            displayList = displayList.filter(p => (String(p.product_name||'')).toLowerCase().includes(searchTerm) || (String(p.product_code||'')).toLowerCase().includes(searchTerm));
         }
 
-        return `
-        <tr class="hover:bg-surface-container-low transition-colors group">
-            <td class="px-lg py-sm">
-                <div class="w-12 h-12 bg-white rounded-lg shadow-sm border border-outline-variant/20 overflow-hidden flex items-center justify-center">
-                    <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/ffffff/1e293b?text=Image+Not+Found'"/>
-                </div>
+        // Update Stats
+        const qtyKey = `qty_${(currentStore || 'te3').toLowerCase()}`;
+        let totalSkus = displayList.length;
+        let lowStockCount = 0;
+        let oosCount = 0;
+        let totalValue = 0;
+
+        displayList.forEach(p => {
+            const qty = parseInt(p[qtyKey] || p[(currentStore || 'te3').toLowerCase()] || p.Qty_Branch1 || 0) || 0;
+            if (qty <= 0) oosCount++;
+            else if (qty > 0 && qty < 5) lowStockCount++;
+            totalValue += qty * parseFloat(p.price || 0);
+        });
+
+        if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = totalSkus;
+        if (document.getElementById('stat-low')) document.getElementById('stat-low').textContent = lowStockCount;
+        if (document.getElementById('stat-oos')) document.getElementById('stat-oos').textContent = oosCount;
+        if (document.getElementById('stat-value')) document.getElementById('stat-value').textContent = '฿' + totalValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+
+        if (displayList.length === 0) {
+            list.innerHTML = '<tr><td colspan="11" class="text-center text-on-surface-variant py-12 font-body-lg">No products found.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = displayList.map(p => {
+            const qty = parseInt(p[qtyKey] || p[(currentStore || 'te3').toLowerCase()] || p.Qty_Branch1 || 0) || 0;
+            const lowStock = qty > 0 && qty < 5;
+            const outOfStock = qty <= 0;
+            let imgUrl = p.image && String(p.image).startsWith('http') ? p.image : (p.image ? '/uploads/' + p.image : 'https://placehold.co/400x400/ffffff/1e293b?text=Image+Not+Found');
+            
+            let statusHtml = '';
+            if (outOfStock) {
+                statusHtml = '<span class="bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-bold tracking-wider">OUT OF STOCK</span>';
+            } else if (lowStock) {
+                statusHtml = '<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[10px] font-bold tracking-wider">LOW STOCK</span>';
+            } else {
+                statusHtml = '<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold tracking-wider">IN STOCK</span>';
+            }
+
+            return `
+            <tr class="hover:bg-surface-container-low transition-colors group">
+                <td class="px-lg py-sm">
+                    <div class="w-12 h-12 bg-white rounded-lg shadow-sm border border-outline-variant/20 overflow-hidden flex items-center justify-center">
+                        <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/ffffff/1e293b?text=Image+Not+Found'"/>
+                    </div>
             </td>
             <td class="px-lg py-sm font-mono font-bold text-primary">${p.product_code || '-'}</td>
             <td class="px-lg py-sm">
@@ -1892,6 +1904,9 @@ function renderProducts() {
             </td>
         </tr>`;
     }).join('');
+    } catch (e) {
+        console.error('Error rendering products:', e);
+    }
 }
 
 let activeProduct = null;

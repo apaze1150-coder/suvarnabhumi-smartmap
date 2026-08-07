@@ -140,6 +140,11 @@
                     <span>Flight Matrix</span>
                     <span class="ml-auto bg-slate-800 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold">9</span>
                 </button>
+                <button onclick="switchTable('overrides')" id="tab-overrides" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">edit_location_alt</span>
+                    <span>Gate Overrides</span>
+                    <span id="badge-overrides-count" class="ml-auto bg-slate-800 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold">0</span>
+                </button>
 
                 <button onclick="switchTable('nodes')" id="tab-nodes" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
                     <span class="material-symbols-outlined text-lg">route</span>
@@ -201,6 +206,14 @@
                         <span id="row-count-badge" class="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded-full font-extrabold">0 rows</span>
                     </div>
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                                                <!-- CSV Upload -->
+                        <div id="csv-upload-container" class="hidden relative">
+                            <label class="bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-bold text-sm px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer active:scale-95">
+                                <span class="material-symbols-outlined text-sm">upload</span>
+                                Upload CSV
+                                <input type="file" accept=".csv" class="hidden" onchange="uploadOverridesCsv(this)" />
+                            </label>
+                        </div>
                         <!-- Search Box -->
                         <div class="relative w-full sm:w-64">
                             <span class="material-symbols-outlined text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 text-lg">search</span>
@@ -314,6 +327,12 @@
 
         // Standard Schema definition for each CSV/table for editor fields
         const schemas = {
+            overrides: {
+                flight_id: { label: "Flight ID (e.g., TG679)", type: "text", required: true },
+                gate: { label: "Gate Override (e.g., S118)", type: "text", required: true },
+                boarding_time: { label: "Boarding Time (HH:MM) - Optional", type: "text" },
+                updated_at: { label: "Last Updated", type: "text", readOnly: true }
+            },
             stores: {
                 shop_number: { label: "Shop Number (e.g., DE1, DW1)", type: "text", required: true },
                 shop_name: { label: "Shop Name", type: "text", required: true },
@@ -404,7 +423,34 @@
         function handleAuthKey(e) {
             if (e.key === 'Enter') authenticatePassword();
         }
+        async function uploadOverridesCsv(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('csv_file', file);
+            formData.append('password', adminPassword);
 
+            showLoading(true);
+            try {
+                const response = await fetch('/api/admin/flight-overrides/csv', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, "check_circle", "green");
+                    loadTableData();
+                } else {
+                    alert("Failed to upload CSV: " + result.error);
+                }
+            } catch (err) {
+                alert("Upload error.");
+                console.error(err);
+            } finally {
+                input.value = '';
+                showLoading(false);
+            }
+        }
         function promptNewPassword() {
             sessionStorage.removeItem('admin_password');
             document.getElementById('password-input').value = "";
@@ -430,7 +476,7 @@
             currentTable = tableName;
             
             // UI tabs update
-            ['stores', 'products', 'flights', 'nodes'].forEach(tab => {
+            ['stores', 'products', 'flights', 'nodes', 'overrides'].forEach(tab => {
                 const btn = document.getElementById(`tab-${tab}`);
                 if (btn) {
                     if (tab === tableName) {
@@ -446,18 +492,24 @@
                 stores: "Store Matrix (store_matrix.csv)",
                 products: "Product Matrix (product_matrix.csv)",
                 flights: "Flight Matrix (flight_matrix.csv)",
-                nodes: "Airport Map Nodes (airport_map_nodes.csv)"
+                nodes: "Airport Map Nodes (airport_map_nodes.csv)", overrides: "Flight Gate Overrides"
             };
             document.getElementById('table-title').innerText = tableTitleMap[tableName] || tableName;
 
             // Hide/Show Add Row button
             const addRowBtn = document.getElementById('add-row-btn');
-            if (tableName === 'stores' || tableName === 'products' || tableName === 'nodes') {
+            if (tableName === 'stores' || tableName === 'products' || tableName === 'nodes' || tableName === 'overrides') {
                 addRowBtn.classList.remove('hidden');
             } else {
                 addRowBtn.classList.add('hidden');
             }
 
+                        const csvBtn = document.getElementById('csv-upload-container');
+            if (tableName === 'overrides') {
+                csvBtn.classList.remove('hidden');
+            } else {
+                csvBtn.classList.add('hidden');
+            }
             document.getElementById('grid-search').value = '';
             loadTableData();
         }
@@ -475,7 +527,7 @@
                     url = `/api/admin/nodes?password=${encodeURIComponent(adminPassword)}`;
                 }
 
-                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes') {
+                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(response.statusText);
                     tableData = await response.json();
@@ -498,6 +550,8 @@
                     document.getElementById('badge-stores-count').innerText = tableData.length;
                 } else if (currentTable === 'products') {
                     document.getElementById('badge-products-count').innerText = tableData.length;
+                } else if (currentTable === 'overrides') {
+                    document.getElementById('badge-overrides-count').innerText = tableData.length;
                 }
 
                 filterData = [...tableData];
@@ -577,10 +631,11 @@
                 const actionTd = document.createElement('td');
                 actionTd.className = "px-6 py-4 text-right border-b border-slate-100 whitespace-nowrap";
                 
-                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes') {
+                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
                     let rowId;
                     if (currentTable === 'stores') rowId = row.shop_number;
                     else if (currentTable === 'products') rowId = row.PRODUCT_ID;
+                    else if (currentTable === 'overrides') rowId = row.flight_id;
                     else rowId = row.node_id;
 
                     actionTd.innerHTML = `
@@ -809,8 +864,7 @@
             }
 
             const isCreate = currentEditRowIndex === null;
-            let url = currentTable === 'stores' ? '/api/admin/stores' : 
-                      currentTable === 'products' ? '/api/admin/product_matrix' : '/api/admin/nodes';
+            let url = currentTable === 'stores' ? '/api/admin/stores' : currentTable === 'products' ? '/api/admin/product_matrix' : currentTable === 'overrides' ? '/api/admin/flight-overrides' : '/api/admin/nodes';
             let method = 'POST';
 
             if (!isCreate) {
@@ -993,3 +1047,6 @@
 </body>
 
 </html>
+
+
+
