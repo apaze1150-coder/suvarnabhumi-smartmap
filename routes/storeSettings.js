@@ -1,9 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { readCsv } = require('../services/dataService');
+const { readCsv, PRODUCTS_CSV } = require('../services/dataService');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
+
+const STORE_SETTINGS_FILE = path.join(__dirname, '..', 'store_settings.json');
+
+const STORE_CREDENTIALS = {
+  'TE3': '6570',
+  'TE1': '6515',
+  'TW4': '6555'
+};
+
+const STORE_INFO = {
+  'TE3': { name: 'D East (Gate 3-4)' },
+  'TE1': { name: 'D East (Gate 1-2)' },
+  'TW4': { name: 'D West (Gate 4)' }
+};
 
 
 function getStoreSettings() {
@@ -92,4 +106,5 @@ router.post('/api/store/settings', (req, res) => {
 
 // POST /api/orders - customer creates new order
 
+router.getStoreSettings = getStoreSettings;
 module.exports = router;

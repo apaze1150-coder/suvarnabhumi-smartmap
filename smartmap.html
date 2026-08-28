@@ -662,7 +662,7 @@
 <!-- Desktop/Mobile SideNavBar -->
 <aside id="boutique-sidebar" class="flex fixed left-0 top-0 lg:top-20 h-full lg:h-[calc(100%-5rem)] w-72 flex-col py-lg px-md gap-sm border-r border-outline-variant bg-surface-container-lowest z-50 overflow-hidden transform -translate-x-full transition-transform duration-300 lg:translate-x-0">
 <div class="mb-xl px-4">
-<div onclick="showPage('home-view')" class="flex items-center gap-3 group text-[#000a1e] hover:bg-white/50 px-3 py-2 -ml-3 rounded-full cursor-pointer transition-all mb-4">
+<div onclick="exitBoutique()" class="flex items-center gap-3 group text-[#000a1e] hover:bg-white/50 px-3 py-2 -ml-3 rounded-full cursor-pointer transition-all mb-4">
     <div class="flex items-center justify-center w-8 h-8 rounded-full border border-[#000a1e]/10 bg-white group-hover:border-[#000a1e]/30">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
@@ -726,8 +726,8 @@
 <!-- Mobile Bottom Navigation Bar -->
 <nav class="lg:hidden fixed bottom-0 left-0 w-full bg-primary-container text-on-primary-fixed-variant flex justify-around items-center h-20 px-sm z-[55]">
 <a class="flex flex-col items-center gap-1 text-on-primary-container hover:text-white transition-colors cursor-pointer" onclick="exitBoutique()">
-<span class="material-symbols-outlined">home</span>
-<span class="text-label-sm uppercase">Home</span>
+<span class="material-symbols-outlined">map</span>
+<span class="text-label-sm uppercase">Map</span>
 </a>
 <a class="flex flex-col items-center gap-1 text-on-primary-container" href="#">
 <span class="material-symbols-outlined">receipt_long</span>
@@ -2595,7 +2595,7 @@
                                         ${p.store.shop_name || p.store.brand_name || 'Store'} ${p.store.shop_number ? '(Unit ' + p.store.shop_number + ')' : ''}
                                     </p>
                                 </div>
-                                <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${p.SHOP_NUMBER || p.store.shop_number}'; setTimeout(()=>searchMapLive(),100);" class="shrink-0 bg-blue-50 text-blue-600 px-4 py-3 rounded-lg flex flex-col items-center justify-center hover:bg-blue-100 transition-colors shadow-sm active:scale-95">
+                                <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${p.SHOP_NUMBER || p.store.shop_number}'; setTimeout(async () => { await searchMapLive(); if (typeof selectStoreCard === 'function') selectStoreCard('${p.SHOP_NUMBER || p.store.shop_number}'); }, 100);" class="shrink-0 bg-blue-50 text-blue-600 px-4 py-3 rounded-lg flex flex-col items-center justify-center hover:bg-blue-100 transition-colors shadow-sm active:scale-95">
                                     <span class="material-symbols-outlined text-xl mb-1">navigation</span>
                                     <span class="text-[10px] font-bold">MAP</span>
                                 </button>
@@ -2620,7 +2620,7 @@
                                         Unit ${s.shop_number || 'N/A'}
                                     </p>
                                 </div>
-                                <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${s.shop_number || s.store_id}'; setTimeout(()=>searchMapLive(),100);" class="shrink-0 bg-blue-50 text-blue-600 px-4 py-3 rounded-lg flex flex-col items-center justify-center hover:bg-blue-100 transition-colors shadow-sm active:scale-95">
+                                <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${s.shop_number || s.store_id}'; setTimeout(async () => { await searchMapLive(); if (typeof selectStoreCard === 'function') selectStoreCard('${s.shop_number || s.store_id}'); }, 100);" class="shrink-0 bg-blue-50 text-blue-600 px-4 py-3 rounded-lg flex flex-col items-center justify-center hover:bg-blue-100 transition-colors shadow-sm active:scale-95">
                                     <span class="material-symbols-outlined text-xl mb-1">navigation</span>
                                     <span class="text-[10px] font-bold">MAP</span>
                                 </button>
@@ -3223,7 +3223,7 @@
                                 <div class="text-[10px] text-gray-400">รับสินค้าที่ร้าน</div>
                                 <div class="text-xs font-bold text-gray-800">${storesMap[o.store_id] || o.store_id}</div>
                             </div>
-                            <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${o.store_id}'; setTimeout(()=>searchMapLive(),100);" class="bg-blue-50 border border-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-blue-100 transition-all active:scale-95 shadow-sm">
+                            <button onclick="closeAIModal(); showPage('map-view'); document.getElementById('map-search-input').value = '${o.store_id}'; setTimeout(async () => { await searchMapLive(); if (typeof selectStoreCard === 'function') selectStoreCard('${o.store_id}'); }, 100);" class="bg-blue-50 border border-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-blue-100 transition-all active:scale-95 shadow-sm">
                                 <span class="material-symbols-outlined text-xs">near_me</span> นำทาง
                             </button>
                         </div>
@@ -3469,7 +3469,46 @@
         }
         
         function exitBoutique() {
-            showPage('home-view');
+            const modal = document.getElementById('exit-boutique-modal');
+            const backdrop = document.getElementById('exit-boutique-backdrop');
+            const content = document.getElementById('exit-boutique-content');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                requestAnimationFrame(() => {
+                    if (backdrop) backdrop.classList.remove('opacity-0');
+                    if (content) {
+                        content.classList.remove('scale-95', 'opacity-0');
+                        content.classList.add('scale-100', 'opacity-100');
+                    }
+                });
+            } else {
+                if (confirm('ต้องการย้อนกลับไปเลือกร้านค้าใช่หรือไม่?')) {
+                    showPage('map-view');
+                }
+            }
+        }
+
+        function closeExitBoutiqueModal() {
+            const modal = document.getElementById('exit-boutique-modal');
+            const backdrop = document.getElementById('exit-boutique-backdrop');
+            const content = document.getElementById('exit-boutique-content');
+            if (modal) {
+                if (backdrop) backdrop.classList.add('opacity-0');
+                if (content) {
+                    content.classList.add('scale-95', 'opacity-0');
+                    content.classList.remove('scale-100', 'opacity-100');
+                }
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        }
+
+        function proceedExitBoutique() {
+            closeExitBoutiqueModal();
+            showPage('map-view');
         }
 
         function showImagePopup(src) {
@@ -3587,5 +3626,30 @@
             <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">1</span>
         </button>
     </div>
+<div id="exit-boutique-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 pointer-events-auto">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-[#000a1e]/40 backdrop-blur-sm transition-opacity duration-400 opacity-0" id="exit-boutique-backdrop" onclick="closeExitBoutiqueModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white/90 backdrop-blur-2xl rounded-[32px] p-8 w-full max-w-sm shadow-[0_30px_60px_rgba(0,10,30,0.15)] transform scale-95 opacity-0 transition-all duration-400 ease-out border border-white/50" id="exit-boutique-content">
+        <div class="flex flex-col items-center text-center">
+            <div class="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-5 border border-gray-100 shadow-sm">
+                <span class="material-symbols-outlined text-gray-800 text-2xl font-light">storefront</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 tracking-tight mb-2">Back to store selection?</h3>
+            <p class="text-[15px] leading-relaxed text-gray-500 mb-8 px-2">Are you sure you want to go back to the map and select a new store?</p>
+            
+            <div class="flex flex-col w-full gap-3">
+                <button onclick="proceedExitBoutique()" class="w-full py-4 px-4 bg-gray-900 hover:bg-black text-white font-semibold rounded-2xl transition-all active:scale-[0.98] text-[15px] shadow-sm flex items-center justify-center">
+                    Confirm
+                </button>
+                <button onclick="closeExitBoutiqueModal()" class="w-full py-4 px-4 bg-white hover:bg-gray-50 text-gray-900 font-semibold rounded-2xl transition-all active:scale-[0.98] text-[15px] border border-gray-200 flex items-center justify-center">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

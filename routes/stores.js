@@ -5,9 +5,60 @@ const upload = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
+const { loadNavigationGraph } = require('./navigation');
 
 
 // --- ADMIN FEATURE: CRUD Operations on store_matrix.csv ---
+
+// POST /api/search-store - Search stores
+router.post('/api/search-store', async (req, res) => {
+  const query = req.body.query || req.query.q || req.query.query || '';
+  const qLower = query.toLowerCase().trim();
+
+  try {
+    const stores = await readCsv(STORE_CSV);
+    const scoredStores = [];
+
+    for (const store of stores) {
+      let isMatch = false;
+      if (!qLower) {
+        isMatch = true;
+      } else if (
+        (store.shop_name && store.shop_name.toLowerCase().includes(qLower)) ||
+        (store.shop_number && String(store.shop_number).toLowerCase().includes(qLower)) ||
+        (store.store_id && store.store_id.toLowerCase().includes(qLower)) ||
+        (store.brands_available && store.brands_available.toLowerCase().includes(qLower)) ||
+        (store.category && store.category.toLowerCase().includes(qLower)) ||
+        (store.AI_KEYWORDS && store.AI_KEYWORDS.toLowerCase().includes(qLower))
+      ) {
+        isMatch = true;
+      }
+
+      if (isMatch) {
+        scoredStores.push({
+          shop_number: store.shop_number || null,
+          shop_name: store.shop_name || store.brand_name || 'Store',
+          brand_name: store.brand_name || store.shop_name || 'Store',
+          shop_image: store.shop_image || `${store.store_id}.jpg`,
+          category: store.category || 'Duty Free',
+          brands_available: store.brands_available || store.brand_name,
+          store_id: store.store_id || `store_shop_${store.shop_number}`,
+          concourse: store.concourse || 'D',
+          node_id: store.graph_node_id || store.node_id,
+          coordinates: { x: parseFloat(store.x), y: parseFloat(store.y) }
+        });
+      }
+    }
+
+    return res.json({
+      query: query,
+      results: scoredStores
+    });
+  } catch (error) {
+    console.error('Retail Search API Error:', error);
+    return res.status(500).json({ error: 'Search failed.', details: error.message });
+  }
+});
 
 // Helper function to save stores to csv (synchronously to match existing pattern)
 async function saveStoresToCsvSync(stores) {
@@ -55,7 +106,7 @@ router.get('/api/admin/stores', async (req, res) => {
 
 // POST /api/admin/stores - Create a store
 router.post('/api/admin/stores', async (req, res) => {
-  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id } = req.body;
+  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
   if (password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
@@ -83,7 +134,10 @@ router.post('/api/admin/stores', async (req, res) => {
       x: (x !== undefined && x !== '') ? x.toString() : '500',
       y: (y !== undefined && y !== '') ? y.toString() : '250',
       parent_node_id: (parent_node_id || 'Node_Intersection_D').trim(),
-      store_id: (store_id || `store_shop_${resolvedShopNum}`).trim()
+      store_id: (store_id || `store_shop_${resolvedShopNum}`).trim(),
+      AI_KEYWORDS: (AI_KEYWORDS || '').trim(),
+      TOP_HERO_PRODUCTS: (TOP_HERO_PRODUCTS || '').trim(),
+      PROMOTION_TAGS: (PROMOTION_TAGS || '').trim()
     };
 
     stores.push(newStore);
@@ -105,7 +159,7 @@ router.post('/api/admin/stores', async (req, res) => {
 // PUT /api/admin/stores/:shop_number - Update a store
 router.put('/api/admin/stores/:shop_number', async (req, res) => {
   const shopNumStr = req.params.shop_number.trim();
-  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id } = req.body;
+  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
   if (password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
@@ -128,6 +182,9 @@ router.put('/api/admin/stores/:shop_number', async (req, res) => {
     if (y !== undefined) stores[idx].y = y.toString();
     if (parent_node_id !== undefined) stores[idx].parent_node_id = parent_node_id.trim();
     if (store_id !== undefined) stores[idx].store_id = store_id.trim();
+    if (AI_KEYWORDS !== undefined) stores[idx].AI_KEYWORDS = AI_KEYWORDS.trim();
+    if (TOP_HERO_PRODUCTS !== undefined) stores[idx].TOP_HERO_PRODUCTS = TOP_HERO_PRODUCTS.trim();
+    if (PROMOTION_TAGS !== undefined) stores[idx].PROMOTION_TAGS = PROMOTION_TAGS.trim();
 
     // Save to CSV
     await saveStoresToCsvSync(stores);

@@ -4,7 +4,7 @@ const router = express.Router();
 const { readCsv, writeCsvGeneric } = require('../services/dataService');
 const db = require('../db');
 
-
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '6515';
 // --- ADMIN: View all orders ---
 router.get('/api/admin/orders', async (req, res) => {
   const { password } = req.query;

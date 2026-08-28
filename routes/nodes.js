@@ -4,6 +4,7 @@ const router = express.Router();
 const { readCsv, MAP_NODES_CSV } = require('../services/dataService');
 const fs = require('fs');
 const db = require('../db');
+const { loadNavigationGraph } = require('./navigation');
 
 
 // --- ADMIN FEATURE: CRUD Operations on airport_map_nodes.csv ---

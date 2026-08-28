@@ -278,6 +278,7 @@ router.get('/api/search-node', async (req, res) => {
 
 
 module.exports = router;
+module.exports.loadNavigationGraph = loadNavigationGraph;
 
 
 

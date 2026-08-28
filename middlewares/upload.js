@@ -6,7 +6,7 @@ const ALLOWED_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'ima
 const ALLOWED_EXT  = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, 'uploads');
+    const uploadDir = path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },

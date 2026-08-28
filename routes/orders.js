@@ -3,7 +3,17 @@ const express = require('express');
 const router = express.Router();
 const { readCsv, writeCsvGeneric } = require('../services/dataService');
 const db = require('../db');
+const { getStoreSettings } = require('./storeSettings');
 
+const ORDERS_CSV = path.join(__dirname, '..', 'panpuri_orders.csv');
+const ORDER_HEADERS = ['order_id','order_number','store_id','customer_name','flight_number','items_json','total_price','status','created_at','updated_at','staff_note'];
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '6515';
+const STORE_CREDENTIALS = {
+  'TE3': process.env.STORE_PASSWORD_TE3 || '6570',
+  'TE1': process.env.STORE_PASSWORD_TE1 || '6515',
+  'TW4': process.env.STORE_PASSWORD_TW4 || '6555'
+};
 
 router.post('/api/orders', async (req, res) => {
   try {
@@ -145,7 +155,7 @@ router.put('/api/orders/:order_id', async (req, res) => {
     const idx = orders.findIndex(o => o.order_id === req.params.order_id);
     if (idx === -1) return res.json({ success: false, error: 'Order not found' });
 
-    const validStatuses = ['pending','confirmed','preparing','ready','cancelled','out_of_stock'];
+    const validStatuses = ['pending','confirmed','preparing','ready','collected','cancelled','out_of_stock'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, error: 'Invalid status' });
     }

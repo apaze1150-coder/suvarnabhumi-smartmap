@@ -1,11 +1,52 @@
 const express = require('express');
 const router = express.Router();
-const { readCsv, writeCsvGeneric, PRODUCT_MATRIX_CSV } = require('../services/dataService');
+const { readCsv, writeCsvGeneric, PRODUCT_MATRIX_CSV, PRODUCTS_CSV } = require('../services/dataService');
 const upload = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '6515';
+
+// GET /api/products - public, get all active products
+router.get('/api/products', async (req, res) => {
+  try {
+    const products = await readCsv(PRODUCTS_CSV);
+    const filtered = products.filter(p => p.is_active !== 'false');
+    const mappedProducts = filtered.map(p => ({
+        ...p,
+        product_id: p.Code || p.product_id, // fallback
+        product_code: p.Code,
+        product_name: p.Description,
+        name: p.Description,
+        description: p.Description,
+        category: p.Category,
+        sub_category: p['Sub-Category'],
+        scent: p.Scent,
+        price: p.Price,
+        te3: p.Qty_Branch1,
+        te1: p.Qty_Branch2,
+        tw4: p.Qty_Branch3,
+        qty_te3: p.Qty_Branch1,
+        qty_te1: p.Qty_Branch2,
+        qty_tw4: p.Qty_Branch3,
+        image: p.Image,
+        size: p.Size,
+        Size: p.Size,
+        description_customer: p.Description_Customer,
+        Description_Customer: p.Description_Customer,
+        scent_notes: p.Scent_Notes,
+        Scent_Notes: p.Scent_Notes,
+        how_to_use: p.How_to_Use,
+        How_to_Use: p.How_to_Use,
+        Scent: p.Scent,
+        is_active: p.is_active !== 'false'
+    }));
+    res.json({ success: true, products: mappedProducts });
+  } catch (err) {
+    res.json({ success: false, error: err.message, products: [] });
+  }
+});
 
 // --- ADMIN: PANPURI Products CRUD ---
 
@@ -313,8 +354,9 @@ router.post('/api/admin/products/upload-image', upload.single('image'), (req, re
 
 // --- ADMIN FEATURE: CRUD Operations on product_matrix.csv ---
 
-function saveProductMatrixToCsvSync(products) {
-  const headers = 'PRODUCT_ID,SHOP_NUMBER,PRODUCT_NAME,PRODUCT_IMAGE_FILENAME,PRICE_THB,TARGET_TAGS,IS_TOP_SELLER\n';
+async function saveProductMatrixToCsvSync(products) {
+  const headersArr = ['PRODUCT_ID','SHOP_NUMBER','PRODUCT_NAME','PRODUCT_IMAGE_FILENAME','PRICE_THB','TARGET_TAGS','IS_TOP_SELLER'];
+  const headers = headersArr.join(',') + '\n';
   const rows = products.map(p => {
     const escape = (val) => {
       if (val === undefined || val === null) return '""';
@@ -324,6 +366,7 @@ function saveProductMatrixToCsvSync(products) {
     return `${escape(p.PRODUCT_ID)},${escape(p.SHOP_NUMBER)},${escape(p.PRODUCT_NAME)},${escape(p.PRODUCT_IMAGE_FILENAME)},${escape(p.PRICE_THB)},${escape(p.TARGET_TAGS)},${escape(p.IS_TOP_SELLER)}`;
   }).join('\n');
   fs.writeFileSync(PRODUCT_MATRIX_CSV, headers + rows, 'utf8');
+  await writeCsvGeneric(PRODUCT_MATRIX_CSV, products, headersArr);
 }
 
 // GET /api/admin/product_matrix
@@ -364,7 +407,7 @@ router.post('/api/admin/product_matrix', async (req, res) => {
       IS_TOP_SELLER: (IS_TOP_SELLER || 'false').trim()
     };
     products.push(newProd);
-    saveProductMatrixToCsvSync(products);
+    await saveProductMatrixToCsvSync(products);
     return res.json({ success: true, product: newProd });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to save database.' });
@@ -373,7 +416,7 @@ router.post('/api/admin/product_matrix', async (req, res) => {
 
 // PUT /api/admin/product_matrix/:id
 router.put('/api/admin/product_matrix/:id', async (req, res) => {
-  const { password, SHOP_NUMBER, PRODUCT_NAME, PRODUCT_IMAGE_FILENAME, PRICE_THB, TARGET_TAGS, IS_TOP_SELLER } = req.body;
+  const { password, PRODUCT_ID, SHOP_NUMBER, PRODUCT_NAME, PRODUCT_IMAGE_FILENAME, PRICE_THB, TARGET_TAGS, IS_TOP_SELLER } = req.body;
   if (password !== '6515') return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   try {
     if (!fs.existsSync(PRODUCT_MATRIX_CSV)) return res.status(404).json({ error: 'No products found.' });
@@ -381,6 +424,7 @@ router.put('/api/admin/product_matrix/:id', async (req, res) => {
     const idx = products.findIndex(p => p.PRODUCT_ID === req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'Product not found.' });
     
+    products[idx].PRODUCT_ID = PRODUCT_ID !== undefined ? String(PRODUCT_ID).trim() : products[idx].PRODUCT_ID;
     products[idx].SHOP_NUMBER = SHOP_NUMBER !== undefined ? String(SHOP_NUMBER).trim() : products[idx].SHOP_NUMBER;
     products[idx].PRODUCT_NAME = PRODUCT_NAME !== undefined ? String(PRODUCT_NAME).trim() : products[idx].PRODUCT_NAME;
     products[idx].PRODUCT_IMAGE_FILENAME = PRODUCT_IMAGE_FILENAME !== undefined ? String(PRODUCT_IMAGE_FILENAME).trim() : products[idx].PRODUCT_IMAGE_FILENAME;
@@ -388,7 +432,7 @@ router.put('/api/admin/product_matrix/:id', async (req, res) => {
     products[idx].TARGET_TAGS = TARGET_TAGS !== undefined ? String(TARGET_TAGS).trim() : products[idx].TARGET_TAGS;
     products[idx].IS_TOP_SELLER = IS_TOP_SELLER !== undefined ? String(IS_TOP_SELLER).trim() : products[idx].IS_TOP_SELLER;
     
-    saveProductMatrixToCsvSync(products);
+    await saveProductMatrixToCsvSync(products);
     return res.json({ success: true, product: products[idx] });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to update database.' });
@@ -402,11 +446,13 @@ router.delete('/api/admin/product_matrix/:id', async (req, res) => {
   try {
     if (!fs.existsSync(PRODUCT_MATRIX_CSV)) return res.status(404).json({ error: 'No products found.' });
     let products = await readCsv(PRODUCT_MATRIX_CSV);
-    const newProducts = products.filter(p => p.PRODUCT_ID !== req.params.id);
-    if (newProducts.length === products.length) return res.status(404).json({ error: 'Product not found.' });
+    const idx = products.findIndex(p => p.PRODUCT_ID === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Product not found.' });
     
-    saveProductMatrixToCsvSync(newProducts);
-    return res.json({ success: true });
+    products.splice(idx, 1);
+    await saveProductMatrixToCsvSync(products);
+    
+    return res.json({ success: true, id: req.params.id });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to delete product.' });
   }

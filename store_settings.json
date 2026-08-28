@@ -9,7 +9,7 @@
     "accepting_orders": true
   },
   "TE1": {
-    "accepting_orders": true
+    "accepting_orders": false
   },
   "TW4": {
     "accepting_orders": true
