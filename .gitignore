@@ -1,5 +1,5 @@
 node_modules/
 .env
-uploads/
+#uploads/
 *.log
 panpuri_products_backup.csv
