@@ -410,6 +410,9 @@
     <button onclick="openBulkImportModal()" class="flex items-center gap-2 bg-surface-container-high text-on-surface px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
         <span class="material-symbols-outlined text-[20px]">upload_file</span> Bulk Import
     </button>
+    <button onclick="openSapImportModal()" class="flex items-center gap-2 bg-[#008f68] text-white px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[20px]">upload_file</span> SAP Import
+    </button>
     <button class="hidden" id="saveBtnProducts" style="display: none !important;">
     </button>
 </div>
@@ -2391,5 +2394,141 @@ async function saveNewProduct(e) {
     }
   </script>
 
+
+  <!-- SAP Stock Import Modal -->
+  <div id="sapImportModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity">
+      <div class="bg-surface-container-lowest w-full max-w-lg rounded-3xl p-xl shadow-2xl flex flex-col">
+          <div class="flex justify-between items-center mb-md">
+              <h3 class="font-headline-md text-[#008f68]">นำเข้าสต็อก SAP เข้า Supabase</h3>
+              <button onclick="closeSapImportModal()" class="material-symbols-outlined text-outline hover:text-on-surface">close</button>
+          </div>
+          <p class="text-body-sm text-on-surface-variant mb-4">อัปโหลดไฟล์รายงาน SAP ZLMMRP63_NAN (.xlsx) เพื่อปรับปรุงสต็อก (จุด 3630, 3632, 3651)</p>
+          
+          <div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center bg-surface hover:bg-surface-container-low transition-colors cursor-pointer" onclick="document.getElementById('sapFileInput').click()">
+              <span class="material-symbols-outlined text-[48px] text-outline mb-2">upload_file</span>
+              <p class="text-label-md text-on-surface-variant text-center">คลิกเพื่อเลือกไฟล์ Excel หรือลากไฟล์มาวางที่นี่</p>
+              <p class="text-label-sm text-outline mt-1">รองรับไฟล์ .xlsx / .xls</p>
+              <input type="file" id="sapFileInput" accept=".xlsx, .xls" class="hidden" onchange="handleSapFileSelect(event)">
+          </div>
+
+          <div id="sapSelectedFile" class="mt-4 hidden p-3 bg-primary-container rounded-lg flex items-center justify-between">
+              <div class="flex items-center gap-2 overflow-hidden">
+                  <span class="material-symbols-outlined text-primary">description</span>
+                  <span id="sapFileName" class="text-label-md text-on-primary-container truncate">filename.xlsx</span>
+              </div>
+              <button onclick="clearSapFile(event)" class="material-symbols-outlined text-outline hover:text-error text-[20px]">close</button>
+          </div>
+
+          <!-- Loading state -->
+          <div id="sapLoadingState" class="mt-4 hidden flex-col items-center justify-center">
+              <div class="w-8 h-8 border-4 border-[#008f68] border-t-transparent rounded-full animate-spin mb-2"></div>
+              <p class="text-label-md text-on-surface-variant" id="sapLoadingText">กำลังอ่านไฟล์และบันทึกข้อมูล...</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-lg">
+              <button type="button" onclick="closeSapImportModal()" id="sapBtnCancel" class="px-lg py-2.5 rounded-full font-label-md text-primary hover:bg-primary/10 transition-colors">Cancel</button>
+              <button type="button" onclick="processSapImport()" id="sapBtnImport" class="bg-[#008f68] text-white px-lg py-2.5 rounded-full font-label-md shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Import Data</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    let sapSelectedFileObj = null;
+
+    function openSapImportModal() {
+        clearSapFile();
+        document.getElementById('sapLoadingState').classList.add('hidden');
+        document.getElementById('sapBtnImport').disabled = true;
+        document.getElementById('sapImportModal').classList.remove('hidden');
+        document.getElementById('sapImportModal').classList.add('flex');
+    }
+
+    function closeSapImportModal() {
+        document.getElementById('sapImportModal').classList.add('hidden');
+        document.getElementById('sapImportModal').classList.remove('flex');
+    }
+
+    function handleSapFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            sapSelectedFileObj = file;
+            document.getElementById('sapFileName').textContent = file.name;
+            document.getElementById('sapSelectedFile').classList.remove('hidden');
+            document.getElementById('sapSelectedFile').classList.add('flex');
+            document.getElementById('sapBtnImport').disabled = false;
+        }
+    }
+
+    function clearSapFile(e) {
+        if (e) e.stopPropagation();
+        sapSelectedFileObj = null;
+        document.getElementById('sapFileInput').value = '';
+        document.getElementById('sapSelectedFile').classList.add('hidden');
+        document.getElementById('sapSelectedFile').classList.remove('flex');
+        document.getElementById('sapBtnImport').disabled = true;
+    }
+
+    async function processSapImport() {
+        if (!sapSelectedFileObj) return alert('Please select an Excel file first.');
+        const password = prompt('Enter Admin Password:');
+        if (!password) return;
+
+        // Show loading
+        document.getElementById('sapLoadingState').classList.remove('hidden');
+        document.getElementById('sapLoadingState').classList.add('flex');
+        document.getElementById('sapBtnImport').disabled = true;
+        document.getElementById('sapBtnCancel').disabled = true;
+        document.getElementById('sapLoadingText').textContent = 'กำลังอัปโหลดและประมวลผล... (อาจใช้เวลาสักครู่)';
+
+        const formData = new FormData();
+        formData.append('file', sapSelectedFileObj);
+        formData.append('password', password);
+
+        try {
+            const res = await fetch('/api/admin/sap-stock-import', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                alert(data.message || \`อัปเดตสำเร็จ \${data.count} รายการ\`);
+                closeSapImportModal();
+                if (typeof loadProducts === 'function') loadProducts();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Connection error during upload');
+        } finally {
+            document.getElementById('sapLoadingState').classList.add('hidden');
+            document.getElementById('sapLoadingState').classList.remove('flex');
+            document.getElementById('sapBtnImport').disabled = false;
+            document.getElementById('sapBtnCancel').disabled = false;
+        }
+    }
+
+    // Drag and Drop support
+    const sapDropZone = document.querySelector('#sapImportModal .border-dashed');
+    if (sapDropZone) {
+        sapDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.add('bg-surface-container-low', 'border-primary');
+        });
+        sapDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.remove('bg-surface-container-low', 'border-primary');
+        });
+        sapDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.remove('bg-surface-container-low', 'border-primary');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                document.getElementById('sapFileInput').files = e.dataTransfer.files;
+                handleSapFileSelect({ target: { files: e.dataTransfer.files } });
+            }
+        });
+    }
+  </script>
 </body>
 </html>

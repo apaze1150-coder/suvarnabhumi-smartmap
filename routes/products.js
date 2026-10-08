@@ -474,4 +474,119 @@ router.get('/api/debug/db', async (req, res) => {
     }
 });
 
+const XLSX = require('xlsx');
+
+router.post('/api/admin/sap-stock-import', upload.single('file'), async (req, res) => {
+  const { password } = req.body;
+  const storePws = ['6570', '6515', '6555'];
+  if (password !== ADMIN_PASSWORD && !storePws.includes(password)) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    // Create table if not exists
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS products (
+          code TEXT PRIMARY KEY,
+          description TEXT,
+          category TEXT,
+          reference TEXT,
+          price NUMERIC,
+          stock_3630 INTEGER DEFAULT 0,
+          stock_3632 INTEGER DEFAULT 0,
+          stock_3651 INTEGER DEFAULT 0,
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
+
+    let currentCategory = '';
+    const itemsToUpsert = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.length === 0) continue;
+
+      const firstCol = String(row[0] || '').trim();
+      
+      if (firstCol.startsWith('CATE :')) {
+        currentCategory = firstCol.replace('CATE :', '').trim();
+        continue;
+      }
+
+      // Check if code is a 7-digit number
+      if (/^\d{7}$/.test(firstCol)) {
+        const code = firstCol;
+        const description = String(row[3] || '').trim();
+        const reference = String(row[14] || '').trim();
+        const priceStr = String(row[18] || '').replace(/,/g, '');
+        const price = parseFloat(priceStr) || 0;
+        
+        const stock_3630 = parseInt(String(row[20] || '0').replace(/,/g, ''), 10) || 0;
+        const stock_3632 = parseInt(String(row[22] || '0').replace(/,/g, ''), 10) || 0;
+        const stock_3651 = parseInt(String(row[24] || '0').replace(/,/g, ''), 10) || 0;
+
+        itemsToUpsert.push({
+          code,
+          description,
+          category: currentCategory,
+          reference,
+          price,
+          stock_3630,
+          stock_3632,
+          stock_3651
+        });
+      }
+    }
+
+    if (itemsToUpsert.length === 0) {
+      return res.json({ success: true, count: 0, message: 'No products found to update.' });
+    }
+
+    // Upsert to Supabase in batches
+    const BATCH_SIZE = 200;
+    for (let i = 0; i < itemsToUpsert.length; i += BATCH_SIZE) {
+      const batch = itemsToUpsert.slice(i, i + BATCH_SIZE);
+      
+      const values = [];
+      const queryStrParts = [];
+      
+      batch.forEach((item, index) => {
+        const offset = index * 8;
+        queryStrParts.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, NOW())`);
+        values.push(item.code, item.description, item.category, item.reference, item.price, item.stock_3630, item.stock_3632, item.stock_3651);
+      });
+
+      const upsertQuery = `
+        INSERT INTO products (code, description, category, reference, price, stock_3630, stock_3632, stock_3651, updated_at)
+        VALUES ${queryStrParts.join(', ')}
+        ON CONFLICT (code) DO UPDATE SET
+          description = EXCLUDED.description,
+          category = EXCLUDED.category,
+          reference = EXCLUDED.reference,
+          price = EXCLUDED.price,
+          stock_3630 = EXCLUDED.stock_3630,
+          stock_3632 = EXCLUDED.stock_3632,
+          stock_3651 = EXCLUDED.stock_3651,
+          updated_at = NOW();
+      `;
+      
+      await db.query(upsertQuery, values);
+    }
+
+    res.json({ success: true, count: itemsToUpsert.length, message: `อัปเดตสำเร็จทั้งหมด ${itemsToUpsert.length} รายการ (จุด 3630, 3632, 3651)` });
+  } catch (error) {
+    console.error('SAP Import Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
