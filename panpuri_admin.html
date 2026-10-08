@@ -2492,7 +2492,7 @@ async function saveNewProduct(e) {
             const data = await res.json();
             
             if (data.success) {
-                alert(data.message || \`อัปเดตสำเร็จ \${data.count} รายการ\`);
+                alert(data.message || `อัปเดตสำเร็จ ${data.count} รายการ`);
                 closeSapImportModal();
                 if (typeof loadProducts === 'function') loadProducts();
             } else {
