@@ -475,8 +475,21 @@ router.get('/api/debug/db', async (req, res) => {
 });
 
 const XLSX = require('xlsx');
+const multer = require('multer');
 
-router.post('/api/admin/sap-stock-import', upload.single('file'), async (req, res) => {
+const excelUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.xlsx' || ext === '.xls') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files (.xlsx, .xls) are allowed.'), false);
+    }
+  }
+});
+
+router.post('/api/admin/sap-stock-import', excelUpload.single('file'), async (req, res) => {
   const { password } = req.body;
   const storePws = ['6570', '6515', '6555'];
   if (password !== ADMIN_PASSWORD && !storePws.includes(password)) {
