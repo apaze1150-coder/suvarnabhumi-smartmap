@@ -127,5 +127,5 @@ async function writeCsvGeneric(filePath, rows, headers) {
 const PRODUCT_HEADERS = ['Code','Description','Reference','Category','Sub-Category','Scent','Price','Image','Qty_Branch1','Qty_Branch2','Qty_Branch3','Description_Customer','Scent_Notes','How_to_Use','Size'];
 const ORDER_HEADERS = ['order_id','order_number','store_id','customer_name','flight_number','items_json','total_price','status','created_at','updated_at','staff_note'];
 
-module.exports = { readCsv, hashString, writeCsvGeneric, WALK_TIME_CSV, STORE_CSV, MAP_NODES_CSV, PRODUCT_MATRIX_CSV, PRODUCTS_CSV };
+module.exports = { readCsv, hashString, writeCsvGeneric, WALK_TIME_CSV, STORE_CSV, MAP_NODES_CSV, PRODUCT_MATRIX_CSV, PRODUCTS_CSV, PRODUCT_HEADERS };
 

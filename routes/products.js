@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { readCsv, writeCsvGeneric, PRODUCT_MATRIX_CSV, PRODUCTS_CSV } = require('../services/dataService');
+const { readCsv, writeCsvGeneric, PRODUCT_MATRIX_CSV, PRODUCTS_CSV, PRODUCT_HEADERS } = require('../services/dataService');
 const upload = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
@@ -593,6 +593,37 @@ router.post('/api/admin/sap-stock-import', excelUpload.single('file'), async (re
       `;
       
       await db.query(upsertQuery, values);
+    }
+
+    // UPDATE CSV as well
+    let products = [];
+    try {
+        products = await readCsv(PRODUCTS_CSV);
+    } catch (e) {
+        console.error('Failed to read PRODUCTS_CSV', e);
+    }
+
+    if (products.length > 0) {
+        const stockMap = {};
+        itemsToUpsert.forEach(item => {
+            stockMap[item.code] = item;
+        });
+
+        let updatedCsvCount = 0;
+        products = products.map(p => {
+            const code = p.Code || p.code || p.product_code;
+            if (code && stockMap[code]) {
+                const stock = stockMap[code];
+                p.Qty_Branch1 = stock.stock_3632; // TE3
+                p.Qty_Branch2 = stock.stock_3630; // TE1
+                p.Qty_Branch3 = stock.stock_3651; // TW4 (3631)
+                updatedCsvCount++;
+            }
+            return p;
+        });
+
+        await writeCsvGeneric(PRODUCTS_CSV, products, PRODUCT_HEADERS);
+        console.log(`Updated ${updatedCsvCount} products in CSV`);
     }
 
     res.json({ success: true, count: itemsToUpsert.length, message: `อัปเดตสำเร็จทั้งหมด ${itemsToUpsert.length} รายการ (จุด 3630, 3632, 3651)` });
