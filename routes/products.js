@@ -459,8 +459,6 @@ router.delete('/api/admin/product_matrix/:id', async (req, res) => {
 });
 
 
-module.exports = router;
-
 // Temporary debug route
 router.get('/api/debug/db', async (req, res) => {
     try {
@@ -475,3 +473,5 @@ router.get('/api/debug/db', async (req, res) => {
         }
     }
 });
+
+module.exports = router;
