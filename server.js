@@ -42,6 +42,18 @@ app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+// Serve root-level files individually
+app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
+app.get('/icon-192.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-192.png')));
+app.get('/icon-512.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-512.png')));
+app.get('/index.css', (req, res) => res.sendFile(path.join(__dirname, 'index.css')));
+app.get('/smartmap.html', (req, res) => res.sendFile(path.join(__dirname, 'smartmap.html')));
+
+// ── Health Check ───────────────────────────────────────────────────
+app.get('/ping', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // ── Routes ─────────────────────────────────────────────────────────
 app.use('/', routes);
 
