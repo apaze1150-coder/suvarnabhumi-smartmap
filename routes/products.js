@@ -460,3 +460,18 @@ router.delete('/api/admin/product_matrix/:id', async (req, res) => {
 
 
 module.exports = router;
+
+// Temporary debug route
+router.get('/api/debug/db', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM panpuri_products ORDER BY sort_order ASC NULLS LAST');
+        res.json({ success: true, count: result.rows.length, rows: result.rows.slice(0, 1) });
+    } catch(e) {
+        try {
+            const result2 = await db.query('SELECT * FROM panpuri_products');
+            res.json({ success: true, warning: 'Failed with sort_order, but works without it', error: e.message, count: result2.rows.length });
+        } catch(e2) {
+            res.json({ success: false, error: e2.message });
+        }
+    }
+});
