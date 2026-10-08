@@ -595,6 +595,16 @@ router.post('/api/admin/sap-stock-import', excelUpload.single('file'), async (re
       await db.query(upsertQuery, values);
     }
 
+    // Also update items in Supabase that were NOT in the upload file to 0
+    const uploadedCodes = itemsToUpsert.map(i => i.code);
+    if (uploadedCodes.length > 0) {
+        await db.query(`
+          UPDATE products 
+          SET stock_3630 = 0, stock_3632 = 0, stock_3651 = 0, updated_at = NOW() 
+          WHERE NOT (code = ANY($1))
+        `, [uploadedCodes]);
+    }
+
     // UPDATE CSV as well
     let products = [];
     try {
@@ -612,11 +622,18 @@ router.post('/api/admin/sap-stock-import', excelUpload.single('file'), async (re
         let updatedCsvCount = 0;
         products = products.map(p => {
             const code = p.Code || p.code || p.product_code;
-            if (code && stockMap[code]) {
-                const stock = stockMap[code];
-                p.Qty_Branch1 = stock.stock_3632; // TE3
-                p.Qty_Branch2 = stock.stock_3630; // TE1
-                p.Qty_Branch3 = stock.stock_3651; // TW4 (3631)
+            if (code) {
+                if (stockMap[code]) {
+                    const stock = stockMap[code];
+                    p.Qty_Branch1 = stock.stock_3632; // TE3
+                    p.Qty_Branch2 = stock.stock_3630; // TE1
+                    p.Qty_Branch3 = stock.stock_3651; // TW4 (3631)
+                } else {
+                    // Missing from uploaded excel, set stock to 0
+                    p.Qty_Branch1 = 0;
+                    p.Qty_Branch2 = 0;
+                    p.Qty_Branch3 = 0;
+                }
                 updatedCsvCount++;
             }
             return p;
