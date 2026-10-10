@@ -494,30 +494,28 @@
             </button>
         </div>
 
-        <div class="flex flex-col gap-6 w-full">
-            <span id="flight-gate-display" class="hidden">D4</span>
-            <!-- Gate Search -->
-            <div class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl relative overflow-hidden flex-1">
-                <p class="text-[#d8aa3d] text-[10px] md:text-xs font-bold uppercase tracking-widest mb-3">Enter Gate</p>
-                
-                <div class="bg-[#1a3355] rounded-2xl p-4 border border-white/5 flex justify-between items-center mb-4 cursor-text" onclick="document.getElementById('gate-input-box').focus()">
-                    <input id="gate-input-box" class="bg-transparent border-none text-white text-3xl md:text-4xl font-black placeholder-white/30 outline-none w-full focus:ring-0 uppercase" placeholder="e.g. D4" type="text" oninput="document.getElementById('flight-gate-display').innerText = this.value; document.getElementById('locate-gate-title').innerText = 'LOCATE GATE ' + this.value.toUpperCase();" onkeyup="if(event.key === 'Enter') { navigateToGate(); }">
-                    <span class="material-symbols-outlined text-[#d8aa3d] text-2xl">edit_location_alt</span>
+        <!-- PANPURI Pre-order -->
+        <div onclick="window.location.href='store_selection.html'" class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl border border-white/5 flex flex-col gap-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+            <div class="flex justify-between items-start pointer-events-none">
+                <div>
+                    <h3 class="text-white text-xl font-bold tracking-[0.2em]">PAÑPURI</h3>
+                    <p class="text-[#d8aa3d] text-[10px] mt-2 mb-2 font-light">Pre-order now and pick up at the store before boarding</p>
                 </div>
-
-                <div class="bg-[#1a3355] rounded-2xl p-4 border border-white/5 flex justify-between items-center cursor-pointer hover:bg-[#2d4669] transition-colors" id="navigate-gate-btn-container" onclick="navigateToGate();">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-[#2d4669] rounded-xl flex items-center justify-center shadow-inner">
-                            <span class="material-symbols-outlined text-[#d8aa3d] text-lg font-bold">navigation</span>
-                        </div>
-                        <div>
-                            <p class="text-white text-[11px] md:text-xs font-bold uppercase tracking-wider" id="locate-gate-title">LOCATE GATE D4</p>
-                            <p class="text-white/60 text-[10px] mt-0.5" id="flight-status-text">Search gate for walking time</p>
-                        </div>
-                    </div>
-                    <button class="bg-[#d8aa3d] text-[#001a3d] px-3 md:px-5 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform whitespace-nowrap" onclick="navigateToGate(); event.stopPropagation();">Open Interactive Map</button>
+                <span class="border border-[#d8aa3d]/40 text-[#d8aa3d] text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">Pre-Order</span>
+            </div>
+            
+            <div class="relative rounded-xl overflow-hidden h-48 md:h-72 lg:h-[400px] xl:h-[500px] group">
+                <img src="uploads/panpuri_Banner.jpg" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Panpuri Products">
+                <div class="absolute inset-0 bg-black/40"></div>
+                <div class="absolute inset-0 flex items-center justify-center px-4 text-center">
+                    <p class="text-white text-xs font-bold tracking-widest uppercase">Explore the wellness collection</p>
                 </div>
             </div>
+
+            <button onclick="event.stopPropagation(); window.location.href='store_selection.html'" class="w-full bg-[#d8aa3d] text-[#001a3d] py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c99a2c] active:scale-95 transition-all shadow-md pointer-events-auto">
+                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                PRE-ORDER PANPURI
+            </button>
         </div>
 
         <!-- 4 Grid Cards -->
@@ -547,28 +545,30 @@
             </div>
         </div>
 
-        <!-- PANPURI Pre-order -->
-        <div onclick="window.location.href='store_selection.html'" class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl border border-white/5 flex flex-col gap-4 cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
-            <div class="flex justify-between items-start pointer-events-none">
-                <div>
-                    <h3 class="text-white text-xl font-bold tracking-[0.2em]">PAÑPURI</h3>
-                    <p class="text-[#d8aa3d] text-[10px] mt-2 mb-2 font-light">Pre-order now and pick up at the store before boarding</p>
+        <div class="flex flex-col gap-6 w-full">
+            <span id="flight-gate-display" class="hidden">D4</span>
+            <!-- Gate Search -->
+            <div class="bg-[#001a3d] rounded-[2rem] p-5 shadow-xl relative overflow-hidden flex-1">
+                <p class="text-[#d8aa3d] text-[10px] md:text-xs font-bold uppercase tracking-widest mb-3">Enter Gate</p>
+                
+                <div class="bg-[#1a3355] rounded-2xl p-4 border border-white/5 flex justify-between items-center mb-4 cursor-text" onclick="document.getElementById('gate-input-box').focus()">
+                    <input id="gate-input-box" class="bg-transparent border-none text-white text-3xl md:text-4xl font-black placeholder-white/30 outline-none w-full focus:ring-0 uppercase" placeholder="e.g. D4" type="text" oninput="document.getElementById('flight-gate-display').innerText = this.value; document.getElementById('locate-gate-title').innerText = 'LOCATE GATE ' + this.value.toUpperCase();" onkeyup="if(event.key === 'Enter') { navigateToGate(); }">
+                    <span class="material-symbols-outlined text-[#d8aa3d] text-2xl">edit_location_alt</span>
                 </div>
-                <span class="border border-[#d8aa3d]/40 text-[#d8aa3d] text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">Pre-Order</span>
-            </div>
-            
-            <div class="relative rounded-xl overflow-hidden h-48 md:h-72 lg:h-[400px] xl:h-[500px] group">
-                <img src="uploads/panpuri_Banner.jpg" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Panpuri Products">
-                <div class="absolute inset-0 bg-black/40"></div>
-                <div class="absolute inset-0 flex items-center justify-center px-4 text-center">
-                    <p class="text-white text-xs font-bold tracking-widest uppercase">Explore the wellness collection</p>
-                </div>
-            </div>
 
-            <button onclick="event.stopPropagation(); window.location.href='store_selection.html'" class="w-full bg-[#d8aa3d] text-[#001a3d] py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c99a2c] active:scale-95 transition-all shadow-md pointer-events-auto">
-                <span class="material-symbols-outlined text-sm">shopping_bag</span>
-                PRE-ORDER PANPURI
-            </button>
+                <div class="bg-[#1a3355] rounded-2xl p-4 border border-white/5 flex justify-between items-center cursor-pointer hover:bg-[#2d4669] transition-colors" id="navigate-gate-btn-container" onclick="navigateToGate();">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-[#2d4669] rounded-xl flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined text-[#d8aa3d] text-lg font-bold">navigation</span>
+                        </div>
+                        <div>
+                            <p class="text-white text-[11px] md:text-xs font-bold uppercase tracking-wider" id="locate-gate-title">LOCATE GATE D4</p>
+                            <p class="text-white/60 text-[10px] mt-0.5" id="flight-status-text">Search gate for walking time</p>
+                        </div>
+                    </div>
+                    <button class="bg-[#d8aa3d] text-[#001a3d] px-3 md:px-5 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform whitespace-nowrap" onclick="navigateToGate(); event.stopPropagation();">Open Interactive Map</button>
+                </div>
+            </div>
         </div>
 
     </div>
