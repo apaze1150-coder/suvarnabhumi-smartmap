@@ -356,6 +356,17 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(150, 150, 150, 0.5);
         }
+
+        /* Mobile Toast Menubar auto-hide on scroll down and reveal on scroll up */
+        #main-mobile-menubar {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+            will-change: transform, opacity;
+        }
+        #main-mobile-menubar.menubar-hidden {
+            transform: translateY(160%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
     </style>
 
 </head>
@@ -2226,6 +2237,11 @@
 
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+
+            const mainMenubar = document.getElementById('main-mobile-menubar');
+            if (mainMenubar) {
+                mainMenubar.classList.remove('menubar-hidden');
+            }
 
             const bottomNavBar = document.getElementById('bottom-nav-bar');
             if (bottomNavBar) {
@@ -4182,6 +4198,74 @@
                 }, 500);
             }
         });
+
+        // --- Mobile Toast Menubar Auto-Hide & Reveal on Scroll (YouTube-like) ---
+        (function initMobileMenubarScrollBehavior() {
+            const menuBar = document.getElementById('main-mobile-menubar');
+            if (!menuBar) return;
+
+            let lastScrollTop = 0;
+            let isHidden = false;
+            const threshold = 8;
+
+            function onScroll(e) {
+                const target = e.target;
+                let currentScrollTop = 0;
+
+                if (target === document || target === window || target === document.documentElement || target === document.body) {
+                    currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                } else if (target && typeof target.scrollTop === 'number') {
+                    if (target.id === 'home-view' || (target.classList && target.classList.contains('page-section')) || target.tagName === 'MAIN') {
+                        currentScrollTop = target.scrollTop;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+
+                if (currentScrollTop < 0) currentScrollTop = 0;
+
+                // Always reveal near top of page
+                if (currentScrollTop <= 25) {
+                    if (isHidden) {
+                        menuBar.classList.remove('menubar-hidden');
+                        isHidden = false;
+                    }
+                    lastScrollTop = currentScrollTop;
+                    return;
+                }
+
+                const diff = currentScrollTop - lastScrollTop;
+                if (Math.abs(diff) < threshold) {
+                    return;
+                }
+
+                if (diff > 0) {
+                    // Scrolling DOWN -> Slide down to hide
+                    if (!isHidden) {
+                        menuBar.classList.add('menubar-hidden');
+                        isHidden = true;
+                    }
+                } else {
+                    // Scrolling UP -> Slide up to reveal
+                    if (isHidden) {
+                        menuBar.classList.remove('menubar-hidden');
+                        isHidden = false;
+                    }
+                }
+
+                lastScrollTop = currentScrollTop;
+            }
+
+            document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+            window.addEventListener('scroll', onScroll, { passive: true });
+
+            const homeView = document.getElementById('home-view');
+            if (homeView) {
+                homeView.addEventListener('scroll', onScroll, { passive: true });
+            }
+        })();
         
 </script>
 
