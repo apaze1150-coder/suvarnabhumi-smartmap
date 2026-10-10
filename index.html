@@ -726,7 +726,7 @@
                 </button>
             </div>
             <div id="preorder-step-track" class="hidden max-w-lg mx-auto px-4 py-6">
-                <button onclick="showPreorderStep('done')" class="flex items-center gap-1 text-xs font-bold text-gray-500 mb-6 hover:text-gray-800 transition-all">
+                <button onclick="if(lastCompletedOrderNumber){showPreorderStep('done')}else{showPage('home-view')}" class="flex items-center gap-1 text-xs font-bold text-gray-500 mb-6 hover:text-gray-800 transition-all">
                     <span class="material-symbols-outlined text-base">arrow_back</span> Back
                 </button>
                 <h2 class="text-xl font-black text-[#001a3d] mb-4 tracking-tight">Track Order</h2>
@@ -2297,11 +2297,12 @@
             }
 
             const navHome = document.getElementById('nav-home');
-            const navMap = document.getElementById('nav-map');
+            const navOrders = document.getElementById('nav-orders');
             const navPreorder = document.getElementById('nav-preorder');
-            const navAi = document.getElementById('nav-ai');
+            const navMap = document.getElementById('nav-map');
+            const navMember = document.getElementById('nav-member');
 
-                        [navHome, navMap, navPreorder, navAi].forEach(btn => {
+            [navHome, navOrders, navPreorder, navMap, navMember].forEach(btn => {
                 if(!btn) return;
                 btn.classList.remove('text-[#001a3d]');
                 btn.classList.add('text-gray-400');
@@ -2327,7 +2328,21 @@
                 const span = navMap.querySelector('.material-symbols-outlined');
                 if (span) span.style.fontVariationSettings = "'FILL' 1";
                 setTimeout(() => fitMapToScreen(), 50);
-            } else if (pageId === 'page-preorder' || pageId === 'view-panpuri-boutique') {
+            } else if (pageId === 'page-preorder') {
+                const trackStep = document.getElementById('preorder-step-track');
+                const isTrackActive = trackStep && !trackStep.classList.contains('hidden');
+                if (isTrackActive && navOrders) {
+                    navOrders.classList.remove('text-gray-400');
+                    navOrders.classList.add('text-[#001a3d]');
+                    const span = navOrders.querySelector('.material-symbols-outlined');
+                    if (span) span.style.fontVariationSettings = "'FILL' 1";
+                } else if (navPreorder) {
+                    navPreorder.classList.remove('text-gray-400');
+                    navPreorder.classList.add('text-[#001a3d]');
+                    const span = navPreorder.querySelector('.material-symbols-outlined');
+                    if (span) span.style.fontVariationSettings = "'FILL' 1";
+                }
+            } else if (pageId === 'view-panpuri-boutique') {
                 if (navPreorder) {
                     navPreorder.classList.remove('text-gray-400');
                     navPreorder.classList.add('text-[#001a3d]');
@@ -3641,10 +3656,17 @@
         }
 
         function showPreorderStep(step) {
-            // Ensure bottom toast menubar is completely hidden during pre-order flow
+            // Manage bottom toast menubar visibility
             const mainMenubar = document.getElementById('main-mobile-menubar');
             if (mainMenubar) {
-                mainMenubar.classList.add('hidden');
+                if (step === 'confirm') {
+                    // Hide during checkout confirmation to prevent losing items
+                    mainMenubar.classList.add('hidden');
+                } else if (step === 'track') {
+                    // When tracking, show menubar to allow returning home or navigating
+                    mainMenubar.classList.remove('hidden');
+                    mainMenubar.classList.remove('menubar-hidden');
+                }
             }
 
             // Update background based on step
@@ -3672,6 +3694,23 @@
             if (el) el.classList.remove('hidden');
 
             if (step === 'confirm') renderCartSummary();
+
+            if (step === 'track') {
+                const navOrders = document.getElementById('nav-orders');
+                const navPreorder = document.getElementById('nav-preorder');
+                if (navOrders) {
+                    navOrders.classList.remove('text-gray-400');
+                    navOrders.classList.add('text-[#001a3d]');
+                    const span = navOrders.querySelector('.material-symbols-outlined');
+                    if (span) span.style.fontVariationSettings = "'FILL' 1";
+                }
+                if (navPreorder) {
+                    navPreorder.classList.remove('text-[#001a3d]');
+                    navPreorder.classList.add('text-gray-400');
+                    const span = navPreorder.querySelector('.material-symbols-outlined');
+                    if (span) span.style.fontVariationSettings = "'FILL' 0";
+                }
+            }
         }
 </script>
     <script type="text/javascript">
@@ -4142,11 +4181,75 @@
             `).join('');
         }
 
+        function handleOrdersMenuClick() {
+            let savedOrders = localStorage.getItem('myOrders');
+            if (!savedOrders) {
+                const oldOrder = localStorage.getItem('myLastOrder');
+                if (oldOrder) savedOrders = JSON.stringify([oldOrder]);
+            }
+            let ordersArray = [];
+            try {
+                if (savedOrders) ordersArray = JSON.parse(savedOrders);
+            } catch(e) {}
+
+            if (ordersArray && ordersArray.length > 0) {
+                showPage('page-preorder');
+                showPreorderStep('track');
+                const lastOrder = ordersArray[ordersArray.length - 1];
+                const input = document.getElementById('track-order-input');
+                if (input && lastOrder) {
+                    input.value = lastOrder;
+                    if (typeof trackOrder === 'function') trackOrder();
+                }
+            } else {
+                openNoOrdersModal();
+            }
+        }
+
+        function openNoOrdersModal() {
+            const modal = document.getElementById('no-orders-modal');
+            const backdrop = document.getElementById('no-orders-backdrop');
+            const content = document.getElementById('no-orders-content');
+            if (!modal) return;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                if (backdrop) {
+                    backdrop.classList.remove('opacity-0');
+                    backdrop.classList.add('opacity-100');
+                }
+                if (content) {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }
+            }, 10);
+        }
+
+        function closeNoOrdersModal() {
+            const modal = document.getElementById('no-orders-modal');
+            const backdrop = document.getElementById('no-orders-backdrop');
+            const content = document.getElementById('no-orders-content');
+            if (!modal) return;
+            
+            if (backdrop) {
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0');
+            }
+            if (content) {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
         
     </script>
     <!-- Floating Track Order Button -->
     <div id="floating-track-btn" class="hidden fixed bottom-28 right-4 z-[90] animate-bounce">
-        <button onclick="showPage('page-preorder'); showPreorderStep('track');" class="bg-gray-900 text-[#ffe088] w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gray-900/40 hover:scale-110 transition-transform relative border-2 border-[#ffe088]">
+        <button onclick="handleOrdersMenuClick()" class="bg-[#001a3d] text-[#ffe088] w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-[#001a3d]/40 hover:scale-110 transition-transform relative border-2 border-[#d8aa3d]">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
             <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">1</span>
         </button>
@@ -4156,30 +4259,30 @@
 <div id="main-mobile-menubar" class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none transition-transform duration-300 ease-in-out transform translate-y-0">
     <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
         <div class="px-6 w-full flex items-center justify-between relative">
-            <!-- Home -->
+            <!-- 1. Home -->
             <div id="nav-home" class="flex flex-col items-center gap-1 cursor-pointer transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('home-view')">
                 <span class="material-symbols-outlined text-[#001a3d] hover:text-[#d8aa3d] transition-colors">home</span>
                 <span class="text-[9px] uppercase font-bold text-[#001a3d] hover:text-[#d8aa3d] tracking-tight transition-colors">Home</span>
             </div>
-            <!-- Navigate -->
-            <div id="nav-map" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('map-view')">
-                <span class="material-symbols-outlined">map</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
+            <!-- 2. Orders (NEW: 2nd icon after Home) -->
+            <div id="nav-orders" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="handleOrdersMenuClick()">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">Orders</span>
             </div>
-            <!-- Center Floating Pre-Order button -->
-            <div class="relative w-14 flex justify-center cursor-pointer transition-all duration-200 active:scale-95" onclick="window.location.href='store_selection.html'">
+            <!-- 3. Center Floating Pre-Order button -->
+            <div id="nav-preorder" class="relative w-14 flex justify-center cursor-pointer transition-all duration-200 active:scale-95" onclick="window.location.href='store_selection.html'">
                 <div class="absolute -top-10 -translate-y-2 w-14 h-14 bg-[#d8aa3d] shadow-lg border-4 border-white flex items-center justify-center hover:scale-105 active:shadow-[0_0_20px_rgba(216,170,61,0.9)] transition-all" style="border-radius: 50%;">
                     <span class="material-symbols-outlined text-[#001a3d] text-[24px]">shopping_bag</span>
                 </div>
                 <span class="text-[9px] uppercase font-bold text-gray-400 tracking-tight mt-6">Pre-Order</span>
             </div>
-            <!-- AI Assist -->
-            <div id="nav-ai" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="openAIModal()">
-                <span class="material-symbols-outlined">auto_awesome</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">AI Assist</span>
+            <!-- 4. Navigate (Moved to replace AI Assist) -->
+            <div id="nav-map" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="showPage('map-view')">
+                <span class="material-symbols-outlined">map</span>
+                <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
             </div>
-            <!-- Member -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='https://powerpass.kingpower.com/en/landing?channel=MEMBER_WEBSITE&location=KPT_SVB_AIRPORT&refCode=05MC&isRegister=true'">
+            <!-- 5. Member -->
+            <div id="nav-member" class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='https://powerpass.kingpower.com/en/landing?channel=MEMBER_WEBSITE&location=KPT_SVB_AIRPORT&refCode=05MC&isRegister=true'">
                 <span class="material-symbols-outlined">card_membership</span>
                 <span class="text-[9px] uppercase font-bold tracking-tight">Member</span>
             </div>
@@ -4423,6 +4526,29 @@
 
 
 <!-- Cancel Order Confirmation Modal -->
+
+<!-- No Orders Found Modal (English) -->
+<div id="no-orders-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 pointer-events-auto">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="no-orders-backdrop" onclick="closeNoOrdersModal()"></div>
+    
+    <div class="relative bg-white/95 backdrop-blur-xl rounded-2xl p-6 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300 border border-white/50 text-center" id="no-orders-content">
+        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-sm">
+            <span class="material-symbols-outlined text-[#001a3d] text-3xl">receipt_long</span>
+        </div>
+        <h3 class="text-xl font-black text-[#001a3d] tracking-tight mb-2">No Orders Found</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-6 px-2">You don't have any pre-orders yet.<br><span class="text-xs text-gray-400">Browse our boutique collection and reserve items before departure.</span></p>
+        
+        <div class="flex flex-col w-full gap-2.5">
+            <button onclick="closeNoOrdersModal(); window.location.href='store_selection.html';" class="w-full py-3.5 px-4 bg-[#001a3d] hover:bg-[#002855] text-white font-bold rounded-xl transition-all shadow-lg shadow-[#001a3d]/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">shopping_bag</span>
+                Start Pre-Order
+            </button>
+            <button onclick="closeNoOrdersModal()" class="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all active:scale-[0.98] text-sm">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Clear History Confirmation Modal -->
 <div id="clear-history-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 pointer-events-auto">
