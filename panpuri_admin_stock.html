@@ -159,7 +159,10 @@
 <span class="material-symbols-outlined">settings</span> Store Settings
 </a>
 </nav>
-<div class="mt-auto pt-xl border-t border-on-primary-fixed-variant/10">
+<div class="mt-auto pt-xl border-t border-on-primary-fixed-variant/10 space-y-2">
+<button onclick="openSapImportModal()" class="w-full bg-[#008f68] hover:bg-[#007a59] text-white font-bold py-md rounded-lg flex items-center justify-center gap-sm transition-all shadow-lg active:scale-95">
+<span class="material-symbols-outlined">cloud_upload</span> นำเข้าสต็อก SAP
+</button>
 <button class="w-full bg-secondary-fixed text-on-secondary-fixed font-bold py-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 active:scale-95 transition-all shadow-lg">
 <span class="material-symbols-outlined">description</span> Generate Report
 </button>
@@ -191,7 +194,7 @@
 </header>
 
 <div class="flex-1 p-xl space-y-lg overflow-y-auto max-h-[calc(100vh-64px)] custom-scrollbar">
-<div class="flex justify-between items-end">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
 <div>
 <nav class="flex items-center gap-xs text-xs text-on-surface-variant mb-2 font-label-sm">
 <span>INVENTORY</span>
@@ -201,6 +204,10 @@
 <h2 class="font-headline-xl text-headline-xl text-primary tracking-tight">Global Stock Logs</h2>
 <p class="text-on-surface-variant mt-1">Audit transaction history across all royal branches and logistics centers.</p>
 </div>
+<button onclick="openSapImportModal()" class="bg-[#008f68] hover:bg-[#007a59] text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 shrink-0">
+<span class="material-symbols-outlined text-xl">cloud_upload</span>
+<span>นำเข้าสต็อก SAP เข้า Supabase</span>
+</button>
 </div>
 
 <div class="grid grid-cols-12 gap-lg">
@@ -368,6 +375,189 @@ function toggleAdminSidebar() {
         backdrop.classList.add("hidden");
     }
 }
+
+// ============================================================
+// SAP STOCK IMPORT MODAL LOGIC
+// ============================================================
+let sapSelectedFileObj = null;
+
+function openSapImportModal() {
+    clearSapFile();
+    document.getElementById('sapLoadingState').classList.add('hidden');
+    document.getElementById('sapLoadingState').classList.remove('flex');
+    document.getElementById('sapBtnImport').disabled = true;
+    document.getElementById('sapImportModal').classList.remove('hidden');
+    document.getElementById('sapImportModal').classList.add('flex');
+}
+
+function closeSapImportModal() {
+    document.getElementById('sapImportModal').classList.add('hidden');
+    document.getElementById('sapImportModal').classList.remove('flex');
+}
+
+function handleSapFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        sapSelectedFileObj = file;
+        document.getElementById('sapFileName').textContent = file.name;
+        const sizeKb = (file.size / 1024).toFixed(1);
+        document.getElementById('sapFileSize').textContent = `${sizeKb} KB`;
+        document.getElementById('sapSelectedFile').classList.remove('hidden');
+        document.getElementById('sapSelectedFile').classList.add('flex');
+        document.getElementById('sapBtnImport').disabled = false;
+    }
+}
+
+function clearSapFile(e) {
+    if (e) e.stopPropagation();
+    sapSelectedFileObj = null;
+    const fileInput = document.getElementById('sapFileInput');
+    if (fileInput) fileInput.value = '';
+    const selectedFileCard = document.getElementById('sapSelectedFile');
+    if (selectedFileCard) {
+        selectedFileCard.classList.add('hidden');
+        selectedFileCard.classList.remove('flex');
+    }
+    const btnImport = document.getElementById('sapBtnImport');
+    if (btnImport) btnImport.disabled = true;
+}
+
+async function processSapImport() {
+    if (!sapSelectedFileObj) {
+        alert('กรุณาเลือกไฟล์ Excel (.xlsx) รายงาน SAP ZLMMRP63_NAN ก่อนดำเนินการ');
+        return;
+    }
+    const pwdInput = document.getElementById('sapPasswordInput');
+    const password = pwdInput ? pwdInput.value : '6515';
+
+    // Show loading state
+    document.getElementById('sapLoadingState').classList.remove('hidden');
+    document.getElementById('sapLoadingState').classList.add('flex');
+    document.getElementById('sapBtnImport').disabled = true;
+    document.getElementById('sapBtnCancel').disabled = true;
+    document.getElementById('sapLoadingText').textContent = 'กำลังอ่านไฟล์และบันทึกข้อมูลเข้า Supabase... (อาจใช้เวลาสักครู่)';
+
+    const formData = new FormData();
+    formData.append('file', sapSelectedFileObj);
+    formData.append('password', password);
+
+    try {
+        const res = await fetch('/api/admin/sap-stock-import', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(`✅ นำเข้าสต็อก SAP เข้า Supabase สำเร็จ!\n\nจำนวนรายการที่อัปเดต: ${data.count} รายการ\nรายละเอียด: ${data.message || 'อัปเดตสต็อกจุด 3630, 3632, 3651 เรียบร้อย'}`);
+            closeSapImportModal();
+            loadLogs();
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + (data.error || 'ไม่สามารถอัปเดตข้อมูลได้'));
+        }
+    } catch (err) {
+        console.error('SAP Import Error:', err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+        document.getElementById('sapLoadingState').classList.add('hidden');
+        document.getElementById('sapLoadingState').classList.remove('flex');
+        document.getElementById('sapBtnImport').disabled = false;
+        document.getElementById('sapBtnCancel').disabled = false;
+    }
+}
+
+// Setup Drag & Drop
+window.addEventListener('DOMContentLoaded', () => {
+    const sapDropZone = document.getElementById('sapDropZone');
+    if (sapDropZone) {
+        sapDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.add('bg-slate-100', 'border-[#008f68]');
+        });
+        sapDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.remove('bg-slate-100', 'border-[#008f68]');
+        });
+        sapDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            sapDropZone.classList.remove('bg-slate-100', 'border-[#008f68]');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                document.getElementById('sapFileInput').files = e.dataTransfer.files;
+                handleSapFileSelect({ target: { files: [file] } });
+            }
+        });
+    }
+});
 </script>
+
+<!-- SAP Stock Import Modal -->
+<div id="sapImportModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl p-6 md:p-8 shadow-2xl flex flex-col border border-slate-200">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#008f68]/15 text-[#008f68] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">นำเข้าสต็อก SAP เข้า Supabase</h3>
+                    <p class="text-xs font-semibold text-slate-400">SAP ZLMMRP63_NAN Inventory Parser</p>
+                </div>
+            </div>
+            <button onclick="closeSapImportModal()" class="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+
+        <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+            อัปโหลดไฟล์ Excel (.xlsx / .xls) รายงาน ZLMMRP63_NAN เพื่ออัปเดตสต็อกเข้าตาราง <code class="bg-slate-100 px-1 py-0.5 rounded font-mono font-bold text-slate-700">products</code> บน Supabase (จุดสต็อก 3630, 3632, 3651)
+        </p>
+
+        <!-- Drop Zone -->
+        <div id="sapDropZone" class="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/70 transition-all cursor-pointer" onclick="document.getElementById('sapFileInput').click()">
+            <span class="material-symbols-outlined text-4xl text-[#008f68] mb-2">upload_file</span>
+            <p class="text-sm font-bold text-slate-700 text-center">คลิกเพื่อเลือกไฟล์ Excel หรือลากไฟล์มาวางที่นี่</p>
+            <p class="text-xs text-slate-400 mt-1">รองรับไฟล์ .xlsx / .xls</p>
+            <input type="file" id="sapFileInput" accept=".xlsx, .xls" class="hidden" onchange="handleSapFileSelect(event)">
+        </div>
+
+        <!-- Selected File Card -->
+        <div id="sapSelectedFile" class="mt-4 hidden p-3 bg-slate-100 rounded-xl border border-slate-200 items-center justify-between">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+                <span class="material-symbols-outlined text-[#008f68] text-xl">description</span>
+                <div class="flex flex-col overflow-hidden">
+                    <span id="sapFileName" class="text-xs font-bold text-slate-800 truncate">filename.xlsx</span>
+                    <span id="sapFileSize" class="text-[10px] text-slate-400 font-mono">0 KB</span>
+                </div>
+            </div>
+            <button onclick="clearSapFile(event)" class="text-slate-400 hover:text-red-500 transition-colors p-1" title="ลบไฟล์">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+
+        <!-- Admin Password Input -->
+        <div class="mt-4 flex flex-col gap-1">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Admin Password</label>
+            <input type="password" id="sapPasswordInput" class="w-full text-xs py-2 px-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#008f68] focus:border-[#008f68] font-mono" value="6515" placeholder="Admin Password">
+        </div>
+
+        <!-- Loading State -->
+        <div id="sapLoadingState" class="mt-4 hidden flex-col items-center justify-center py-2">
+            <div class="w-7 h-7 border-3 border-[#008f68] border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p class="text-xs font-bold text-slate-600" id="sapLoadingText">กำลังอ่านไฟล์และบันทึกข้อมูลเข้า Supabase...</p>
+        </div>
+
+        <!-- Modal Action Buttons -->
+        <div class="flex justify-end gap-2.5 mt-6">
+            <button type="button" onclick="closeSapImportModal()" id="sapBtnCancel" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+                ยกเลิก
+            </button>
+            <button type="button" onclick="processSapImport()" id="sapBtnImport" disabled class="bg-[#008f68] text-white hover:bg-[#007a59] px-5 py-2 rounded-xl text-xs font-bold shadow-md hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">cloud_upload</span>
+                นำเข้าสต็อก SAP เข้า Supabase
+            </button>
+        </div>
+    </div>
+</div>
 </body></html>
 

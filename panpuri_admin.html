@@ -162,6 +162,10 @@
 <span class="material-symbols-outlined">settings</span>
 <span>Store Settings</span>
 </a>
+<a href="#" onclick="openSapImportModal()" class="w-full flex items-center gap-3 text-[#008f68] hover:bg-[#008f68]/10 rounded-full px-4 py-3 font-label-md transition-all duration-200 active:scale-[0.98] border border-[#008f68]/30 mt-2" id="nav-sap" >
+<span class="material-symbols-outlined">cloud_upload</span>
+<span>นำเข้าสต็อก SAP</span>
+</a>
 </nav>
 <div class="mt-auto border-t border-outline-variant pt-lg flex items-center gap-4 px-md">
 <div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden border border-outline-variant">
@@ -185,6 +189,11 @@
   <input id="searchInput" class="pl-10 pr-4 py-2 bg-surface-container border-none rounded-full w-full lg:w-64 focus:ring-2 focus:ring-secondary text-body-sm" placeholder="Search orders, products..." type="text"/>
   </div>
   <div class="flex items-center gap-2 md:gap-4 shrink-0">
+  <button onclick="openSapImportModal()" class="bg-[#008f68] hover:bg-[#007a59] text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-base">cloud_upload</span>
+    <span class="hidden sm:inline">นำเข้าสต็อก SAP เข้า Supabase</span>
+    <span class="sm:hidden">SAP</span>
+  </button>
   <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">notifications</button>
   <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">help</button>
   </div>
@@ -2411,23 +2420,37 @@ async function saveNewProduct(e) {
               <input type="file" id="sapFileInput" accept=".xlsx, .xls" class="hidden" onchange="handleSapFileSelect(event)">
           </div>
 
-          <div id="sapSelectedFile" class="mt-4 hidden p-3 bg-primary-container rounded-lg flex items-center justify-between">
-              <div class="flex items-center gap-2 overflow-hidden">
-                  <span class="material-symbols-outlined text-primary">description</span>
-                  <span id="sapFileName" class="text-label-md text-on-primary-container truncate">filename.xlsx</span>
+          <div id="sapSelectedFile" class="mt-4 hidden p-3 bg-surface-container rounded-xl border border-outline-variant items-center justify-between">
+              <div class="flex items-center gap-2.5 overflow-hidden">
+                  <span class="material-symbols-outlined text-[#008f68] text-xl">description</span>
+                  <div class="flex flex-col overflow-hidden">
+                      <span id="sapFileName" class="text-xs font-bold text-on-surface truncate">filename.xlsx</span>
+                      <span id="sapFileSize" class="text-[10px] text-outline font-mono">0 KB</span>
+                  </div>
               </div>
-              <button onclick="clearSapFile(event)" class="material-symbols-outlined text-outline hover:text-error text-[20px]">close</button>
+              <button onclick="clearSapFile(event)" class="text-outline hover:text-error transition-colors p-1" title="ลบไฟล์">
+                  <span class="material-symbols-outlined text-lg">close</span>
+              </button>
+          </div>
+
+          <!-- Admin Password Input -->
+          <div class="mt-4 flex flex-col gap-1">
+              <label class="text-[11px] font-bold text-outline uppercase tracking-wide">Admin Password</label>
+              <input type="password" id="sapPasswordInput" class="w-full text-xs py-2 px-3 bg-surface-container border border-outline-variant rounded-xl focus:ring-2 focus:ring-[#008f68] focus:border-[#008f68] font-mono" value="6515" placeholder="Admin Password">
           </div>
 
           <!-- Loading state -->
-          <div id="sapLoadingState" class="mt-4 hidden flex-col items-center justify-center">
+          <div id="sapLoadingState" class="mt-4 hidden flex-col items-center justify-center py-2">
               <div class="w-8 h-8 border-4 border-[#008f68] border-t-transparent rounded-full animate-spin mb-2"></div>
-              <p class="text-label-md text-on-surface-variant" id="sapLoadingText">กำลังอ่านไฟล์และบันทึกข้อมูล...</p>
+              <p class="text-label-md text-on-surface-variant font-bold" id="sapLoadingText">กำลังอ่านไฟล์และบันทึกข้อมูลเข้า Supabase...</p>
           </div>
 
           <div class="flex justify-end gap-3 mt-lg">
-              <button type="button" onclick="closeSapImportModal()" id="sapBtnCancel" class="px-lg py-2.5 rounded-full font-label-md text-primary hover:bg-primary/10 transition-colors">Cancel</button>
-              <button type="button" onclick="processSapImport()" id="sapBtnImport" class="bg-[#008f68] text-white px-lg py-2.5 rounded-full font-label-md shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Import Data</button>
+              <button type="button" onclick="closeSapImportModal()" id="sapBtnCancel" class="px-lg py-2.5 rounded-full font-label-md text-primary hover:bg-primary/10 transition-colors">ยกเลิก</button>
+              <button type="button" onclick="processSapImport()" id="sapBtnImport" disabled class="bg-[#008f68] text-white px-lg py-2.5 rounded-full font-label-md shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">cloud_upload</span>
+                  นำเข้าสต็อก SAP เข้า Supabase
+              </button>
           </div>
       </div>
   </div>
@@ -2438,6 +2461,7 @@ async function saveNewProduct(e) {
     function openSapImportModal() {
         clearSapFile();
         document.getElementById('sapLoadingState').classList.add('hidden');
+        document.getElementById('sapLoadingState').classList.remove('flex');
         document.getElementById('sapBtnImport').disabled = true;
         document.getElementById('sapImportModal').classList.remove('hidden');
         document.getElementById('sapImportModal').classList.add('flex');
@@ -2453,6 +2477,8 @@ async function saveNewProduct(e) {
         if (file) {
             sapSelectedFileObj = file;
             document.getElementById('sapFileName').textContent = file.name;
+            const sizeKb = (file.size / 1024).toFixed(1);
+            document.getElementById('sapFileSize').textContent = `${sizeKb} KB`;
             document.getElementById('sapSelectedFile').classList.remove('hidden');
             document.getElementById('sapSelectedFile').classList.add('flex');
             document.getElementById('sapBtnImport').disabled = false;
@@ -2462,23 +2488,27 @@ async function saveNewProduct(e) {
     function clearSapFile(e) {
         if (e) e.stopPropagation();
         sapSelectedFileObj = null;
-        document.getElementById('sapFileInput').value = '';
-        document.getElementById('sapSelectedFile').classList.add('hidden');
-        document.getElementById('sapSelectedFile').classList.remove('flex');
+        const fileInput = document.getElementById('sapFileInput');
+        if (fileInput) fileInput.value = '';
+        const selectedFile = document.getElementById('sapSelectedFile');
+        if (selectedFile) {
+            selectedFile.classList.add('hidden');
+            selectedFile.classList.remove('flex');
+        }
         document.getElementById('sapBtnImport').disabled = true;
     }
 
     async function processSapImport() {
-        if (!sapSelectedFileObj) return alert('Please select an Excel file first.');
-        const password = prompt('Enter Admin Password:');
-        if (!password) return;
+        if (!sapSelectedFileObj) return alert('กรุณาเลือกไฟล์ Excel (.xlsx) รายงาน SAP ZLMMRP63_NAN ก่อนดำเนินการ');
+        const pwdInput = document.getElementById('sapPasswordInput');
+        const password = pwdInput ? pwdInput.value : '6515';
 
         // Show loading
         document.getElementById('sapLoadingState').classList.remove('hidden');
         document.getElementById('sapLoadingState').classList.add('flex');
         document.getElementById('sapBtnImport').disabled = true;
         document.getElementById('sapBtnCancel').disabled = true;
-        document.getElementById('sapLoadingText').textContent = 'กำลังอัปโหลดและประมวลผล... (อาจใช้เวลาสักครู่)';
+        document.getElementById('sapLoadingText').textContent = 'กำลังอ่านไฟล์และบันทึกข้อมูลเข้า Supabase... (อาจใช้เวลาสักครู่)';
 
         const formData = new FormData();
         formData.append('file', sapSelectedFileObj);
@@ -2492,15 +2522,15 @@ async function saveNewProduct(e) {
             const data = await res.json();
             
             if (data.success) {
-                alert(data.message || `อัปเดตสำเร็จ ${data.count} รายการ`);
+                alert(`✅ นำเข้าสต็อก SAP เข้า Supabase สำเร็จ!\n\nจำนวนรายการที่อัปเดต: ${data.count} รายการ\nรายละเอียด: ${data.message || 'อัปเดตสต็อกจุด 3630, 3632, 3651 เรียบร้อย'}`);
                 closeSapImportModal();
                 if (typeof loadProducts === 'function') loadProducts();
             } else {
-                alert('Error: ' + data.error);
+                alert('เกิดข้อผิดพลาด: ' + (data.error || 'ไม่สามารถอัปเดตข้อมูลได้'));
             }
         } catch (err) {
             console.error(err);
-            alert('Connection error during upload');
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
         } finally {
             document.getElementById('sapLoadingState').classList.add('hidden');
             document.getElementById('sapLoadingState').classList.remove('flex');
