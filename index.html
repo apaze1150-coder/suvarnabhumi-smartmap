@@ -591,7 +591,7 @@
 </main></div>
 
         <!-- 1b. PRE-ORDER PAGE -->
-        <div id="page-preorder" class="page-section absolute inset-0 pt-20 pb-40 overflow-y-auto bg-transparent">
+        <div id="page-preorder" class="page-section absolute inset-0 pt-3 pb-24 overflow-y-auto bg-transparent">
             <!-- Aura Background Layer -->
             <div class="fixed inset-0 z-0 pointer-events-none">
                 <video src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/floating_flowers.mp4" playsinline muted loop autoplay class="w-full h-full object-cover object-bottom opacity-60 bg-[#000000]"></video>
@@ -624,7 +624,7 @@
         ⚠️ ร้านค้านี้ปิดรับ Order ชั่วคราว กรุณาเลือกร้านอื่นหรือลองใหม่ภายหลัง
     </div>
 </div>
-            <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-6 pb-40 space-y-4 relative z-10">
+            <div id="preorder-step-confirm" class="hidden w-full max-w-4xl mx-auto px-4 pt-1 pb-24 space-y-3 relative z-10">
                 <!-- Back Navigation -->
                 <div class="animate-fade-in-up stagger-1">
                     <a href="#" onclick="showPage('view-panpuri-boutique'); return false;" class="inline-flex items-center gap-2 text-[#000a1e] transition-colors group">
@@ -657,12 +657,21 @@
                     <!-- Summary Section & Customer Info -->
                     <div class="p-5 bg-gray-50/50 border-t border-gray-200 flex flex-col md:flex-row gap-6">
                         <!-- Customer Info Form -->
-                        <div class="flex-grow space-y-4">
+                        <div class="flex-grow space-y-3">
                             <h2 class="font-black text-[15px] text-[#000a1e]">Customer Information</h2>
+                            
+                            <!-- 24-Hour Advance Notice (English) -->
+                            <div class="flex items-center gap-2 bg-[#001a3d]/5 border border-[#001a3d]/15 rounded-lg px-3.5 py-2.5 text-xs text-[#001a3d]">
+                                <span class="material-symbols-outlined text-base text-[#001a3d] flex-shrink-0">info</span>
+                                <span class="font-medium leading-relaxed">
+                                    <strong class="font-bold">Notice:</strong> Pre-order service is accepted strictly within 24 hours in advance prior to departure.
+                                </span>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-bold text-gray-500" for="order-customer-name">Full Name *</label>
-                                    <input class="w-full h-11 px-4 border border-gray-300 rounded-lg text-sm font-semibold text-[#000a1e] placeholder-gray-400 focus:outline-none focus:border-[#000a1e] focus:ring-1 focus:ring-[#000a1e] transition-all" id="order-customer-name" placeholder="Enter your full name" type="text">
+                                    <input class="w-full h-11 px-4 border border-gray-300 rounded-lg text-sm font-semibold text-[#000a1e] placeholder-gray-400 focus:outline-none focus:border-[#001a3d] focus:ring-1 focus:ring-[#001a3d] transition-all" id="order-customer-name" placeholder="Enter your full name" type="text">
                                     <p id="name-error-msg" class="text-xs text-red-600 font-medium hidden mt-1">Please enter your full name.</p>
                                 </div>
                                 <div class="space-y-1.5">
@@ -671,7 +680,7 @@
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="material-symbols-outlined text-gray-400 text-[18px]">flight</span>
                                         </div>
-                                        <input class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg text-sm font-bold uppercase text-[#000a1e] placeholder-gray-400 focus:outline-none focus:border-[#000a1e] focus:ring-1 focus:ring-[#000a1e] transition-all" id="order-flight-number" placeholder="e.g. TG679" type="text">
+                                        <input class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg text-sm font-bold uppercase text-[#001a3d] placeholder-gray-400 focus:outline-none focus:border-[#001a3d] focus:ring-1 focus:ring-[#001a3d] transition-all" id="order-flight-number" placeholder="e.g. TG679" type="text">
                                     </div>
                                     <p id="flight-error-msg" class="text-xs text-red-600 font-medium hidden mt-1">Please enter your flight number.</p>
                                 </div>
@@ -692,8 +701,8 @@
 
                 <!-- Action Button -->
                 <div class="animate-fade-in-up stagger-3 flex justify-end mt-4">
-                    <button onclick="submitPreorder()" id="submit-order-btn" class="w-full md:w-80 bg-[#000a1e] text-[#ffe088] h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-[15px] tracking-wide shadow-lg shadow-[#000a1e]/20 hover:bg-black active:scale-[0.98] transition-all">
-                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <button onclick="submitPreorder()" id="submit-order-btn" class="w-full md:w-80 bg-[#001a3d] text-white hover:bg-[#002855] h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-[15px] tracking-wide shadow-xl shadow-[#001a3d]/25 active:scale-[0.98] transition-all border border-white/10">
+                        <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                         Confirm Pre-order
                     </button>
                 </div>
@@ -768,14 +777,10 @@
 <!-- Main Content Canvas -->
 <main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
 <!-- Mobile Back to Store Selection -->
-<div class="bg-surface px-4 py-1.5 lg:hidden flex justify-between items-center border-b border-outline-variant/20">
+<div class="bg-surface px-4 py-1.5 lg:hidden flex items-center border-b border-outline-variant/20">
     <button onclick="confirmExitToStoreSelection()" class="flex items-center gap-1.5 text-gray-500 hover:text-[#001a3d] transition-colors text-xs font-bold py-1 bg-transparent border-none">
         <span class="material-symbols-outlined text-sm">arrow_back</span>
         Change Store
-    </button>
-    <button onclick="shareWebsiteLink()" class="flex items-center gap-1 text-[#001a3d] hover:text-[#002855] transition-colors text-xs font-bold py-1 px-2.5 rounded-full bg-[#001a3d]/5 border border-[#001a3d]/15 active:scale-95" title="แชร์ลิงก์ให้เพื่อน">
-        <span class="material-symbols-outlined text-sm">ios_share</span>
-        <span>แชร์ลิงก์</span>
     </button>
 </div>
 <!-- Top Navigation -->
@@ -2267,15 +2272,19 @@
             const mainMenubar = document.getElementById('main-mobile-menubar');
             const boutiqueCartBar = document.getElementById('boutique-bottom-cart-bar');
 
-            if (pageId === 'view-panpuri-boutique') {
+            if (pageId === 'view-panpuri-boutique' || pageId === 'page-preorder') {
                 if (mainMenubar) {
                     mainMenubar.classList.add('hidden');
                 }
                 if (boutiqueCartBar) {
-                    boutiqueCartBar.classList.remove('hidden');
-                }
-                if (typeof updateBoutiqueCartUI === 'function') {
-                    updateBoutiqueCartUI();
+                    if (pageId === 'view-panpuri-boutique') {
+                        boutiqueCartBar.classList.remove('hidden');
+                        if (typeof updateBoutiqueCartUI === 'function') {
+                            updateBoutiqueCartUI();
+                        }
+                    } else {
+                        boutiqueCartBar.classList.add('hidden');
+                    }
                 }
             } else {
                 if (mainMenubar) {
@@ -3632,6 +3641,12 @@
         }
 
         function showPreorderStep(step) {
+            // Ensure bottom toast menubar is completely hidden during pre-order flow
+            const mainMenubar = document.getElementById('main-mobile-menubar');
+            if (mainMenubar) {
+                mainMenubar.classList.add('hidden');
+            }
+
             // Update background based on step
             const pagePreorder = document.getElementById('page-preorder');
             if (pagePreorder) {
@@ -4266,6 +4281,7 @@
             const threshold = 8;
 
             function onScroll(e) {
+                if (menuBar.classList.contains('hidden')) return;
                 const target = e.target;
                 let currentScrollTop = 0;
 
