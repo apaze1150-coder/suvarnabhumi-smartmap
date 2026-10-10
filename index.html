@@ -393,8 +393,13 @@
         <img src="https://s3-ap-southeast-1.amazonaws.com/kpc-prod-web-static/frontend/img/svg/v2/logo-kingpower.svg" alt="King Power" class="h-6 md:h-8 object-contain">
     </div>
     
-    <!-- Right: Lang Switcher -->
-    <div id="google_translate_element" class="hidden"></div><div class="flex items-center gap-3">
+    <!-- Right: Lang Switcher & Share -->
+    <div id="google_translate_element" class="hidden"></div><div class="flex items-center gap-2">
+        <!-- Share Link Button -->
+        <button onclick="shareWebsiteLink()" class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors flex items-center justify-center" title="Share link">
+            <span class="material-symbols-outlined text-[20px]">share</span>
+        </button>
+
         <!-- Language Switcher -->
         
         <div class="relative inline-block text-left" id="lang-dropdown-container">
@@ -763,10 +768,14 @@
 <!-- Main Content Canvas -->
 <main class="lg:ml-72 min-h-screen pb-32 lg:pb-0">
 <!-- Mobile Back to Store Selection -->
-<div class="bg-surface px-4 py-1.5 lg:hidden flex border-b border-outline-variant/20">
-    <button onclick="confirmExitToStoreSelection()" class="flex items-center gap-1.5 text-gray-500 hover:text-[#001a3d] transition-colors text-xs font-bold w-full py-1 bg-transparent border-none">
+<div class="bg-surface px-4 py-1.5 lg:hidden flex justify-between items-center border-b border-outline-variant/20">
+    <button onclick="confirmExitToStoreSelection()" class="flex items-center gap-1.5 text-gray-500 hover:text-[#001a3d] transition-colors text-xs font-bold py-1 bg-transparent border-none">
         <span class="material-symbols-outlined text-sm">arrow_back</span>
         Change Store
+    </button>
+    <button onclick="shareWebsiteLink()" class="flex items-center gap-1 text-[#001a3d] hover:text-[#002855] transition-colors text-xs font-bold py-1 px-2.5 rounded-full bg-[#001a3d]/5 border border-[#001a3d]/15 active:scale-95" title="แชร์ลิงก์ให้เพื่อน">
+        <span class="material-symbols-outlined text-sm">ios_share</span>
+        <span>แชร์ลิงก์</span>
     </button>
 </div>
 <!-- Top Navigation -->
@@ -782,9 +791,12 @@
 <span class="material-symbols-outlined text-on-surface-variant">search</span>
 <input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search collection..." type="text">
 </div>
+<button class="p-2 relative haptic-active text-[#001a3d] hover:bg-black/5 rounded-full transition-colors flex items-center justify-center" title="แชร์ลิงก์ให้เพื่อน" onclick="shareWebsiteLink()">
+<span class="material-symbols-outlined text-[22px]">ios_share</span>
+</button>
 <button class="p-2 relative haptic-active" onclick="checkoutBoutique()">
 <span class="material-symbols-outlined">shopping_bag</span>
-<span class="absolute top-0 right-0 w-4 h-4 bg-secondary rounded-full text-[10px] font-bold text-white flex items-center justify-center hidden boutique-cart-badge"></span>
+<span class="absolute top-0 right-0 w-4 h-4 bg-[#001a3d] rounded-full text-[10px] font-bold text-white flex items-center justify-center hidden boutique-cart-badge"></span>
 </button>
 <button class="p-2 hidden md:block">
 <span class="material-symbols-outlined">location_on</span>
@@ -804,17 +816,17 @@
 </div>
 </main>
 
-<!-- Floating Bottom Cart Bar (Image 2 style - Food delivery checkout) -->
-<div id="boutique-bottom-cart-bar" class="hidden fixed bottom-4 left-4 right-4 z-[120] max-w-lg mx-auto bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-gray-100 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.25)] flex items-center gap-3 transition-all duration-300 transform translate-y-32 opacity-0 pointer-events-none">
-    <!-- Shopping Cart with Count Badge -->
+<!-- Floating Bottom Cart Bar (King Power Navy & White Theme) -->
+<div id="boutique-bottom-cart-bar" class="hidden fixed bottom-4 left-4 right-4 z-[120] max-w-lg mx-auto bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-gray-100 shadow-[0_10px_35px_-5px_rgba(0,26,61,0.25)] flex items-center gap-3 transition-all duration-300 transform translate-y-32 opacity-0 pointer-events-none">
+    <!-- Shopping Cart with Count Badge in King Power Navy -->
     <div class="relative flex items-center justify-center pl-2 pr-1 cursor-pointer active:scale-95 transition-transform" onclick="checkoutBoutique()">
-        <span class="material-symbols-outlined text-3xl text-gray-800">shopping_cart</span>
-        <span id="boutique-cart-item-count" class="absolute -top-1 -right-1 bg-[#00a854] text-white text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+        <span class="material-symbols-outlined text-3xl text-[#001a3d]">shopping_cart</span>
+        <span id="boutique-cart-item-count" class="absolute -top-1 -right-1 bg-[#001a3d] text-white text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
     </div>
-    <!-- Order Summary Button with Price -->
-    <button onclick="checkoutBoutique()" class="flex-1 bg-[#00a854] hover:bg-[#008f47] active:scale-[0.98] transition-all text-white py-3.5 px-5 rounded-xl flex items-center justify-between shadow-md shadow-[#00a854]/30">
-        <span class="font-bold text-sm tracking-wide">Order Summary</span>
-        <span id="boutique-cart-total-price" class="font-black text-base tracking-tight">฿0</span>
+    <!-- Order Summary Button in King Power Navy & White -->
+    <button onclick="checkoutBoutique()" class="flex-1 bg-[#001a3d] hover:bg-[#00122b] active:scale-[0.98] transition-all text-white py-3.5 px-5 rounded-xl flex items-center justify-between shadow-lg shadow-[#001a3d]/25 border border-white/10">
+        <span class="font-bold text-sm tracking-wide text-white">Order Summary</span>
+        <span id="boutique-cart-total-price" class="font-black text-base tracking-tight text-white">฿0</span>
     </button>
 </div>
 
@@ -829,8 +841,8 @@
 <span class="material-symbols-outlined">close</span>
 </button>
 <div class="font-headline-md text-headline-md tracking-wider">DETAILS</div>
-<button class="p-2 haptic-active">
-<span class="material-symbols-outlined">share</span>
+<button class="p-2 haptic-active text-[#001a3d] hover:bg-black/5 rounded-full transition-colors flex items-center justify-center" onclick="shareWebsiteLink()" title="แชร์ลิงก์ให้เพื่อน">
+<span class="material-symbols-outlined">ios_share</span>
 </button>
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar">
@@ -889,11 +901,11 @@
 </div>
 </div>
 </div>
-<div id="drawer-bottom-area" class="px-6 pt-6 bg-surface-container-lowest border-t border-outline-variant">
-<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl">
+<div id="drawer-bottom-area" class="px-6 pt-6 pb-6 bg-surface-container-lowest border-t border-outline-variant">
+<button class="w-full bg-[#001a3d] hover:bg-[#00122b] text-white font-bold text-sm py-4 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] transition-all">
 <span class="material-symbols-outlined">shopping_cart</span>
-                    ADD TO CART
-                </button>
+    ADD TO CART
+</button>
 </div>
 </div>
 </div>
@@ -3765,9 +3777,9 @@
                 }
             }
             if (outOfStock || window.currentDrawerQty <= 0) {
-                document.getElementById('drawerCartBtnContainer').innerHTML = '<button disabled class="w-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-5 rounded-full flex items-center justify-center gap-3">OUT OF STOCK</button>';
+                document.getElementById('drawerCartBtnContainer').innerHTML = '<button disabled class="w-full bg-gray-200 text-gray-500 font-bold text-sm py-4 rounded-full flex items-center justify-center gap-3 cursor-not-allowed">OUT OF STOCK</button>';
             } else {
-                document.getElementById('drawerCartBtnContainer').innerHTML = `<button onclick="addToBoutiqueCart('${p.product_id}', ${window.currentDrawerQty}); closeDrawer()" class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl"><span class="material-symbols-outlined">shopping_cart</span> ADD TO CART</button>`;
+                document.getElementById('drawerCartBtnContainer').innerHTML = `<button onclick="addToBoutiqueCart('${p.product_id}', ${window.currentDrawerQty}); closeDrawer()" class="w-full bg-[#001a3d] hover:bg-[#00122b] text-white font-bold text-sm py-4 rounded-full haptic-active flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] transition-all"><span class="material-symbols-outlined">shopping_cart</span> ADD TO CART</button>`;
             }
         }
 
@@ -4311,6 +4323,59 @@
                 homeView.addEventListener('scroll', onScroll, { passive: true });
             }
         })();
+
+        // ----------------------------------------------------
+        // Web Share Functionality (King Power Pre-Order Link)
+        // ----------------------------------------------------
+        function shareWebsiteLink() {
+            const shareData = {
+                title: 'King Power Suvarnabhumi Smart Map & Pre-Order',
+                text: 'สั่งจองสินค้า PAÑPURI และบริการแผนที่อัจฉริยะ ท่าอากาศยานสุวรรณภูมิ',
+                url: 'https://suvarnabhumi-smartmap.onrender.com/'
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyShareLinkFallback();
+                    }
+                });
+            } else {
+                copyShareLinkFallback();
+            }
+        }
+
+        function copyShareLinkFallback() {
+            const shareUrl = 'https://suvarnabhumi-smartmap.onrender.com/';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showShareToast('คัดลอกลิงก์สำเร็จแล้ว พร้อมส่งต่อให้เพื่อนได้เลย!');
+                }).catch(() => {
+                    prompt('คัดลอกลิงก์นี้เพื่อแชร์ต่อ:', shareUrl);
+                });
+            } else {
+                prompt('คัดลอกลิงก์นี้เพื่อแชร์ต่อ:', shareUrl);
+            }
+        }
+
+        function showShareToast(message) {
+            let toast = document.getElementById('share-toast-notification');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'share-toast-notification';
+                toast.className = 'fixed top-16 left-1/2 -translate-x-1/2 z-[999] bg-[#001a3d] text-white text-xs font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4 border border-white/20';
+                toast.innerHTML = `<span class="material-symbols-outlined text-sm text-[#ffe088]">check_circle</span> <span id="share-toast-text"></span>`;
+                document.body.appendChild(toast);
+            }
+            const toastText = document.getElementById('share-toast-text');
+            if (toastText) toastText.textContent = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+            }, 3000);
+        }
         
 </script>
 
