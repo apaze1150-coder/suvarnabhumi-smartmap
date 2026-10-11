@@ -312,7 +312,50 @@
         70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
         100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-</style>
+
+        /* Mobile Continuous Breathing Zoom for Home Cards */
+        @keyframes mobileBreathingZoom {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.09);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        @keyframes pinPulse {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-5px) scale(1.08);
+            }
+        }
+        @media (max-width: 768px), (hover: none) {
+            .card-zoom-mobile-1 {
+                animation: mobileBreathingZoom 8s ease-in-out infinite alternate !important;
+                will-change: transform;
+            }
+            .card-zoom-mobile-2 {
+                animation: mobileBreathingZoom 7s ease-in-out infinite alternate 0.8s !important;
+                will-change: transform;
+            }
+            .card-zoom-mobile-3 {
+                animation: mobileBreathingZoom 8.5s ease-in-out infinite alternate 1.6s !important;
+                will-change: transform;
+            }
+            .card-zoom-mobile-4 {
+                animation: mobileBreathingZoom 7.5s ease-in-out infinite alternate 2.4s !important;
+                will-change: transform;
+            }
+            .card-pin-mobile {
+                animation: pinPulse 2.8s ease-in-out infinite !important;
+            }
+        }
+
+    </style>
 <script>
     // Anti-flicker for boutique navigation
     if (window.location.search.includes('boutiqueStore=')) {
@@ -528,31 +571,42 @@
 
     <script id="splash-script">
         (function() {
+            var splashDismissed = false;
+            var canDismissManually = false;
+
             function dismissSplash() {
                 var el = document.getElementById('app-splash-screen');
-                if (!el || el.classList.contains('splash-dismissed')) return;
+                if (!el || splashDismissed) return;
+                splashDismissed = true;
                 el.classList.add('splash-dismissed');
                 setTimeout(function() {
                     if (el && el.parentNode) el.parentNode.removeChild(el);
-                }, 600);
+                }, 650);
             }
 
-            // Dismiss after smooth calibration rotation
-            window.addEventListener('load', function() {
-                setTimeout(dismissSplash, 1300);
-            });
+            // Allow user manual touch dismiss only after compass needle completes its rotation (1.5s)
+            setTimeout(function() {
+                canDismissManually = true;
+            }, 1500);
 
-            // Instant dismiss on touch/click so user is never blocked
+            // Auto dismiss after 2.2s so the user reliably sees the beautiful compass spin
+            setTimeout(dismissSplash, 2200);
+
+            // Click/touch dismiss only if canDismissManually is true
             document.addEventListener('DOMContentLoaded', function() {
                 var el = document.getElementById('app-splash-screen');
                 if (el) {
-                    el.addEventListener('click', dismissSplash);
-                    el.addEventListener('touchstart', dismissSplash, { passive: true });
+                    el.addEventListener('click', function() {
+                        if (canDismissManually) dismissSplash();
+                    });
+                    el.addEventListener('touchstart', function() {
+                        if (canDismissManually) dismissSplash();
+                    }, { passive: true });
                 }
             });
 
-            // Fallback safety timeout
-            setTimeout(dismissSplash, 2600);
+            // Ultimate fallback safety timeout
+            setTimeout(dismissSplash, 3500);
         })();
     </script>
 
@@ -706,7 +760,7 @@
             </div>
             
             <div class="relative rounded-xl overflow-hidden h-48 md:h-72 lg:h-[400px] xl:h-[500px] group">
-                <img src="uploads/panpuri_Banner.jpg" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Panpuri Products">
+                <img src="uploads/panpuri_Banner.jpg" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" class="absolute inset-0 w-full h-full object-cover card-zoom-mobile-1 group-hover:scale-105 transition-transform duration-500" alt="Panpuri Products">
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="absolute inset-0 flex items-center justify-center px-4 text-center">
                     <p class="text-white text-xs font-bold tracking-widest uppercase">Explore the wellness collection</p>
@@ -723,25 +777,25 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             <!-- Shops -->
             <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer" onclick="window.location.href='store_directory.html'">
-                <img src="uploads/preview-1.jpg" onerror="this.src='https://www.kingpower.com/images/default-image.jpg'" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Shops">
+                <img src="uploads/preview-1.jpg" onerror="this.src='https://www.kingpower.com/images/default-image.jpg'" class="absolute inset-0 w-full h-full object-cover card-zoom-mobile-2 group-hover:scale-105 transition-transform duration-500" alt="Shops">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                 <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Shops</h4>
             </div>
             <!-- Dining -->
             <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&amp;fit=crop&amp;q=80&amp;w=500" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Dining">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&amp;fit=crop&amp;q=80&amp;w=500" class="absolute inset-0 w-full h-full object-cover card-zoom-mobile-3 group-hover:scale-105 transition-transform duration-500" alt="Dining">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                 <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Dining</h4>
             </div>
             <!-- Pick Up Counter -->
             <div class="relative bg-gray-200 rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 overflow-hidden shadow-sm group cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=500" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Pick Up Counter">
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=500" class="absolute inset-0 w-full h-full object-cover card-zoom-mobile-4 group-hover:scale-105 transition-transform duration-500" alt="Pick Up Counter">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#001a3d]/90 via-[#001a3d]/40 to-transparent"></div>
                 <h4 class="absolute bottom-4 left-5 text-white text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest leading-tight">Pick Up<br>Counter</h4>
             </div>
             <!-- Explore Map -->
             <div class="bg-[#d8aa3d] rounded-2xl h-40 md:h-64 lg:h-80 xl:h-96 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-[#c99a2c] transition-colors" onclick="showPage('map-view')">
-                <span class="material-symbols-outlined text-[#001a3d] text-4xl md:text-5xl lg:text-6xl mb-3">location_on</span>
+                <span class="material-symbols-outlined text-[#001a3d] text-4xl md:text-5xl lg:text-6xl mb-3 card-pin-mobile">location_on</span>
                 <h4 class="text-[#001a3d] text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest">Explore Map</h4>
             </div>
         </div>

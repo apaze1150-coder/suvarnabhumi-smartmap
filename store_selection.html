@@ -228,31 +228,42 @@
 
     <script id="splash-script">
         (function() {
+            var splashDismissed = false;
+            var canDismissManually = false;
+
             function dismissSplash() {
                 var el = document.getElementById('app-splash-screen');
-                if (!el || el.classList.contains('splash-dismissed')) return;
+                if (!el || splashDismissed) return;
+                splashDismissed = true;
                 el.classList.add('splash-dismissed');
                 setTimeout(function() {
                     if (el && el.parentNode) el.parentNode.removeChild(el);
-                }, 600);
+                }, 650);
             }
 
-            // Dismiss after smooth calibration rotation
-            window.addEventListener('load', function() {
-                setTimeout(dismissSplash, 1300);
-            });
+            // Allow user manual touch dismiss only after compass needle completes its rotation (1.5s)
+            setTimeout(function() {
+                canDismissManually = true;
+            }, 1500);
 
-            // Instant dismiss on touch/click so user is never blocked
+            // Auto dismiss after 2.2s so the user reliably sees the beautiful compass spin
+            setTimeout(dismissSplash, 2200);
+
+            // Click/touch dismiss only if canDismissManually is true
             document.addEventListener('DOMContentLoaded', function() {
                 var el = document.getElementById('app-splash-screen');
                 if (el) {
-                    el.addEventListener('click', dismissSplash);
-                    el.addEventListener('touchstart', dismissSplash, { passive: true });
+                    el.addEventListener('click', function() {
+                        if (canDismissManually) dismissSplash();
+                    });
+                    el.addEventListener('touchstart', function() {
+                        if (canDismissManually) dismissSplash();
+                    }, { passive: true });
                 }
             });
 
-            // Fallback safety timeout
-            setTimeout(dismissSplash, 2600);
+            // Ultimate fallback safety timeout
+            setTimeout(dismissSplash, 3500);
         })();
     </script>
 
