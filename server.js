@@ -42,6 +42,9 @@ app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+app.use('/icons', express.static(path.join(__dirname, 'icons')));
+app.get('/favicon.ico', (req, res) => res.sendFile(path.join(__dirname, 'favicon.ico')));
+
 // Serve root-level files individually
 app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
 app.get('/icon-192.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-192.png')));
