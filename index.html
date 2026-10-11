@@ -3406,9 +3406,9 @@
                 const res = await fetch('/api/store/settings');
                 const data = await res.json();
                 const stores = [
-                    { id: 'TE3', name: 'PANPURI Concourse D East', sub: 'บริเวณ Gate D1-D4', icon: 'location_on' },
+                    { id: 'TE3', name: 'PANPURI Concourse D East', sub: 'บริเวณ Gate D1-D4, Gate C1-C10, S101-128', icon: 'location_on' },
                     { id: 'TE1', name: 'PANPURI Concourse D East 2', sub: 'บริเวณ Gate D1-D2', icon: 'location_on' },
-                    { id: 'TW4', name: 'PANPURI Concourse D West', sub: 'บริเวณ Gate D5-D8', icon: 'location_on' }
+                    { id: 'TW4', name: 'PANPURI Concourse D West', sub: 'บริเวณ Gate D5-D8, Gate E1-E10, Gate F1-F6, Gate G1-G5', icon: 'location_on' }
                 ];
                 container.innerHTML = stores.map(s => {
                     const isOpen = data.settings[s.id]?.accepting_orders !== false;

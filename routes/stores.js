@@ -10,6 +10,17 @@ const { loadNavigationGraph } = require('./navigation');
 
 // --- ADMIN FEATURE: CRUD Operations on store_matrix.csv ---
 
+// GET /api/stores - Public list of all stores for store selection and customer UI
+router.get('/api/stores', async (req, res) => {
+  try {
+    const stores = await readCsv(STORE_CSV);
+    return res.json({ success: true, stores });
+  } catch (error) {
+    console.error('Error fetching stores:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch stores' });
+  }
+});
+
 // POST /api/search-store - Search stores
 router.post('/api/search-store', async (req, res) => {
   const query = req.body.query || req.query.q || req.query.query || '';

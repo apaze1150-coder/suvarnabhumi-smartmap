@@ -159,7 +159,7 @@
 <!-- Store Item 1 -->
 <div class="store-card haptic-btn bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,10,30,0.06)] border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectStore('TE3')">
     <div class="relative w-full h-44 sm:h-52 bg-gray-100 overflow-hidden">
-        <img src="uploads/1783484420656-404489505.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE3] PANPURI Concourse D East">
+        <img id="img-TE3" src="uploads/prod-1791708962118-861179416.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE3] PANPURI Concourse D East">
         <div class="absolute top-3.5 right-3.5">
             <span class="bg-kingpower-status/95 backdrop-blur-sm text-kingpower-statusText text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-green-200/50">Open</span>
         </div>
@@ -173,7 +173,7 @@
                 <h4 class="font-extrabold text-base text-[#001a3d] tracking-tight">[TE3] PANPURI Concourse D East</h4>
                 <div class="flex items-center gap-1.5 text-xs text-gray-500 font-medium mt-1.5">
                     <span class="material-symbols-outlined text-[17px] text-[#d8aa3d]">near_me</span>
-                    <span>Near <span class="text-gray-700 font-bold">Gate D1-D4</span></span>
+                    <span>Near <span class="text-gray-700 font-bold">Gate D1-D4, Gate C1-C10, S101-128</span></span>
                 </div>
             </div>
             <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center text-[#001a3d] shrink-0 border border-gray-100 group-hover:bg-[#001a3d] group-hover:text-white transition-colors">
@@ -186,7 +186,7 @@
 <!-- Store Item 2 -->
 <div class="store-card haptic-btn bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,10,30,0.06)] border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectStore('TE1')">
     <div class="relative w-full h-44 sm:h-52 bg-gray-100 overflow-hidden">
-        <img src="uploads/1783484658834-936969808.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE1] PANPURI Concourse D East 2">
+        <img id="img-TE1" src="uploads/1783484658834-936969808.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE1] PANPURI Concourse D East 2">
         <div class="absolute top-3.5 right-3.5">
             <span class="bg-kingpower-status/95 backdrop-blur-sm text-kingpower-statusText text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-green-200/50">Open</span>
         </div>
@@ -213,7 +213,7 @@
 <!-- Store Item 3 -->
 <div class="store-card haptic-btn bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,10,30,0.06)] border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectStore('TW4')">
     <div class="relative w-full h-44 sm:h-52 bg-gray-100 overflow-hidden">
-        <img src="uploads/1783484828814-840131804.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TW4] PANPURI Concourse D West">
+        <img id="img-TW4" src="uploads/prod-1791708985025-400787670.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TW4] PANPURI Concourse D West">
         <div class="absolute top-3.5 right-3.5">
             <span class="bg-kingpower-status/95 backdrop-blur-sm text-kingpower-statusText text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-green-200/50">Open</span>
         </div>
@@ -227,7 +227,7 @@
                 <h4 class="font-extrabold text-base text-[#001a3d] tracking-tight">[TW4] PANPURI Concourse D West</h4>
                 <div class="flex items-center gap-1.5 text-xs text-gray-500 font-medium mt-1.5">
                     <span class="material-symbols-outlined text-[17px] text-[#d8aa3d]">near_me</span>
-                    <span>Near <span class="text-gray-700 font-bold">Gate D5-D8</span></span>
+                    <span>Near <span class="text-gray-700 font-bold">Gate D5-D8, Gate E1-E10, Gate F1-F6, Gate G1-G5</span></span>
                 </div>
             </div>
             <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center text-[#001a3d] shrink-0 border border-gray-100 group-hover:bg-[#001a3d] group-hover:text-white transition-colors">
@@ -252,6 +252,28 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Load store matrix images dynamically from backend
+      try {
+          const storeRes = await fetch('/api/stores');
+          const storeData = await storeRes.json();
+          if (storeData.success && Array.isArray(storeData.stores)) {
+              storeData.stores.forEach(s => {
+                  const sId = (s.shop_number || s.store_id || '').trim();
+                  if (!sId || !s.shop_image) return;
+                  const img = document.getElementById('img-' + sId);
+                  if (img) {
+                      const imagePath = s.shop_image.startsWith('/') 
+                          ? s.shop_image 
+                          : (s.shop_image.startsWith('uploads/') ? '/' + s.shop_image : '/uploads/' + s.shop_image);
+                      img.src = imagePath;
+                  }
+              });
+          }
+      } catch (e) {
+          console.error('Failed to load store images:', e);
+      }
+
+      // 2. Load store settings (open/closed)
       try {
           const res = await fetch('/api/store/settings');
           const data = await res.json();
