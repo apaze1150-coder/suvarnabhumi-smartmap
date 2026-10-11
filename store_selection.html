@@ -69,11 +69,6 @@
     body {
       background-color: #f8f9fb;
     }
-
-    /* Gradient overlay for footer shadow effect */
-    .footer-shadow {
-      box-shadow: 0 -10px 40px -5px rgba(0, 0, 0, 0.3);
-    }
   </style>
 </head>
 <body class="font-sans text-kingpower-navy antialiased">
@@ -85,7 +80,7 @@
     <!-- Left: Hamburger & Logo -->
     <div class="flex items-center gap-4 relative">
         <!-- Hamburger Menu (acts as back for now or menu) -->
-        <button class="text-white hover:text-[#d8aa3d] transition-colors focus:outline-none" onclick="window.history.back()">
+        <button class="text-white hover:text-[#d8aa3d] transition-colors focus:outline-none" onclick="goBack()">
             <span class="material-symbols-outlined text-3xl">menu</span>
         </button>
 
@@ -121,10 +116,10 @@
 </header>
 <!-- END: MainHeader -->
 <!-- BEGIN: MainContent -->
-<main class="w-full px-6 py-8 pb-32 min-h-screen">
+<main class="w-full px-6 py-8 pb-12 min-h-screen">
 <!-- BEGIN: Premium Back Navigation -->
 <nav class="mb-10" data-purpose="navigation-area">
-<button class="haptic-btn flex items-center gap-3 group text-kingpower-navy hover:bg-white/50 px-3 py-2 -ml-3 rounded-full" onclick="window.history.back()">
+<button class="haptic-btn flex items-center gap-3 group text-kingpower-navy hover:bg-white/50 px-3 py-2 -ml-3 rounded-full" onclick="goBack()">
 <div class="flex items-center justify-center w-8 h-8 rounded-full border border-kingpower-navy/10 bg-white group-hover:border-kingpower-navy/30">
 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
@@ -186,41 +181,16 @@
 <!-- END: Store Selection List -->
 </main>
 <!-- END: MainContent -->
-<div class="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
-    <div class="bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] w-full max-w-[500px] pointer-events-auto border border-gray-200 rounded-3xl">
-        <div class="px-6 w-full flex items-center justify-between relative">
-            <!-- Home -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html'">
-                <span class="material-symbols-outlined text-gray-400 hover:text-[#001a3d] transition-colors">home</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight text-gray-400">Home</span>
-            </div>
-            <!-- Navigate -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html?view=map'">
-                <span class="material-symbols-outlined">map</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">Navigate</span>
-            </div>
-            <!-- Center Floating Pre-Order button -->
-            <div class="relative w-14 flex justify-center cursor-pointer transition-all duration-200 active:scale-95" onclick="window.location.href='store_selection.html'">
-                <div class="absolute -top-10 w-14 h-14 bg-[#d8aa3d] shadow-lg border-4 border-white flex items-center justify-center hover:scale-105 active:shadow-[0_0_20px_rgba(216,170,61,0.9)] transition-all" style="border-radius: 50%;">
-                    <span class="material-symbols-outlined text-[#001a3d] font-bold text-xl">add</span>
-                </div>
-                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-tight mt-6">Pre-Order</span>
-            </div>
-            <!-- AI Assist -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='index.html?view=ai'">
-                <span class="material-symbols-outlined">auto_awesome</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">AI Assist</span>
-            </div>
-            <!-- Member -->
-            <div class="flex flex-col items-center gap-1 cursor-pointer text-gray-400 hover:text-[#001a3d] transition-all duration-200 active:text-[#d8aa3d] active:drop-shadow-[0_0_8px_rgba(216,170,61,0.8)] active:scale-95" onclick="window.location.href='https://powerpass.kingpower.com/en/landing?channel=MEMBER_WEBSITE&location=KPT_SVB_AIRPORT&refCode=05MC&isRegister=true'">
-                <span class="material-symbols-outlined">card_membership</span>
-                <span class="text-[9px] uppercase font-bold tracking-tight">Member</span>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
+  function goBack() {
+      if (window.history.length > 1) {
+          window.history.back();
+      } else {
+          window.location.href = 'index.html';
+      }
+  }
+
   function selectStore(storeId) {
       // Navigate to the main page (index.html) and open the Boutique view
       window.location.href = '/?boutiqueStore=' + encodeURIComponent(storeId);
