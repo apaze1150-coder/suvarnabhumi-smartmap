@@ -355,6 +355,22 @@
             }
         }
 
+    
+        /* Google Maps / Atrius style text halo for clean map labels */
+        .text-halo {
+            text-shadow: 
+                -1px -1px 0 #ffffff,
+                 1px -1px 0 #ffffff,
+                -1px  1px 0 #ffffff,
+                 1px  1px 0 #ffffff,
+                 0 -1.5px 0 #ffffff,
+                 0  1.5px 0 #ffffff,
+                -1.5px 0 0 #ffffff,
+                 1.5px 0 0 #ffffff,
+                 0 0 4px #ffffff,
+                 0 0 8px #ffffff;
+        }
+
     </style>
 <script>
     // Anti-flicker for boutique navigation
@@ -1694,7 +1710,7 @@
             mapPanzoom.pan(0, 0, { animate: false });
         }
 
-        // --- 360° MAP ROTATION & SEMANTIC ZOOM (LEVEL OF DETAIL) ---
+        // --- 360° MAP ROTATION & SEMANTIC ZOOM (LEVEL OF DETAIL & COLLISION AVOIDANCE) ---
         let currentMapRotation = 0; // 0 to 360 degrees
         let allStorePOIs = [];
 
@@ -1721,9 +1737,12 @@
             }
 
             // Counter-rotate store POI markers so labels remain upright and legible
-            document.querySelectorAll('.counter-rotate').forEach(el => {
-                const s = el.getAttribute('data-counter-scale') || '1';
-                el.style.transform = `scale(${s}) rotate(${-currentMapRotation}deg)`;
+            const rot = -currentMapRotation;
+            document.querySelectorAll('.store-poi-item').forEach(item => {
+                const pinWrapper = item.querySelector('.poi-pin-wrapper');
+                const label = item.querySelector('.poi-label');
+                if (pinWrapper) pinWrapper.style.transform = `rotate(${rot}deg)`;
+                if (label) label.style.transform = `rotate(${rot}deg)`;
             });
         }
 
@@ -1812,57 +1831,108 @@
             });
         }
 
-        // Semantic Zoom (Level of Detail):
-        // scale < 0.95 -> Overview (subtle dots only)
-        // 0.95 <= scale < 1.6 -> Medium (Store Icons appear)
-        // scale >= 1.6 -> Deep Zoom (Store Names & Brand labels appear)
-        function updateMapSemanticZoom(scale) {
-            const poiLayer = document.getElementById('ambient-poi-layer');
-            if (!poiLayer) return;
+        // Clean brand names matching modern airport maps
+        function getCleanStoreName(s) {
+            const num = (s.shop_number || '').trim().toUpperCase();
+            const raw = (s.shop_name || s.brand_name || num).trim();
+            
+            if (num === 'TE3') return 'PAÑPURI';
+            if (num === 'TE5') return 'Jim Thompson';
+            if (num === 'TE1') return 'Touch of Thailand';
+            if (num === 'TW1') return 'Touch of Thailand';
+            if (num === 'TW3') return 'Touch of Thailand';
+            if (num === 'TW4') return 'Sents of Thailand';
+            if (num === 'OTOP EAST' || num === 'OTOP WEST') return 'OTOP Store';
+            if (num === 'TE6' || num === 'TW10') return 'Sport Select';
+            if (num === 'TE2' || num === 'TW9') return 'Health & Beauty';
+            if (num === 'TW6') return 'King Power Space';
+            if (num === 'TW7') return 'Thai Collection';
+            if (num === 'RE2' || num === 'RW5') return 'Golden Place';
+            if (num === 'RE3' || num === 'RE4' || num === 'RW2' || num === 'RW4') return 'Doi Tung';
+            if (num === 'RE1' || num === 'RW3') return 'Sai Jai Thai';
+            if (num === 'RW1') return 'SACIT';
+            if (num === 'TW2' || num === 'TW5') return 'Taste of Thailand';
+            if (num === 'TE4') return 'Memories of Thai';
 
-            const showIcons = scale >= 0.95;
-            const showLabels = scale >= 1.6;
-            const counterScale = Math.max(0.65, Math.min(1.15, 1 / Math.sqrt(scale))).toFixed(3);
-
-            poiLayer.querySelectorAll('.store-poi-item').forEach(item => {
-                const dot = item.querySelector('.poi-dot');
-                const badge = item.querySelector('.poi-badge');
-                const label = item.querySelector('.poi-label');
-
-                if (dot) dot.style.display = showIcons ? 'none' : 'block';
-
-                if (badge) {
-                    badge.style.display = showIcons ? 'flex' : 'none';
-                    badge.setAttribute('data-counter-scale', counterScale);
-                    badge.style.transform = `scale(${counterScale}) rotate(${-currentMapRotation}deg)`;
-                }
-
-                if (label) {
-                    label.style.display = showLabels ? 'block' : 'none';
-                    label.setAttribute('data-counter-scale', counterScale);
-                    label.style.transform = `scale(${counterScale}) rotate(${-currentMapRotation}deg)`;
-                }
-            });
+            return raw.replace(/EAST|WEST/gi, '').replace(/GALLERIA/gi, '').trim();
         }
 
-        function getStoreCategoryTheme(store) {
-            const cat = (store.category || '').toLowerCase();
-            const name = (store.shop_name || '').toLowerCase();
-            const brand = (store.brands_available || '').toLowerCase();
+        // Semantic Zoom (Level of Detail & Label Collision Prevention):
+        function updateMapSemanticZoom(scale) {
+            const poiLayer = document.getElementById('ambient-poi-layer');
+            if (!poiLayer || !mapPanzoom) return;
 
-            if (cat.includes('royal') || name.includes('royal') || brand.includes('royal') || brand.includes('doitung')) {
-                return { icon: 'workspace_premium', color: '#b45309' };
-            }
-            if (cat.includes('sport') || name.includes('sport')) {
-                return { icon: 'fitness_center', color: '#1d4ed8' };
-            }
-            if (cat.includes('food') || name.includes('taste') || cat.includes('dining')) {
-                return { icon: 'restaurant', color: '#ea580c' };
-            }
-            if (cat.includes('perfume') || cat.includes('cosmetic') || name.includes('panpuri') || name.includes('beauty')) {
-                return { icon: 'spa', color: '#001a3d' };
-            }
-            return { icon: 'shopping_bag', color: '#B59115' };
+            // Priority anchor stores that get first right to display labels
+            const priorityStoreCodes = ['TE3', 'TE5', 'OTOP EAST', 'TE1', 'TW4', 'TW1', 'RE2', 'TW10', 'OTOP WEST'];
+
+            // At scale < 1.05: show only pins, NO labels (overview)
+            const canShowLabels = scale >= 1.05;
+
+            // Counter-scale so pins remain small and compact on screen
+            const counterScale = Math.max(0.48, Math.min(0.9, 1 / Math.sqrt(scale))).toFixed(3);
+
+            const pan = mapPanzoom.getPan();
+            const placedBoxes = [];
+
+            const items = Array.from(poiLayer.querySelectorAll('.store-poi-item'));
+
+            // Sort so priority anchor stores place their labels first
+            items.sort((a, b) => {
+                const aCode = a.getAttribute('data-shop');
+                const bCode = b.getAttribute('data-shop');
+                const aPrio = priorityStoreCodes.includes(aCode) ? 0 : 1;
+                const bPrio = priorityStoreCodes.includes(bCode) ? 0 : 1;
+                return aPrio - bPrio;
+            });
+
+            const rot = -currentMapRotation;
+
+            items.forEach(item => {
+                const x = parseFloat(item.getAttribute('data-x'));
+                const y = parseFloat(item.getAttribute('data-y'));
+                const shopCode = item.getAttribute('data-shop');
+                const isPriority = priorityStoreCodes.includes(shopCode);
+
+                // Apply counter scale
+                item.style.transform = `scale(${counterScale})`;
+
+                const label = item.querySelector('.poi-label');
+                const pinWrapper = item.querySelector('.poi-pin-wrapper');
+
+                if (pinWrapper) pinWrapper.style.transform = `rotate(${rot}deg)`;
+
+                if (!label) return;
+
+                if (!canShowLabels) {
+                    label.style.display = 'none';
+                    return;
+                }
+
+                // Screen position
+                const sx = x * scale + pan.x;
+                const sy = y * scale + pan.y;
+
+                // Collision distance thresholds
+                const minXDist = scale >= 2.2 ? 32 : 52;
+                const minYDist = scale >= 2.2 ? 16 : 24;
+
+                let collides = false;
+                for (const box of placedBoxes) {
+                    if (Math.abs(sx - box.x) < minXDist && Math.abs(sy - box.y) < minYDist) {
+                        collides = true;
+                        break;
+                    }
+                }
+
+                // If no collision, show label; otherwise hide to prevent overlap
+                if (!collides || (scale >= 2.8 && isPriority)) {
+                    label.style.display = 'block';
+                    label.style.transform = `rotate(${rot}deg)`;
+                    placedBoxes.push({ x: sx, y: sy });
+                } else {
+                    label.style.display = 'none';
+                }
+            });
         }
 
         async function loadMapStoresPOIs() {
@@ -1888,32 +1958,55 @@
                 const y = parseFloat(s.y);
                 if (isNaN(x) || isNaN(y)) return;
 
-                const theme = getStoreCategoryTheme(s);
                 const storeFloor = s.floor || '4';
+                const cleanName = getCleanStoreName(s);
+
+                // Determine pin color and icon matching Image 2 & 3 Atrius reference
+                let pinStroke = '#0284c7'; // Sky Blue
+                let pinFill = '#0284c7';   // Sky Blue
+                let pinIcon = 'shopping_bag';
+
+                const cat = (s.category || '').toLowerCase();
+                const nameLower = cleanName.toLowerCase();
+
+                if (cat.includes('food') || nameLower.includes('taste')) {
+                    pinStroke = '#ea580c';
+                    pinFill = '#ea580c';
+                    pinIcon = 'restaurant';
+                } else if (cat.includes('royal')) {
+                    pinStroke = '#b45309';
+                    pinFill = '#b45309';
+                    pinIcon = 'shopping_bag';
+                }
 
                 const item = document.createElement('div');
                 item.className = 'store-poi-item absolute select-none cursor-pointer flex flex-col items-center pointer-events-auto group';
                 item.setAttribute('data-shop', s.shop_number || '');
                 item.setAttribute('data-floor', storeFloor);
+                item.setAttribute('data-x', x);
+                item.setAttribute('data-y', y);
+                // Anchored directly at (x, y)
                 item.style.left = `${x}px`;
                 item.style.top = `${y}px`;
-                item.style.transform = 'translate(-50%, -50%)';
                 item.style.zIndex = '12';
 
-                const cleanName = (s.shop_name || s.brand_name || s.shop_number || '').trim();
-
                 item.innerHTML = `
-                    <div class="poi-dot w-2 h-2 rounded-full bg-[#001a3d] border border-white shadow-xs"></div>
-                    <div class="poi-badge counter-rotate hidden items-center justify-center rounded-full shadow-md border-2 border-white transition-transform group-hover:scale-110 active:scale-95"
-                         style="background-color: ${theme.color}; width: 26px; height: 26px;">
-                        <span class="material-symbols-outlined text-[15px] text-white">${theme.icon}</span>
+                    <!-- Delicate Teardrop Pin Marker (matching Image 2 & 3) -->
+                    <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform group-hover:scale-115 active:scale-90"
+                         style="margin-top: -24px; transform-origin: 10px 24px; width: 20px; height: 24px;">
+                        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" class="filter drop-shadow-[0_1.5px_3px_rgba(0,10,30,0.18)]">
+                            <path d="M10 23.5C10 23.5 18.5 15.5 18.5 10C18.5 5.30558 14.6944 1.5 10 1.5C5.30558 1.5 1.5 5.30558 1.5 10C1.5 15.5 10 23.5 10 23.5Z" fill="#ffffff" stroke="${pinStroke}" stroke-width="1.4" stroke-linejoin="round"/>
+                            <circle cx="10" cy="10" r="6.5" fill="${pinFill}"/>
+                        </svg>
+                        <span class="material-symbols-outlined text-white text-[10px] absolute top-[5px] pointer-events-none select-none">${pinIcon}</span>
                     </div>
-                    <div class="poi-label counter-rotate hidden mt-1 px-2 py-0.5 bg-white/95 backdrop-blur-md rounded-md shadow-md border border-gray-200/80 whitespace-nowrap text-center transition-all group-hover:bg-[#001a3d] group-hover:text-white">
-                        <span class="text-[9px] font-extrabold text-[#001a3d] group-hover:text-white leading-none block tracking-tight">
+
+                    <!-- Clean Floating Text Label with White Halo (Zero Bulky Boxes) -->
+                    <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-all duration-200"
+                         style="max-width: 85px; width: max-content; transform-origin: center top;">
+                        <span class="text-[9px] font-bold text-[#1e293b] leading-tight block tracking-tight text-halo"
+                              style="font-family: 'Outfit', -apple-system, sans-serif;">
                             ${cleanName}
-                        </span>
-                        <span class="text-[7.5px] font-bold text-[#B59115] block leading-none mt-0.5 uppercase tracking-wider">
-                            [${s.shop_number}]
                         </span>
                     </div>
                 `;
