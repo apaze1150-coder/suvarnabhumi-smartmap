@@ -928,32 +928,36 @@
                     <button onclick="exitAdminMode()" class="bg-white text-red-600 font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">EXIT ADMIN</button>
                 </div>
             </div>
-            <div class="absolute top-[72px] left-0 w-full px-6 pt-2 z-40 pointer-events-none">
-                <div class="max-w-xl mx-auto pointer-events-auto flex flex-col gap-2">
-                    <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl p-1.5 flex items-center gap-3 border border-outline-variant/30">
-                        <div class="pl-4 text-primary/40"><span class="material-symbols-outlined">search</span></div>
-                        <input id="map-search-input" class="w-full border-none focus:ring-0 text-on-surface bg-transparent font-bold placeholder:text-on-surface-variant/50 py-2.5" placeholder="Ask AI or search brands..." type="text" onkeypress="handleMapSearchEnter(event); if(event.key === 'Enter') triggerMapAISearch(this.value);">
+            <div class="absolute top-[52px] left-0 w-full px-4 pt-1 z-40 pointer-events-none">
+                <div class="max-w-xl mx-auto pointer-events-auto flex items-center gap-2">
+                    <!-- Back Button to Home -->
+                    <button onclick="showPage('home-view')" class="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-outline-variant/30 flex items-center justify-center text-[#001a3d] hover:bg-gray-50 active:scale-95 transition-all cursor-pointer shrink-0" title="Back to Home">
+                        <span class="material-symbols-outlined text-2xl font-bold">arrow_back</span>
+                    </button>
+
+                    <!-- Search Input Box -->
+                    <div class="flex-1 bg-white/95 backdrop-blur-md shadow-lg rounded-2xl p-1.5 flex items-center gap-2 border border-outline-variant/30">
+                        <div class="pl-2 text-primary/40"><span class="material-symbols-outlined text-xl">search</span></div>
+                        <input id="map-search-input" class="w-full border-none focus:ring-0 text-on-surface bg-transparent font-bold placeholder:text-on-surface-variant/50 py-2 text-sm" placeholder="Ask AI or search brands..." type="text" onkeypress="handleMapSearchEnter(event); if(event.key === 'Enter') triggerMapAISearch(this.value);">
                         <!-- Cancel Button (Hidden by default, shown when input has value) -->
-                        <button id="clear-search-btn" onclick="clearSearch(); document.getElementById('map-ai-summary-box')?.classList.add('hidden');" class="hidden text-on-surface-variant hover:text-primary active:scale-95 transition-all p-2 rounded-full">
+                        <button id="clear-search-btn" onclick="clearSearch(); document.getElementById('map-ai-summary-box')?.classList.add('hidden');" class="hidden text-on-surface-variant hover:text-primary active:scale-95 transition-all p-1.5 rounded-full">
                             <span class="material-symbols-outlined text-sm">close</span>
                         </button>
-                        <button onclick="searchMapLive(); triggerMapAISearch(document.getElementById('map-search-input').value);" class="bg-[#000a1e] text-white p-2.5 rounded-xl mr-1 shadow-md flex items-center justify-center gap-1">
+                        <button onclick="searchMapLive(); triggerMapAISearch(document.getElementById('map-search-input').value);" class="bg-[#001a3d] text-white p-2.5 rounded-xl mr-1 shadow-md flex items-center justify-center gap-1 shrink-0">
                             <span class="material-symbols-outlined text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 text-sm" style="background-image: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">auto_awesome</span>
                             <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </button>
                     </div>
-                    
-                    <!-- AI Suggestion Chips for Map (Removed to prevent overlapping Floor Selector) -->
+                </div>
 
-                    <!-- AI Summary Box (Hidden by default) -->
-                    <div id="map-ai-summary-box" class="hidden bg-white/95 backdrop-blur-xl shadow-lg rounded-2xl p-4 border border-[#B59115]/30 animate-[slideDown_0.3s_ease-out]">
-                        <p id="map-ai-summary-content" class="text-xs text-on-surface-variant leading-relaxed"></p>
-                    </div>
+                <!-- AI Summary Box (Hidden by default) -->
+                <div id="map-ai-summary-box" class="hidden max-w-xl mx-auto mt-2 bg-white/95 backdrop-blur-xl shadow-lg rounded-2xl p-4 border border-[#B59115]/30 animate-[slideDown_0.3s_ease-out] pointer-events-auto">
+                    <p id="map-ai-summary-content" class="text-xs text-on-surface-variant leading-relaxed"></p>
                 </div>
             </div>
 
             <!-- Left-Side Floating Toggleable Category Panel -->
-            <div class="absolute top-[140px] left-6 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
+            <div class="absolute top-[116px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
                 <!-- Floating Round Action Button -->
                 <button id="toggle-sidebar" onclick="toggleCategoryPanel()" title="Toggle Categories Filter" class="bg-white/95 backdrop-blur-md text-primary hover:text-[#B59115] shadow-lg rounded-2xl w-12 h-12 flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer group">
                     <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">tune</span>
@@ -1037,6 +1041,58 @@
             <div class="absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden flex items-center justify-center" id="panzoom-wrapper">
                 <div class="relative w-[1000px] h-[500px] shrink-0" id="map-image-container">
                     <img id="currentMapSvg" alt="Airport Level Floor Plan" class="absolute inset-0 w-full h-full object-fill select-none pointer-events-none transition-all duration-300" src="/uploads/4.svg" onerror="this.src='https://placehold.co/1000x500/ffffff/1e293b?text=Suvarnabhumi+Map+Loaded';">
+                    <!-- Dual Map SAT Layer (SAT on top, Train in middle, 4F on bottom) -->
+                    <div id="sat-dual-map-container" class="absolute inset-0 w-full h-full hidden pointer-events-none">
+                        <!-- Top: SAT-1 Satellite Terminal Diagram -->
+                        <img id="satTopMapSvg" alt="SAT-1 Floor Plan" class="absolute top-0 left-0 w-[1000px] h-[400px] object-fill select-none pointer-events-none" src="/uploads/5.svg">
+                        
+                        <!-- Middle: Connecting APM Train Corridor Line -->
+                        <div class="absolute left-1/2 top-[200px] bottom-[200px] w-0 border-l-2 border-dashed border-blue-500 transform -translate-x-1/2 pointer-events-none z-20"></div>
+                        
+                        <!-- Middle: Train Shuttle Card -->
+                        <div class="absolute left-1/2 top-[440px] transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto">
+                            <div class="train-icon bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-2xl border border-blue-100 flex flex-col items-center gap-1 select-none">
+                                <div class="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase border border-blue-200/60 shadow-xs">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                                    <span>APM Express Shuttle</span>
+                                </div>
+                                <div class="relative w-12 h-8 flex items-center justify-center filter drop-shadow-sm">
+                                    <svg viewBox="0 0 48 36" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-12 h-8">
+                                        <defs>
+                                            <linearGradient id="trainBodyGradSat" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#0f2b5c"/>
+                                                <stop offset="100%" stop-color="#1e40af"/>
+                                            </linearGradient>
+                                            <linearGradient id="trainGlassGradSat" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stop-color="#7dd3fc"/>
+                                                <stop offset="100%" stop-color="#0284c7"/>
+                                            </linearGradient>
+                                            <linearGradient id="trainStripeSat" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#3b82f6"/>
+                                                <stop offset="100%" stop-color="#60a5fa"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect x="6" y="3" width="36" height="26" rx="10" fill="url(#trainBodyGradSat)" stroke="#1d4ed8" stroke-width="1.5"/>
+                                        <path d="M 12 8 C 12 6, 36 6, 36 8 L 34 16 C 34 17, 14 17, 14 16 Z" fill="url(#trainGlassGradSat)"/>
+                                        <rect x="10" y="19" width="28" height="2.5" rx="1.2" fill="url(#trainStripeSat)"/>
+                                        <circle cx="14" cy="24" r="2" fill="#fef08a"/>
+                                        <circle cx="14" cy="24" r="3.5" fill="#fef08a" opacity="0.4"/>
+                                        <circle cx="34" cy="24" r="2" fill="#fef08a"/>
+                                        <circle cx="34" cy="24" r="3.5" fill="#fef08a" opacity="0.4"/>
+                                        <rect x="12" y="29" width="7" height="3" rx="1.5" fill="#475569"/>
+                                        <rect x="29" y="29" width="7" height="3" rx="1.5" fill="#475569"/>
+                                    </svg>
+                                </div>
+                                <div class="bg-slate-900 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md whitespace-nowrap flex items-center gap-1.5">
+                                    <span>Take Train from Main Terminal</span>
+                                    <span class="text-blue-400 font-extrabold">➔ SAT-1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom: Main Terminal 4F Diagram -->
+                        <img id="satBottomMapSvg" alt="Main Terminal 4F Floor Plan" class="absolute bottom-0 left-0 w-[1000px] h-[400px] object-fill select-none pointer-events-none" src="/uploads/4.svg">
+                    </div>
                         
                     <!-- Thai Pavilion Overlays (Floor 4 only) -->
                     <img src="/uploads/Thai%20Pavilion.svg" alt="Thai Pavilion" class="thai-pavilion-icon absolute z-10 w-3 h-3 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-md pointer-events-none" style="left: 767px; top: 223px;">
@@ -1084,7 +1140,7 @@
             </div>
 
             <!-- Floor Selector Controls -->
-            <div class="absolute right-6 top-48 flex flex-col gap-2.5 z-30">
+            <div class="absolute right-4 top-[116px] flex flex-col gap-2.5 z-30">
                 <div class="flex flex-col bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-outline-variant/30">
                     <button onclick="switchFloor(4)" id="floor-4-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 bg-primary text-white shadow-sm">4F</button>
                     <button onclick="switchFloor(3)" id="floor-3-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 text-primary hover:bg-black/5 mt-1">3F</button>
@@ -1093,7 +1149,7 @@
             </div>
 
             <!-- Zoom Controls -->
-            <div class="absolute right-6 bottom-32 flex flex-col gap-3 z-30">
+            <div class="absolute right-4 bottom-8 flex flex-col gap-3 z-30">
                 <button id="zoom-in" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">add</span></button>
                 <button id="zoom-out" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">remove</span></button>
                 <button id="zoom-reset" class="w-10 h-10 bg-[#B59115] text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">my_location</span></button>
@@ -1211,7 +1267,9 @@
 
         function switchFloor(floor) {
             currentFloor = floor;
-            const img = document.getElementById('currentMapSvg') || document.getElementById('map-image-element');
+            const img = document.getElementById('currentMapSvg');
+            const satDualContainer = document.getElementById('sat-dual-map-container');
+            const mapContainer = document.getElementById('map-image-container');
             const btn3 = document.getElementById('floor-3-btn');
             const btn4 = document.getElementById('floor-4-btn');
             const btnSat = document.getElementById('floor-sat-btn');
@@ -1252,49 +1310,60 @@
             });
             
             const isSatFloor = (floor === 'SAT-1' || floor === 'SAT' || floor === 5 || floor === '5');
-
-            // Toggle Gate D overlay visibility
             const gateDOverlay = document.getElementById('gate-d-overlay-svg');
 
-            if (floor === 3 || floor === '3') {
-                img.src = FLOOR_3_MAP;
-                if (btn3) {
-                    btn3.classList.add('bg-[#000a1e]', 'text-white', 'shadow-sm');
-                    btn3.classList.remove('text-primary', 'hover:bg-black/5');
+            if (isSatFloor) {
+                // Show Dual Map Layout (SAT-1 at top, Train in middle, 4F at bottom)
+                if (img) img.style.display = 'none';
+                if (satDualContainer) satDualContainer.classList.remove('hidden');
+                if (mapContainer) {
+                    mapContainer.style.height = '880px';
                 }
-                if (gateDOverlay) gateDOverlay.style.display = '';
-                if (document.getElementById('d5-shuttle-overlay')) document.getElementById('d5-shuttle-overlay').style.display = 'flex';
-            } else if (isSatFloor) {
-                img.src = SAT1_MAP;
                 if (btnSat) {
                     btnSat.classList.add('bg-[#000a1e]', 'text-white', 'shadow-sm');
                     btnSat.classList.remove('text-primary', 'hover:bg-black/5');
                 }
                 if (gateDOverlay) gateDOverlay.style.display = 'none';
                 if (document.getElementById('d5-shuttle-overlay')) document.getElementById('d5-shuttle-overlay').style.display = 'none';
-            } else {
-                img.src = FLOOR_4_MAP;
-                if (btn4) {
-                    btn4.classList.add('bg-[#000a1e]', 'text-white', 'shadow-sm');
-                    btn4.classList.remove('text-primary', 'hover:bg-black/5');
+                
+                // Adjust panzoom to fit nicely
+                if (typeof mapPanzoom !== 'undefined' && mapPanzoom) {
+                    mapPanzoom.reset({ animate: true });
+                    setTimeout(() => {
+                        mapPanzoom.zoom(0.65, { animate: true });
+                    }, 50);
                 }
-                if (gateDOverlay) gateDOverlay.style.display = 'none';
-                if (document.getElementById('d5-shuttle-overlay')) document.getElementById('d5-shuttle-overlay').style.display = 'none';
+            } else {
+                // Standard Single Floor Map (4F or 3F)
+                if (img) img.style.display = '';
+                if (satDualContainer) satDualContainer.classList.add('hidden');
+                if (mapContainer) {
+                    mapContainer.style.height = '500px';
+                }
+
+                if (floor === 3 || floor === '3') {
+                    img.src = FLOOR_3_MAP;
+                    if (btn3) {
+                        btn3.classList.add('bg-[#000a1e]', 'text-white', 'shadow-sm');
+                        btn3.classList.remove('text-primary', 'hover:bg-black/5');
+                    }
+                    if (gateDOverlay) gateDOverlay.style.display = '';
+                    if (document.getElementById('d5-shuttle-overlay')) document.getElementById('d5-shuttle-overlay').style.display = 'flex';
+                } else {
+                    img.src = FLOOR_4_MAP;
+                    if (btn4) {
+                        btn4.classList.add('bg-[#000a1e]', 'text-white', 'shadow-sm');
+                        btn4.classList.remove('text-primary', 'hover:bg-black/5');
+                    }
+                    if (gateDOverlay) gateDOverlay.style.display = 'none';
+                    if (document.getElementById('d5-shuttle-overlay')) document.getElementById('d5-shuttle-overlay').style.display = 'none';
+                }
             }
 
-            // Train animation layer only shows and moves on SAT-1 floor
+            // Hide old single train animation layer if present
             if (trainLayer) {
-                if (isSatFloor) {
-                    trainLayer.style.display = 'flex';
-                    trainLayer.classList.remove('hidden');
-                    const trainIcon = trainLayer.querySelector('.train-icon');
-                    if (trainIcon) trainIcon.style.animation = 'trainMove 4s infinite cubic-bezier(0.4, 0, 0.2, 1)';
-                } else {
-                    trainLayer.style.display = 'none';
-                    trainLayer.classList.add('hidden');
-                    const trainIcon = trainLayer.querySelector('.train-icon');
-                    if (trainIcon) trainIcon.style.animation = 'none';
-                }
+                trainLayer.style.display = 'none';
+                trainLayer.classList.add('hidden');
             }
         }
 
@@ -2273,7 +2342,7 @@
             const mainMenubar = document.getElementById('main-mobile-menubar');
             const boutiqueCartBar = document.getElementById('boutique-bottom-cart-bar');
 
-            if (pageId === 'view-panpuri-boutique' || pageId === 'page-preorder') {
+            if (pageId === 'view-panpuri-boutique' || pageId === 'page-preorder' || pageId === 'map-view') {
                 if (mainMenubar) {
                     mainMenubar.classList.add('hidden');
                 }
