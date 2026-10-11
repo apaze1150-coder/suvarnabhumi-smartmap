@@ -866,7 +866,7 @@
 <div class="flex items-end gap-2">
 <span class="text-headline-md font-bold text-[#d8aa3d]" id="drawerPrice">฿1,450</span>
 </div>
-<span class="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full" id="drawerStock">คงเหลือ: 0</span>
+<span class="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full" id="drawerStock">Stock: 0</span>
 </div>
 <div class="mt-2 text-body-sm text-on-surface-variant font-bold tracking-widest">SKU : <span id="drawerSKU"></span></div>
 </div>
@@ -3353,7 +3353,7 @@
                         <div class="flex items-center justify-between mt-auto">
                             <div>
                                 <span class="text-base font-bold text-[#d8aa3d] block">฿${parseFloat(p.price).toLocaleString()}</span>
-                                <span class="text-xs ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-500'} font-bold">คงเหลือ: ${stockQty - cartQty}</span>
+                                <span class="text-xs ${stockQty - cartQty <= 5 ? 'text-red-500' : 'text-gray-500'} font-bold">Stock: ${stockQty - cartQty}</span>
                             </div>
                             ${outOfStock ? `<button disabled class="bg-surface-variant text-on-surface-variant w-8 h-8 rounded-full flex items-center justify-center opacity-50 cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">add</span></button>` : (cartQty === 0 
                                 ? `<button onclick="event.stopPropagation(); addToBoutiqueCart('${p.product_id}')" class="bg-[#001a3d] text-[#d8aa3d] shadow-md w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[18px]">add</span></button>` 
@@ -3802,7 +3802,7 @@
             
             const stockEl = document.getElementById('drawerStock');
             if (stockEl) {
-                stockEl.innerText = `คงเหลือ: ${remainingStock}`;
+                stockEl.innerText = `Stock: ${remainingStock}`;
                 stockEl.className = remainingStock <= 5 ? 'text-sm font-bold text-red-500' : 'text-sm font-bold text-gray-500';
             }
             
