@@ -3768,9 +3768,7 @@
                     }
                 });
             } else {
-                if (confirm('ต้องการย้อนกลับไปเลือกร้านค้าใช่หรือไม่?')) {
-                    showPage('map-view');
-                }
+                window.location.href = 'store_selection.html';
             }
         }
 
@@ -3793,7 +3791,7 @@
 
         function proceedExitBoutique() {
             closeExitBoutiqueModal();
-            showPage('map-view');
+            window.location.href = 'store_selection.html';
         }
 
         function showImagePopup(src) {
