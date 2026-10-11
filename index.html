@@ -1176,7 +1176,7 @@
                     <button onclick="exitAdminMode()" class="bg-white text-red-600 font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">EXIT ADMIN</button>
                 </div>
             </div>
-            <div class="absolute top-[52px] left-0 w-full px-4 pt-1 z-40 pointer-events-none">
+            <div class="absolute top-2.5 left-0 w-full px-4 z-40 pointer-events-none">
                 <div class="max-w-xl mx-auto pointer-events-auto flex items-center gap-2">
                     <!-- Back Button to Home -->
                     <button onclick="showPage('home-view')" class="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-outline-variant/30 flex items-center justify-center text-[#001a3d] hover:bg-gray-50 active:scale-95 transition-all cursor-pointer shrink-0" title="Back to Home">
@@ -1205,7 +1205,7 @@
             </div>
 
             <!-- Left-Side Floating Toggleable Category Panel -->
-            <div class="absolute top-[116px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
+            <div class="absolute top-[62px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
                 <!-- Floating Round Action Button -->
                 <button id="toggle-sidebar" onclick="toggleCategoryPanel()" title="Toggle Categories Filter" class="bg-white/95 backdrop-blur-md text-primary hover:text-[#B59115] shadow-lg rounded-2xl w-12 h-12 flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer group">
                     <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">tune</span>
@@ -1289,6 +1289,8 @@
             <div class="absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden flex items-center justify-center" id="panzoom-wrapper">
                 <div class="relative w-[1000px] h-[500px] shrink-0" id="map-image-container">
                     <img id="currentMapSvg" alt="Airport Level Floor Plan" class="absolute inset-0 w-full h-full object-fill select-none pointer-events-none transition-all duration-300" src="/uploads/4.svg" onerror="this.src='https://placehold.co/1000x500/ffffff/1e293b?text=Suvarnabhumi+Map+Loaded';">
+                    <!-- Ambient Store & POI Layer for Semantic Zoom -->
+                    <div id="ambient-poi-layer" class="absolute inset-0 pointer-events-none z-15"></div>
                     <!-- Dual Map SAT Layer (SAT on top, Train in middle, 4F on bottom) -->
                     <div id="sat-dual-map-container" class="absolute inset-0 w-full h-full hidden pointer-events-none">
                         <!-- Top: SAT-1 Satellite Terminal Diagram -->
@@ -1388,7 +1390,7 @@
             </div>
 
             <!-- Floor Selector Controls -->
-            <div class="absolute right-4 top-[116px] flex flex-col gap-2.5 z-30">
+            <div class="absolute right-4 top-[62px] flex flex-col gap-2.5 z-30">
                 <div class="flex flex-col bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-outline-variant/30">
                     <button onclick="switchFloor(4)" id="floor-4-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 bg-primary text-white shadow-sm">4F</button>
                     <button onclick="switchFloor(3)" id="floor-3-btn" class="w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center transition-all duration-200 text-primary hover:bg-black/5 mt-1">3F</button>
@@ -1398,6 +1400,19 @@
 
             <!-- Zoom Controls -->
             <div class="absolute right-4 bottom-8 flex flex-col gap-3 z-30">
+                <!-- Luxury 360° Compass North Button -->
+                <button id="compass-btn" onclick="handleCompassClick()" title="Reset North / Click to rotate 360°" class="w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center text-[#001a3d] border border-outline-variant/30 active:scale-90 hover:shadow-xl transition-all relative group cursor-pointer">
+                    <div id="compass-needle" class="w-6 h-6 flex items-center justify-center transition-transform duration-200 ease-out">
+                        <svg viewBox="0 0 24 24" class="w-5 h-5 drop-shadow-sm" fill="none">
+                            <polygon points="12,2 8,12 12,9" fill="#ef4444" />
+                            <polygon points="12,2 16,12 12,9" fill="#dc2626" />
+                            <text x="12" y="7.5" font-size="3.5" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">N</text>
+                            <polygon points="12,22 8,12 12,15" fill="#94a3b8" />
+                            <polygon points="12,22 16,12 12,15" fill="#64748b" />
+                            <circle cx="12" cy="12" r="1.5" fill="#ffffff" stroke="#001a3d" stroke-width="0.8" />
+                        </svg>
+                    </div>
+                </button>
                 <button id="zoom-in" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">add</span></button>
                 <button id="zoom-out" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">remove</span></button>
                 <button id="zoom-reset" class="w-10 h-10 bg-[#B59115] text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">my_location</span></button>
@@ -1532,6 +1547,13 @@
             // Toggle Thai Pavilion icons visibility based on floor
             document.querySelectorAll('.thai-pavilion-icon').forEach(el => {
                 el.style.display = (floor === 4 || floor === '4' || floor === undefined) ? '' : 'none';
+            });
+
+            // Toggle store POI markers based on floor
+            document.querySelectorAll('.store-poi-item').forEach(poi => {
+                const poiFloor = poi.getAttribute('data-floor') || '4';
+                const floorStr = floor.toString();
+                poi.style.display = (floorStr === poiFloor) ? '' : 'none';
             });
 
             // Toggle dynamic map pins based on floor attribute
@@ -1672,14 +1694,275 @@
             mapPanzoom.pan(0, 0, { animate: false });
         }
 
+        // --- 360° MAP ROTATION & SEMANTIC ZOOM (LEVEL OF DETAIL) ---
+        let currentMapRotation = 0; // 0 to 360 degrees
+        let allStorePOIs = [];
+
+        function setMapRotation(deg, animate = false) {
+            currentMapRotation = (Math.round(deg) % 360 + 360) % 360;
+            const mapElem = document.getElementById('map-image-container');
+            if (!mapElem || !mapPanzoom) return;
+
+            if (animate) {
+                mapElem.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                setTimeout(() => {
+                    if (mapElem) mapElem.style.transition = '';
+                }, 360);
+            }
+
+            const pan = mapPanzoom.getPan();
+            const scale = mapPanzoom.getScale();
+            mapElem.style.transform = `scale(${scale}) translate(${pan.x}px, ${pan.y}px) rotate(${currentMapRotation}deg)`;
+
+            // Always orient compass needle to true North
+            const needle = document.getElementById('compass-needle');
+            if (needle) {
+                needle.style.transform = `rotate(${-currentMapRotation}deg)`;
+            }
+
+            // Counter-rotate store POI markers so labels remain upright and legible
+            document.querySelectorAll('.counter-rotate').forEach(el => {
+                const s = el.getAttribute('data-counter-scale') || '1';
+                el.style.transform = `scale(${s}) rotate(${-currentMapRotation}deg)`;
+            });
+        }
+
+        function handleCompassClick() {
+            if (currentMapRotation !== 0) {
+                setMapRotation(0, true);
+            } else {
+                setMapRotation(90, true);
+            }
+        }
+
+        function setupMapRotationGestures() {
+            const panWrapper = document.getElementById('panzoom-wrapper');
+            if (!panWrapper) return;
+
+            let touchStartAngle = 0;
+            let rotationStartAngle = 0;
+            let isTwoFingerTouch = false;
+
+            panWrapper.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    isTwoFingerTouch = true;
+                    const dx = e.touches[1].clientX - e.touches[0].clientX;
+                    const dy = e.touches[1].clientY - e.touches[0].clientY;
+                    touchStartAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+                    rotationStartAngle = currentMapRotation;
+                }
+            }, { passive: true });
+
+            panWrapper.addEventListener('touchmove', (e) => {
+                if (isTwoFingerTouch && e.touches.length === 2) {
+                    const dx = e.touches[1].clientX - e.touches[0].clientX;
+                    const dy = e.touches[1].clientY - e.touches[0].clientY;
+                    const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+                    const diff = currentAngle - touchStartAngle;
+                    if (Math.abs(diff) > 2) {
+                        setMapRotation(rotationStartAngle + diff, false);
+                    }
+                }
+            }, { passive: true });
+
+            panWrapper.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2 && isTwoFingerTouch) {
+                    isTwoFingerTouch = false;
+                    if (currentMapRotation < 8 || currentMapRotation > 352) {
+                        setMapRotation(0, true);
+                    }
+                }
+            }, { passive: true });
+
+            // Desktop Shift+Drag or Alt+Drag rotation
+            let isShiftRotating = false;
+            let mouseStartAngle = 0;
+            let mouseRotationStart = 0;
+
+            panWrapper.addEventListener('mousedown', (e) => {
+                if (e.shiftKey || e.altKey) {
+                    isShiftRotating = true;
+                    const rect = panWrapper.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    mouseStartAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+                    mouseRotationStart = currentMapRotation;
+                    e.preventDefault();
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isShiftRotating) {
+                    const rect = panWrapper.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+                    const diff = currentAngle - mouseStartAngle;
+                    setMapRotation(mouseRotationStart + diff, false);
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isShiftRotating) {
+                    isShiftRotating = false;
+                    if (currentMapRotation < 8 || currentMapRotation > 352) {
+                        setMapRotation(0, true);
+                    }
+                }
+            });
+        }
+
+        // Semantic Zoom (Level of Detail):
+        // scale < 0.95 -> Overview (subtle dots only)
+        // 0.95 <= scale < 1.6 -> Medium (Store Icons appear)
+        // scale >= 1.6 -> Deep Zoom (Store Names & Brand labels appear)
+        function updateMapSemanticZoom(scale) {
+            const poiLayer = document.getElementById('ambient-poi-layer');
+            if (!poiLayer) return;
+
+            const showIcons = scale >= 0.95;
+            const showLabels = scale >= 1.6;
+            const counterScale = Math.max(0.65, Math.min(1.15, 1 / Math.sqrt(scale))).toFixed(3);
+
+            poiLayer.querySelectorAll('.store-poi-item').forEach(item => {
+                const dot = item.querySelector('.poi-dot');
+                const badge = item.querySelector('.poi-badge');
+                const label = item.querySelector('.poi-label');
+
+                if (dot) dot.style.display = showIcons ? 'none' : 'block';
+
+                if (badge) {
+                    badge.style.display = showIcons ? 'flex' : 'none';
+                    badge.setAttribute('data-counter-scale', counterScale);
+                    badge.style.transform = `scale(${counterScale}) rotate(${-currentMapRotation}deg)`;
+                }
+
+                if (label) {
+                    label.style.display = showLabels ? 'block' : 'none';
+                    label.setAttribute('data-counter-scale', counterScale);
+                    label.style.transform = `scale(${counterScale}) rotate(${-currentMapRotation}deg)`;
+                }
+            });
+        }
+
+        function getStoreCategoryTheme(store) {
+            const cat = (store.category || '').toLowerCase();
+            const name = (store.shop_name || '').toLowerCase();
+            const brand = (store.brands_available || '').toLowerCase();
+
+            if (cat.includes('royal') || name.includes('royal') || brand.includes('royal') || brand.includes('doitung')) {
+                return { icon: 'workspace_premium', color: '#b45309' };
+            }
+            if (cat.includes('sport') || name.includes('sport')) {
+                return { icon: 'fitness_center', color: '#1d4ed8' };
+            }
+            if (cat.includes('food') || name.includes('taste') || cat.includes('dining')) {
+                return { icon: 'restaurant', color: '#ea580c' };
+            }
+            if (cat.includes('perfume') || cat.includes('cosmetic') || name.includes('panpuri') || name.includes('beauty')) {
+                return { icon: 'spa', color: '#001a3d' };
+            }
+            return { icon: 'shopping_bag', color: '#B59115' };
+        }
+
+        async function loadMapStoresPOIs() {
+            try {
+                const res = await fetch('/api/stores');
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.stores)) {
+                    allStorePOIs = data.stores;
+                    renderAmbientPOIs();
+                }
+            } catch(e) {
+                console.error('Failed to load store POIs:', e);
+            }
+        }
+
+        function renderAmbientPOIs() {
+            const poiLayer = document.getElementById('ambient-poi-layer');
+            if (!poiLayer) return;
+            poiLayer.innerHTML = '';
+
+            allStorePOIs.forEach(s => {
+                const x = parseFloat(s.x);
+                const y = parseFloat(s.y);
+                if (isNaN(x) || isNaN(y)) return;
+
+                const theme = getStoreCategoryTheme(s);
+                const storeFloor = s.floor || '4';
+
+                const item = document.createElement('div');
+                item.className = 'store-poi-item absolute select-none cursor-pointer flex flex-col items-center pointer-events-auto group';
+                item.setAttribute('data-shop', s.shop_number || '');
+                item.setAttribute('data-floor', storeFloor);
+                item.style.left = `${x}px`;
+                item.style.top = `${y}px`;
+                item.style.transform = 'translate(-50%, -50%)';
+                item.style.zIndex = '12';
+
+                const cleanName = (s.shop_name || s.brand_name || s.shop_number || '').trim();
+
+                item.innerHTML = `
+                    <div class="poi-dot w-2 h-2 rounded-full bg-[#001a3d] border border-white shadow-xs"></div>
+                    <div class="poi-badge counter-rotate hidden items-center justify-center rounded-full shadow-md border-2 border-white transition-transform group-hover:scale-110 active:scale-95"
+                         style="background-color: ${theme.color}; width: 26px; height: 26px;">
+                        <span class="material-symbols-outlined text-[15px] text-white">${theme.icon}</span>
+                    </div>
+                    <div class="poi-label counter-rotate hidden mt-1 px-2 py-0.5 bg-white/95 backdrop-blur-md rounded-md shadow-md border border-gray-200/80 whitespace-nowrap text-center transition-all group-hover:bg-[#001a3d] group-hover:text-white">
+                        <span class="text-[9px] font-extrabold text-[#001a3d] group-hover:text-white leading-none block tracking-tight">
+                            ${cleanName}
+                        </span>
+                        <span class="text-[7.5px] font-bold text-[#B59115] block leading-none mt-0.5 uppercase tracking-wider">
+                            [${s.shop_number}]
+                        </span>
+                    </div>
+                `;
+
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    selectAmbientStore(s.shop_number);
+                };
+
+                poiLayer.appendChild(item);
+            });
+
+            if (typeof mapPanzoom !== 'undefined' && mapPanzoom) {
+                updateMapSemanticZoom(mapPanzoom.getScale());
+            }
+        }
+
+        function selectAmbientStore(shopNumber) {
+            const store = allStorePOIs.find(s => s.shop_number === shopNumber);
+            if (!store) return;
+
+            activeStores = [store];
+            selectedShopNumber = store.shop_number;
+
+            renderResultsCards(activeStores);
+            renderStoreRoutes(activeStores);
+            document.getElementById('results-container')?.classList.remove('hidden');
+            document.getElementById('clear-search-btn')?.classList.remove('hidden');
+        }
+
         window.onload = function () {
             const mapElem = document.getElementById('map-image-container');
-            mapPanzoom = Panzoom(mapElem, { maxScale: 5, minScale: 0.3, contain: false, step: 0.3 });
+            mapPanzoom = Panzoom(mapElem, {
+                maxScale: 5,
+                minScale: 0.3,
+                contain: false,
+                step: 0.3,
+                setTransform: (elem, { scale, x, y }) => {
+                    elem.style.transform = `scale(${scale}) translate(${x}px, ${y}px) rotate(${currentMapRotation}deg)`;
+                    updateMapSemanticZoom(scale);
+                }
+            });
             mapElem.parentElement.addEventListener('wheel', mapPanzoom.zoomWithWheel);
+            setupMapRotationGestures();
+            loadMapStoresPOIs();
 
             document.getElementById('zoom-in').addEventListener('click', mapPanzoom.zoomIn);
             document.getElementById('zoom-out').addEventListener('click', mapPanzoom.zoomOut);
-            document.getElementById('zoom-reset').addEventListener('click', () => fitMapToScreen());
+            document.getElementById('zoom-reset').addEventListener('click', () => { setMapRotation(0, true); fitMapToScreen(); });
 
             fitMapToScreen();
             window.addEventListener('resize', fitMapToScreen);
