@@ -423,6 +423,14 @@
 
 </head>
 
+
+<script>
+    // Ensure splash only runs once per app launch session
+    if (sessionStorage.getItem('hasSeenAppSplash')) {
+        document.write('<style id="splash-hide-style">#app-splash-screen { display: none !important; }</style>');
+    }
+</script>
+
 <body class="bg-surface font-body text-on-surface antialiased overflow-hidden flex flex-col h-screen w-screen">
 
     <!-- High-End Animated Splash Screen -->
@@ -572,9 +580,11 @@
     <script id="splash-script">
         (function() {
             var splashDismissed = false;
+            sessionStorage.setItem("hasSeenAppSplash", "true");
             var canDismissManually = false;
 
             function dismissSplash() {
+                sessionStorage.setItem("hasSeenAppSplash", "true");
                 var el = document.getElementById('app-splash-screen');
                 if (!el || splashDismissed) return;
                 splashDismissed = true;
