@@ -46,6 +46,8 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
 app.get('/icon-192.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-192.png')));
 app.get('/icon-512.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-512.png')));
+app.get('/icon-maskable-512.png', (req, res) => res.sendFile(path.join(__dirname, 'icon-maskable-512.png')));
+app.get('/apple-touch-icon.png', (req, res) => res.sendFile(path.join(__dirname, 'apple-touch-icon.png')));
 app.get('/index.css', (req, res) => res.sendFile(path.join(__dirname, 'index.css')));
 app.get('/smartmap.html', (req, res) => res.sendFile(path.join(__dirname, 'smartmap.html')));
 

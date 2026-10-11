@@ -18,9 +18,12 @@
     </script>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <meta name="theme-color" content="#0B2046">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>KING POWER | Smart Traveler Assistant</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="/manifest.json?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 
     <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -373,6 +376,182 @@
 </head>
 
 <body class="bg-surface font-body text-on-surface antialiased overflow-hidden flex flex-col h-screen w-screen">
+
+    <!-- High-End Animated Splash Screen -->
+    <style id="splash-styles">
+        #app-splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #0B2046;
+            transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #app-splash-screen.splash-dismissed {
+            opacity: 0 !important;
+            transform: scale(1.04) !important;
+            pointer-events: none !important;
+        }
+        @keyframes splashNeedleSpin {
+            0% {
+                transform: rotate(-315deg);
+            }
+            50% {
+                transform: rotate(58deg);
+            }
+            68% {
+                transform: rotate(38deg);
+            }
+            82% {
+                transform: rotate(48deg);
+            }
+            92% {
+                transform: rotate(44deg);
+            }
+            100% {
+                transform: rotate(45deg);
+            }
+        }
+        #splash-needle {
+            transform-origin: 100px 100px;
+            animation: splashNeedleSpin 1.8s cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+        }
+        @keyframes splashPulseGlow {
+            0%, 100% {
+                opacity: 0.35;
+                transform: scale(0.95);
+            }
+            50% {
+                opacity: 0.75;
+                transform: scale(1.08);
+            }
+        }
+        .splash-ambient-glow {
+            animation: splashPulseGlow 3s ease-in-out infinite;
+        }
+        @keyframes splashBarSweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .splash-bar-active {
+            animation: splashBarSweep 1.4s ease-in-out infinite;
+        }
+    </style>
+
+    <div id="app-splash-screen">
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+            <!-- Ambient Golden Glow behind logo -->
+            <div class="splash-ambient-glow" style="position: absolute; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(229,193,88,0.22) 0%, rgba(11,32,70,0) 70%); pointer-events: none;"></div>
+
+            <!-- Compass SVG Logo -->
+            <div style="position: relative; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center;">
+                <svg style="width: 100%; height: 100%; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5));" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="splashGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFF2B2"/>
+                            <stop offset="35%" stop-color="#E5C158"/>
+                            <stop offset="70%" stop-color="#C59B27"/>
+                            <stop offset="100%" stop-color="#936F10"/>
+                        </linearGradient>
+                        <linearGradient id="splashGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFF8D6"/>
+                            <stop offset="100%" stop-color="#E2BE53"/>
+                        </linearGradient>
+                        <linearGradient id="splashGoldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#B88E28"/>
+                            <stop offset="100%" stop-color="#6E5007"/>
+                        </linearGradient>
+                        <filter id="splashGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+
+                    <!-- Outer Ring -->
+                    <circle cx="100" cy="100" r="70" stroke="url(#splashGoldGrad)" stroke-width="6.5" fill="none" filter="url(#splashGlow)" />
+
+                    <!-- 4 Cardinal Points -->
+                    <polygon points="100,14 92,30 108,30" fill="url(#splashGoldGrad)" />
+                    <polygon points="100,186 92,170 108,170" fill="url(#splashGoldGrad)" />
+                    <polygon points="186,100 170,92 170,108" fill="url(#splashGoldGrad)" />
+                    <polygon points="14,100 30,92 30,108" fill="url(#splashGoldGrad)" />
+
+                    <!-- Degree Dots -->
+                    <circle cx="100" cy="38" r="2.5" fill="url(#splashGoldGrad)" />
+                    <circle cx="100" cy="162" r="2.5" fill="url(#splashGoldGrad)" />
+                    <circle cx="38" cy="100" r="2.5" fill="url(#splashGoldGrad)" />
+                    <circle cx="162" cy="100" r="2.5" fill="url(#splashGoldGrad)" />
+
+                    <!-- Animated Compass Needle -->
+                    <g id="splash-needle">
+                        <!-- North Pointer -->
+                        <polygon points="100,100 100,20 125,100" fill="url(#splashGoldLight)" />
+                        <polygon points="100,100 100,20 75,100" fill="url(#splashGoldDark)" />
+
+                        <!-- South Pointer -->
+                        <polygon points="100,100 100,180 125,100" fill="url(#splashGoldDark)" />
+                        <polygon points="100,100 100,180 75,100" fill="url(#splashGoldLight)" />
+
+                        <!-- Center Pivot -->
+                        <circle cx="100" cy="100" r="9" fill="url(#splashGoldLight)" stroke="#0B2046" stroke-width="3" />
+                        <circle cx="100" cy="100" r="3" fill="#0B2046" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Brand Typography -->
+            <div style="margin-top: 20px; text-align: center;">
+                <div style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.28em; text-indent: 0.28em; color: #FFFFFF; text-shadow: 0 4px 14px rgba(0,0,0,0.6);">
+                    KING POWER
+                </div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-indent: 0.22em; text-transform: uppercase; color: #D4AF37; margin-top: 6px; opacity: 0.95;">
+                    Smart Traveler Assistant
+                </div>
+            </div>
+
+            <!-- Luxury Subtle Line Loader -->
+            <div style="width: 140px; height: 2px; background: rgba(255,255,255,0.12); border-radius: 999px; margin-top: 28px; overflow: hidden; position: relative;">
+                <div class="splash-bar-active" style="width: 100%; height: 100%; background: linear-gradient(90deg, #D4AF37, #FFF2B2, #D4AF37); border-radius: 999px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script id="splash-script">
+        (function() {
+            function dismissSplash() {
+                var el = document.getElementById('app-splash-screen');
+                if (!el || el.classList.contains('splash-dismissed')) return;
+                el.classList.add('splash-dismissed');
+                setTimeout(function() {
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                }, 600);
+            }
+
+            // Dismiss after smooth calibration rotation
+            window.addEventListener('load', function() {
+                setTimeout(dismissSplash, 1300);
+            });
+
+            // Instant dismiss on touch/click so user is never blocked
+            document.addEventListener('DOMContentLoaded', function() {
+                var el = document.getElementById('app-splash-screen');
+                if (el) {
+                    el.addEventListener('click', dismissSplash);
+                    el.addEventListener('touchstart', dismissSplash, { passive: true });
+                }
+            });
+
+            // Fallback safety timeout
+            setTimeout(dismissSplash, 2600);
+        })();
+    </script>
+
+
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-534PKT5P"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
