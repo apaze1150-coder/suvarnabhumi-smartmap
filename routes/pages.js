@@ -4,11 +4,13 @@ const path = require('path');
 
 // Serve index.html at root
 router.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // Serve index.html at /index.html as well
 router.get('/index.html', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 

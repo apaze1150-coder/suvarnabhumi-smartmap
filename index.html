@@ -358,17 +358,28 @@
     
         /* Google Maps / Atrius style text halo for clean map labels */
         .text-halo {
+            paint-order: stroke fill;
+            -webkit-text-stroke: 2.5px #ffffff;
             text-shadow: 
                 -1px -1px 0 #ffffff,
                  1px -1px 0 #ffffff,
                 -1px  1px 0 #ffffff,
                  1px  1px 0 #ffffff,
-                 0 -1.5px 0 #ffffff,
-                 0  1.5px 0 #ffffff,
-                -1.5px 0 0 #ffffff,
-                 1.5px 0 0 #ffffff,
-                 0 0 4px #ffffff,
-                 0 0 8px #ffffff;
+                 0 0 3px #ffffff,
+                 0 0 6px #ffffff;
+        /* Completely hide any coordinate badges on pins */
+        .admin-coord-badge,
+        [class*="admin-coord"],
+        [class*="coord-badge"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
     </style>
@@ -1768,14 +1779,10 @@
                 needle.style.transform = `rotate(${-currentMapRotation}deg)`;
             }
 
-            // Counter-rotate store POI markers so labels remain upright and legible
-            const rot = -currentMapRotation;
-            document.querySelectorAll('.store-poi-item').forEach(item => {
-                const pinWrapper = item.querySelector('.poi-pin-wrapper');
-                const label = item.querySelector('.poi-label');
-                if (pinWrapper) pinWrapper.style.transform = `rotate(${rot}deg)`;
-                if (label) label.style.transform = `rotate(${rot}deg)`;
-            });
+            // Counter-rotate store POI markers and refresh collision avoidance
+            if (typeof updateMapSemanticZoom === 'function' && mapPanzoom) {
+                updateMapSemanticZoom(mapPanzoom.getScale());
+            }
         }
 
         function handleCompassClick() {
@@ -1863,106 +1870,185 @@
             });
         }
 
-        // Clean brand names matching modern airport maps
+        // Clean brand names matching modern airport maps with optimal 2-line wraps
         function getCleanStoreName(s) {
             const num = (s.shop_number || '').trim().toUpperCase();
             const raw = (s.shop_name || s.brand_name || num).trim();
             
             if (num === 'TE3') return 'PAÑPURI';
             if (num === 'TE5') return 'Jim Thompson';
-            if (num === 'TE1') return 'Touch of Thailand';
-            if (num === 'TW1') return 'Touch of Thailand';
-            if (num === 'TW3') return 'Touch of Thailand';
-            if (num === 'TW4') return 'Sents of Thailand';
+            if (num === 'TE1') return 'Touch of<br>Thailand';
+            if (num === 'TW1') return 'Touch of<br>Thailand';
+            if (num === 'TW3') return 'Touch of<br>Thailand';
+            if (num === 'TW4') return 'Sents of<br>Thailand';
             if (num === 'OTOP EAST' || num === 'OTOP WEST') return 'OTOP Store';
             if (num === 'TE6' || num === 'TW10') return 'Sport Select';
-            if (num === 'TE2' || num === 'TW9') return 'Health & Beauty';
-            if (num === 'TW6') return 'King Power Space';
+            if (num === 'TE2' || num === 'TW9') return 'Health &<br>Beauty';
+            if (num === 'TW6') return 'King Power<br>Space';
             if (num === 'TW7') return 'Thai Collection';
             if (num === 'RE2' || num === 'RW5') return 'Golden Place';
             if (num === 'RE3' || num === 'RE4' || num === 'RW2' || num === 'RW4') return 'Doi Tung';
             if (num === 'RE1' || num === 'RW3') return 'Sai Jai Thai';
             if (num === 'RW1') return 'SACIT';
-            if (num === 'TW2' || num === 'TW5') return 'Taste of Thailand';
-            if (num === 'TE4') return 'Memories of Thai';
+            if (num === 'TW2' || num === 'TW5') return 'Taste of<br>Thailand';
+            if (num === 'TE4') return 'Memories<br>of Thailand';
 
             return raw.replace(/EAST|WEST/gi, '').replace(/GALLERIA/gi, '').trim();
         }
 
-        // Semantic Zoom (Level of Detail & Label Collision Prevention):
+        // Semantic Zoom (Pin & Label De-Collision Engine like Atrius / Google Maps):
         function updateMapSemanticZoom(scale) {
             const poiLayer = document.getElementById('ambient-poi-layer');
             if (!poiLayer || !mapPanzoom) return;
 
-            // Priority anchor stores that get first right to display labels
-            const priorityStoreCodes = ['TE3', 'TE5', 'OTOP EAST', 'TE1', 'TW4', 'TW1', 'RE2', 'TW10', 'OTOP WEST'];
-
-            // At scale < 1.05: show only pins, NO labels (overview)
-            const canShowLabels = scale >= 1.05;
-
-            // Counter-scale so pins remain small and compact on screen
-            const counterScale = Math.max(0.48, Math.min(0.9, 1 / Math.sqrt(scale))).toFixed(3);
-
-            const pan = mapPanzoom.getPan();
-            const placedBoxes = [];
-
             const items = Array.from(poiLayer.querySelectorAll('.store-poi-item'));
+            if (items.length === 0) return;
 
-            // Sort so priority anchor stores place their labels first
+            // 1. Counter-scale so pins remain crisp, readable, and never balloon into giant overlapping blobs
+            // At high zoom, counterScale keeps pin size stable (~22-26px on screen)
+            const counterScale = Math.min(1.0, Math.max(0.42, 1 / Math.pow(scale, 0.72))).toFixed(3);
+            const rot = -currentMapRotation;
+
+            // 2. Overview vs Detailed Mode (Like Reference Image 1 & 2):
+            // Scale < 1.15: Overview mode -> Show pins cleanly, HIDE labels to keep map completely clean
+            // Scale >= 1.15: Zoomed in -> Allow non-colliding labels to appear
+            const canShowLabels = scale >= 1.15;
+
+            // Priority anchor stores that get first right to display pins & labels
+            const priorityStoreCodes = [
+                'TE3',       // PAÑPURI
+                'TE5',       // Jim Thompson
+                'RE1',       // Sai Jai Thai
+                'TE4',       // Memories of Thailand
+                'RE4',       // Doi Tung
+                'TE1',       // Touch of Thailand
+                'TE2',       // Health & Beauty
+                'OTOP EAST', // OTOP Store
+                'TW4',       // Sents of Thailand
+                'TW1',       // Touch of Thailand West
+                'TW10',      // Sport Select
+                'RW5',       // Golden Place
+                'RW3',       // Sai Jai Thai West
+                'RW1',       // SACIT
+                'OTOP WEST'  // OTOP Store West
+            ];
+
+            // Sort: Selected store first, then priority anchor stores, then alphabetical
             items.sort((a, b) => {
                 const aCode = a.getAttribute('data-shop');
                 const bCode = b.getAttribute('data-shop');
-                const aPrio = priorityStoreCodes.includes(aCode) ? 0 : 1;
-                const bPrio = priorityStoreCodes.includes(bCode) ? 0 : 1;
-                return aPrio - bPrio;
+                const aSel = (aCode === selectedShopNumber) ? 100 : 0;
+                const bSel = (bCode === selectedShopNumber) ? 100 : 0;
+                const aPrio = priorityStoreCodes.includes(aCode) ? 10 : 0;
+                const bPrio = priorityStoreCodes.includes(bCode) ? 10 : 0;
+                return (bSel + bPrio) - (aSel + aPrio);
             });
 
-            const rot = -currentMapRotation;
+            // Tracking boxes in screen coordinates
+            const placedPinBoxes = [];
+            const placedLabelBoxes = [];
 
+            // Min distance between pin centers in screen pixels (pins are ~22px wide)
+            const minPinCenterDist = scale < 1.25 ? 22 : 18;
+
+            // PASS 1: Apply counter-scale and resolve PIN COLLISION (หมุดไม่ทับกัน)
             items.forEach(item => {
-                const x = parseFloat(item.getAttribute('data-x'));
-                const y = parseFloat(item.getAttribute('data-y'));
-                const shopCode = item.getAttribute('data-shop');
-                const isPriority = priorityStoreCodes.includes(shopCode);
-
-                // Apply counter scale
                 item.style.transform = `scale(${counterScale})`;
+                item.style.transformOrigin = 'center 0px';
 
-                const label = item.querySelector('.poi-label');
                 const pinWrapper = item.querySelector('.poi-pin-wrapper');
-
-                if (pinWrapper) pinWrapper.style.transform = `rotate(${rot}deg)`;
-
-                if (!label) return;
-
-                if (!canShowLabels) {
-                    label.style.display = 'none';
-                    return;
+                if (pinWrapper) {
+                    pinWrapper.style.transform = `rotate(${rot}deg)`;
                 }
 
-                // Screen position
-                const sx = x * scale + pan.x;
-                const sy = y * scale + pan.y;
+                const isSelected = (item.getAttribute('data-shop') === selectedShopNumber);
 
-                // Collision distance thresholds
-                const minXDist = scale >= 2.2 ? 32 : 52;
-                const minYDist = scale >= 2.2 ? 16 : 24;
+                // Calculate screen position accurately
+                const rect = item.getBoundingClientRect();
+                const pinCenter = {
+                    cx: rect.left + rect.width / 2,
+                    cy: rect.top + (rect.height * 0.35),
+                    shop: item.getAttribute('data-shop')
+                };
 
-                let collides = false;
-                for (const box of placedBoxes) {
-                    if (Math.abs(sx - box.x) < minXDist && Math.abs(sy - box.y) < minYDist) {
-                        collides = true;
+                // Check collision with already accepted pins
+                let pinOverlaps = false;
+                for (const p of placedPinBoxes) {
+                    const dist = Math.hypot(pinCenter.cx - p.cx, pinCenter.cy - p.cy);
+                    if (dist < minPinCenterDist) {
+                        pinOverlaps = true;
                         break;
                     }
                 }
 
-                // If no collision, show label; otherwise hide to prevent overlap
-                if (!collides || (scale >= 2.8 && isPriority)) {
-                    label.style.display = 'block';
-                    label.style.transform = `rotate(${rot}deg)`;
-                    placedBoxes.push({ x: sx, y: sy });
+                if (pinOverlaps && !isSelected && !isAdminMode) {
+                    // Hide pin completely so pins NEVER overlap
+                    item.style.opacity = '0';
+                    item.style.pointerEvents = 'none';
+                    const label = item.querySelector('.poi-label');
+                    if (label) label.style.display = 'none';
                 } else {
+                    // Pin is visible
+                    item.style.opacity = '1';
+                    item.style.pointerEvents = 'auto';
+                    placedPinBoxes.push(pinCenter);
+                }
+            });
+
+            // PASS 2: Resolve LABEL COLLISION for visible pins (ชื่อร้านไม่ทับกัน และไม่บังหมุด)
+            items.forEach(item => {
+                const label = item.querySelector('.poi-label');
+                if (!label) return;
+
+                const isSelected = (item.getAttribute('data-shop') === selectedShopNumber);
+
+                // If pin is hidden or zoom is too low, hide label
+                if (item.style.opacity === '0' || (!canShowLabels && !isSelected && !isAdminMode)) {
                     label.style.display = 'none';
+                    return;
+                }
+
+                // Rotate label upright
+                label.style.transform = `rotate(${rot}deg)`;
+                label.style.display = 'block';
+
+                // Measure label bounding box
+                const lRect = label.getBoundingClientRect();
+                const padX = 5;
+                const padY = 2;
+                const box = {
+                    left: lRect.left - padX,
+                    right: lRect.right + padX,
+                    top: lRect.top - padY,
+                    bottom: lRect.bottom + padY
+                };
+
+                // Check 1: Collision against already placed labels
+                let labelCollides = false;
+                for (const placed of placedLabelBoxes) {
+                    if (!(box.right < placed.left || box.left > placed.right || box.bottom < placed.top || box.top > placed.bottom)) {
+                        labelCollides = true;
+                        break;
+                    }
+                }
+
+                // Check 2: Collision against neighboring visible pins (label must not cover other pins)
+                if (!labelCollides) {
+                    const myShop = item.getAttribute('data-shop');
+                    for (const pin of placedPinBoxes) {
+                        if (pin.shop === myShop) continue; // ok to be below its own pin
+                        if (pin.cx >= box.left && pin.cx <= box.right && pin.cy >= box.top && pin.cy <= box.bottom) {
+                            labelCollides = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (labelCollides && !isSelected && !isAdminMode) {
+                    label.style.display = 'none';
+                } else {
+                    label.style.display = 'block';
+                    placedLabelBoxes.push(box);
                 }
             });
         }
@@ -2127,20 +2213,20 @@
                 pinEl.style.zIndex = '12';
 
                 pinEl.innerHTML = `
-                    <!-- Delicate Teardrop Pin Marker -->
-                    <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform group-hover:scale-115 active:scale-90"
-                         style="margin-top: -24px; transform-origin: 10px 24px; width: 20px; height: 24px;">
-                        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" class="filter drop-shadow-[0_1.5px_3px_rgba(0,10,30,0.18)]">
-                            <path d="M10 23.5C10 23.5 18.5 15.5 18.5 10C18.5 5.30558 14.6944 1.5 10 1.5C5.30558 1.5 1.5 5.30558 1.5 10C1.5 15.5 10 23.5 10 23.5Z" fill="#ffffff" stroke="${pinStroke}" stroke-width="1.4" stroke-linejoin="round"/>
-                            <circle cx="10" cy="10" r="6.5" fill="${pinFill}"/>
+                    <!-- Airport Standard Circular Badge Pin with Sharp Stalk Tip (Matches Reference Image 1 & 2) -->
+                    <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150 group-hover:scale-115 active:scale-90"
+                         style="margin-top: -26px; transform-origin: 11px 26px; width: 22px; height: 26px;">
+                        <svg width="22" height="26" viewBox="0 0 22 26" fill="none" class="filter drop-shadow-[0_2px_4px_rgba(0,20,50,0.24)]">
+                            <path d="M11 25.5C11 25.5 20.5 16.5 20.5 10.5C20.5 5.25329 16.2467 1 11 1C5.75329 1 1.5 5.25329 1.5 10.5C1.5 16.5 11 25.5 11 25.5Z"
+                                  fill="${pinFill}" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
                         </svg>
-                        <span class="material-symbols-outlined text-white text-[10px] absolute top-[5px] pointer-events-none select-none">${pinIcon}</span>
+                        <span class="material-symbols-outlined text-white text-[11px] absolute top-[5px] pointer-events-none select-none">${pinIcon}</span>
                     </div>
 
-                    <!-- Clean Floating Text Label with White Halo -->
-                    <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-all duration-200"
-                         style="max-width: 95px; width: max-content; transform-origin: center top;">
-                        <span class="text-[9px] font-bold text-[#1e293b] leading-tight block tracking-tight text-halo"
+                    <!-- Crisp Floating Store Label with Clean White Vector Halo (No Overlap) -->
+                    <div class="poi-label pointer-events-none select-none mt-1 text-center transition-opacity duration-200"
+                         style="max-width: 80px; width: max-content; transform-origin: center top;">
+                        <span class="text-[9.5px] font-bold text-[#1e293b] leading-[1.15] block tracking-tight text-halo whitespace-normal"
                               style="font-family: 'Outfit', -apple-system, sans-serif;">
                             ${displayName}
                         </span>
@@ -2165,14 +2251,12 @@
                 if (isAdminMode) {
                     pinEl.classList.add('panzoom-exclude', 'admin-editable-pin');
                     pinEl.style.cursor = 'grab';
-                    let coordBadge = document.createElement('div');
-                    coordBadge.className = 'admin-coord-badge pointer-events-none bg-slate-900/90 text-amber-300 border border-amber-400/60 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold whitespace-nowrap shadow-md mt-0.5';
-                    coordBadge.innerText = `${Math.round(x)}, ${Math.round(y)}`;
-                    pinEl.appendChild(coordBadge);
                 }
 
                 poiLayer.appendChild(pinEl);
             });
+
+            document.querySelectorAll('.admin-coord-badge, [class*="admin-coord"]').forEach(el => el.remove());
 
             if (typeof mapPanzoom !== 'undefined' && mapPanzoom) {
                 updateMapSemanticZoom(mapPanzoom.getScale());
@@ -3891,21 +3975,13 @@
         }
 
         function enableAdminPinDragging() {
+            // Remove any leftover coordinate badges so pins and floor plan are unobstructed
+            document.querySelectorAll('.admin-coord-badge').forEach(b => b.remove());
+
             const items = document.querySelectorAll('.store-poi-item');
             items.forEach(item => {
                 item.classList.add('panzoom-exclude', 'admin-editable-pin');
                 item.style.cursor = 'grab';
-                
-                let coordBadge = item.querySelector('.admin-coord-badge');
-                if (!coordBadge) {
-                    coordBadge = document.createElement('div');
-                    coordBadge.className = 'admin-coord-badge pointer-events-none bg-slate-900/95 text-amber-300 border border-amber-400/60 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold whitespace-nowrap shadow-md mt-0.5';
-                    item.appendChild(coordBadge);
-                }
-                const curX = Math.round(parseFloat(item.style.left) || item.getAttribute('data-x') || 0);
-                const curY = Math.round(parseFloat(item.style.top) || item.getAttribute('data-y') || 0);
-                coordBadge.innerText = `${curX}, ${curY}`;
-                coordBadge.style.display = 'block';
 
                 if (!item._hasDragListeners) {
                     attachDragListenersToPin(item);
@@ -3920,12 +3996,12 @@
         }
 
         function disableAdminPinDragging() {
+            document.querySelectorAll('.admin-coord-badge').forEach(b => b.remove());
+
             const items = document.querySelectorAll('.store-poi-item');
             items.forEach(item => {
                 item.classList.remove('admin-editable-pin');
                 item.style.cursor = 'pointer';
-                const coordBadge = item.querySelector('.admin-coord-badge');
-                if (coordBadge) coordBadge.style.display = 'none';
             });
         }
 
@@ -3987,9 +4063,6 @@
                 item.style.top = `${currentNewY}px`;
                 item.setAttribute('data-x', currentNewX);
                 item.setAttribute('data-y', currentNewY);
-
-                const badge = item.querySelector('.admin-coord-badge');
-                if (badge) badge.innerText = `${currentNewX}, ${currentNewY}`;
 
                 const shopName = item.querySelector('.poi-label span')?.innerText || item.getAttribute('data-shop');
                 const coordDisplay = document.getElementById('admin-mouse-coords');
