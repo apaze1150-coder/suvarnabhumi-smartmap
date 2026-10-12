@@ -1185,11 +1185,16 @@
         <!-- 2. MAP VIEW -->
         <div id="map-view" class="page-section absolute inset-0 w-full h-full bg-surface">
             <!-- Admin Top Status Bar (Positioned below fixed header) -->
-            <div id="admin-status-bar" class="hidden absolute top-[72px] left-0 w-full bg-red-600 text-white font-bold py-2.5 px-6 text-center text-xs z-[100] flex justify-between items-center shadow-md">
-                <span>⚠️ ADMIN MODE ACTIVE: Drag pins to position, or click map to place a pin.</span>
-                <div class="flex gap-2">
-                    <button onclick="adminShowAllPins()" class="bg-white text-[#002147] font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">SHOW ALL SHOPS</button>
-                    <button onclick="exitAdminMode()" class="bg-white text-red-600 font-extrabold px-3 py-1 rounded hover:bg-gray-100 transition-all text-[10px]">EXIT ADMIN</button>
+            <div id="admin-status-bar" class="hidden absolute top-0 left-0 w-full bg-[#001a3d]/95 backdrop-blur-md text-white font-bold py-2.5 px-4 z-[100] flex flex-wrap justify-between items-center shadow-2xl border-b border-amber-400/40">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-xs font-black text-amber-300 uppercase tracking-wider">โหมดปรับตำแหน่งหมุดร้านค้า (Drag & Drop Mode)</span>
+                    <span class="text-[11px] text-slate-300 font-medium hidden md:inline">| คลิกค้างที่หมุดแล้วลากไปวางบนตำแหน่งที่ต้องการบนแผนผัง ระบบจะบันทึกให้อัตโนมัติ</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="admin-mouse-coords" class="font-mono text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg text-emerald-300 font-bold border border-slate-700">พิกัดเมาส์: X=--, Y=--</span>
+                    <button onclick="exitAdminMode()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-3 py-1 rounded-lg transition-all text-xs active:scale-95 shadow-sm">ออกจากโหมด Admin</button>
+                    <a href="/admin" target="_blank" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-1 rounded-lg transition-all text-xs active:scale-95">กลับหน้า Console</a>
                 </div>
             </div>
             <div class="absolute top-2.5 left-0 w-full px-4 z-40 pointer-events-none">
@@ -2013,8 +2018,27 @@
 
                 item.onclick = (e) => {
                     e.stopPropagation();
+                    if (item._wasDragged) {
+                        item._wasDragged = false;
+                        return;
+                    }
+                    if (isAdminMode) {
+                        return;
+                    }
                     selectAmbientStore(s.shop_number);
                 };
+
+                // Attach drag & drop listeners for Admin Mode
+                attachDragListenersToPin(item);
+
+                if (isAdminMode) {
+                    item.classList.add('panzoom-exclude', 'admin-editable-pin');
+                    item.style.cursor = 'grab';
+                    let coordBadge = document.createElement('div');
+                    coordBadge.className = 'admin-coord-badge pointer-events-none bg-slate-900/90 text-amber-300 border border-amber-400/60 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold whitespace-nowrap shadow-md mt-0.5';
+                    coordBadge.innerText = `${Math.round(x)}, ${Math.round(y)}`;
+                    item.appendChild(coordBadge);
+                }
 
                 poiLayer.appendChild(item);
             });
@@ -2040,10 +2064,10 @@
         window.onload = function () {
             const mapElem = document.getElementById('map-image-container');
             mapPanzoom = Panzoom(mapElem, {
-                maxScale: 5,
+                maxScale: 10,
                 minScale: 0.3,
                 contain: false,
-                step: 0.3,
+                step: 0.35,
                 setTransform: (elem, { scale, x, y }) => {
                     elem.style.transform = `scale(${scale}) translate(${x}px, ${y}px) rotate(${currentMapRotation}deg)`;
                     updateMapSemanticZoom(scale);
@@ -2059,6 +2083,15 @@
 
             fitMapToScreen();
             window.addEventListener('resize', fitMapToScreen);
+
+            // Auto-check URL query param for Admin Mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === '1' || urlParams.get('adminMode') === '1') {
+                setTimeout(() => {
+                    showPage('map-view');
+                    enterAdminMode();
+                }, 600);
+            }
 
             trackFlightLive("TG679");
 
@@ -3643,116 +3676,284 @@
                 recommendationsSection.classList.add('hidden');
             }
         }
-        // --- ADMIN MODE ---
+        // --- ADMIN PIN PLACEMENT & DRAG-AND-DROP SYSTEM ---
+        let isAdminMode = false;
+        let adminPin = '6515';
+
         function toggleAdminMode() {
             if (!isAdminMode) {
-                const pin = prompt("กรุณาใส่รหัสผ่าน Admin:");
-                if (pin !== "6515") {
-                    alert("รหัสผ่านไม่ถูกต้อง");
-                    return;
+                const savedPin = sessionStorage.getItem('admin_password');
+                let pin = savedPin;
+                if (!pin || pin !== '6515') {
+                    pin = prompt("กรุณาใส่รหัสผ่าน Admin เพื่อปรับตำแหน่งหมุดร้านค้า:");
+                    if (pin !== "6515") {
+                        alert("รหัสผ่านไม่ถูกต้อง");
+                        return;
+                    }
                 }
-            }
-            isAdminMode = !isAdminMode;
-            if (isAdminMode) {
-                document.getElementById('admin-status-bar').classList.remove('hidden');
-                document.getElementById('admin-status-bar').classList.add('flex');
-                alert("โหมด Admin เปิดใช้งานแล้ว\nคลิกค้างที่หมุดเพื่อลากไปยังตำแหน่งที่ต้องการ แล้วปล่อยเมาส์เพื่อดูพิกัด!");
-                
-                // Add draggable class to any existing pins
-                document.querySelectorAll('.dynamic-map-pin').forEach(pin => {
-                    pin.classList.add('cursor-grab');
-                    pin.classList.remove('cursor-pointer');
-                    // makePinDraggable is applied when pins are created, or we can just let them search again.
-                });
+                adminPin = pin;
+                sessionStorage.setItem('admin_password', pin);
+                enterAdminMode();
             } else {
                 exitAdminMode();
             }
         }
 
+        function enterAdminMode() {
+            isAdminMode = true;
+            const statusBar = document.getElementById('admin-status-bar');
+            if (statusBar) {
+                statusBar.classList.remove('hidden');
+                statusBar.classList.add('flex');
+            }
+            const toggleBtn = document.getElementById('admin-toggle-btn');
+            if (toggleBtn) {
+                toggleBtn.classList.add('bg-amber-400', 'text-slate-900', 'ring-4', 'ring-amber-300/50');
+                toggleBtn.innerHTML = '<span class="material-symbols-outlined">edit_location_alt</span>';
+                toggleBtn.title = 'โหมด Admin เปิดอยู่ (คลิกเพื่อปิด)';
+            }
+            enableAdminPinDragging();
+            showToast('🛠️ เปิดโหมดปรับตำแหน่งหมุดแล้ว: คลิกค้างที่หมุดแล้วลากวางได้เลยครับ', 'info');
+        }
+
         function exitAdminMode() {
             isAdminMode = false;
-            document.getElementById('admin-status-bar').classList.add('hidden');
-            document.getElementById('admin-status-bar').classList.remove('flex');
-            document.querySelectorAll('.dynamic-map-pin').forEach(pin => {
-                pin.classList.remove('cursor-grab');
-                pin.classList.add('cursor-pointer');
+            const statusBar = document.getElementById('admin-status-bar');
+            if (statusBar) {
+                statusBar.classList.add('hidden');
+                statusBar.classList.remove('flex');
+            }
+            const toggleBtn = document.getElementById('admin-toggle-btn');
+            if (toggleBtn) {
+                toggleBtn.classList.remove('bg-amber-400', 'text-slate-900', 'ring-4', 'ring-amber-300/50');
+                toggleBtn.innerHTML = '<span class="material-symbols-outlined">lock</span>';
+                toggleBtn.title = 'Admin Mode (Click to edit pins)';
+            }
+            disableAdminPinDragging();
+            showToast('ล็อคตำแหน่งหมุดแล้ว (ออกจากโหมด Admin)', 'info');
+        }
+
+        function enableAdminPinDragging() {
+            const items = document.querySelectorAll('.store-poi-item');
+            items.forEach(item => {
+                item.classList.add('panzoom-exclude', 'admin-editable-pin');
+                item.style.cursor = 'grab';
+                
+                let coordBadge = item.querySelector('.admin-coord-badge');
+                if (!coordBadge) {
+                    coordBadge = document.createElement('div');
+                    coordBadge.className = 'admin-coord-badge pointer-events-none bg-slate-900/95 text-amber-300 border border-amber-400/60 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold whitespace-nowrap shadow-md mt-0.5';
+                    item.appendChild(coordBadge);
+                }
+                const curX = Math.round(parseFloat(item.style.left) || item.getAttribute('data-x') || 0);
+                const curY = Math.round(parseFloat(item.style.top) || item.getAttribute('data-y') || 0);
+                coordBadge.innerText = `${curX}, ${curY}`;
+                coordBadge.style.display = 'block';
+
+                if (!item._hasDragListeners) {
+                    attachDragListenersToPin(item);
+                }
+            });
+
+            const mapContainer = document.getElementById('map-image-container');
+            if (mapContainer && !mapContainer._hasCoordListener) {
+                mapContainer.addEventListener('pointermove', updateMouseCoordsDisplay);
+                mapContainer._hasCoordListener = true;
+            }
+        }
+
+        function disableAdminPinDragging() {
+            const items = document.querySelectorAll('.store-poi-item');
+            items.forEach(item => {
+                item.classList.remove('admin-editable-pin');
+                item.style.cursor = 'pointer';
+                const coordBadge = item.querySelector('.admin-coord-badge');
+                if (coordBadge) coordBadge.style.display = 'none';
             });
         }
 
-        function makePinDraggable(pinElement, identifier, container) {
+        function attachDragListenersToPin(item) {
+            item._hasDragListeners = true;
             let isDragging = false;
-            let startX, startY, initialLeft, initialTop;
-            
-            // Add panzoom-exclude class so Panzoom ignores this element
-            pinElement.classList.add('panzoom-exclude');
+            let hasMoved = false;
+            let startPointerX, startPointerY, startPinX, startPinY;
+            let currentNewX, currentNewY;
 
-            pinElement.addEventListener('pointerdown', (e) => {
+            item.addEventListener('pointerdown', (e) => {
                 if (!isAdminMode) return;
+                if (e.button !== 0) return;
+
                 isDragging = true;
-                pinElement.classList.add('cursor-grabbing');
-                pinElement.classList.remove('cursor-grab');
-                
-                startX = e.clientX;
-                startY = e.clientY;
-                initialLeft = parseFloat(pinElement.style.left) || 0;
-                initialTop = parseFloat(pinElement.style.top) || 0;
-                
-                // Stop event from propagating to Panzoom
+                hasMoved = false;
+                item._wasDragged = false;
+                item.setPointerCapture(e.pointerId);
                 e.stopPropagation();
-                // Capture pointer so even if we move off the element, it keeps dragging
-                pinElement.setPointerCapture(e.pointerId);
+
+                startPointerX = e.clientX;
+                startPointerY = e.clientY;
+                startPinX = parseFloat(item.style.left) || parseFloat(item.getAttribute('data-x')) || 0;
+                startPinY = parseFloat(item.style.top) || parseFloat(item.getAttribute('data-y')) || 0;
+                currentNewX = startPinX;
+                currentNewY = startPinY;
+
+                item.style.cursor = 'grabbing';
+                item.style.zIndex = '999';
             });
 
-            pinElement.addEventListener('pointermove', (e) => {
+            item.addEventListener('pointermove', (e) => {
                 if (!isDragging) return;
-                const rect = container.getBoundingClientRect();
-                
-                // Calculate scale factors using the panzoom container's actual scale
-                let currentScale = 1;
-                if (typeof mapPanzoom !== 'undefined' && mapPanzoom.getScale) {
-                    currentScale = mapPanzoom.getScale();
+                e.stopPropagation();
+
+                const deltaScreenX = e.clientX - startPointerX;
+                const deltaScreenY = e.clientY - startPointerY;
+
+                if (Math.abs(deltaScreenX) > 2 || Math.abs(deltaScreenY) > 2) {
+                    hasMoved = true;
+                    item._wasDragged = true;
                 }
 
-                // If map is scaled, delta needs to be divided by scale to match SVG coordinates
-                const deltaX = (e.clientX - startX) / currentScale;
-                const deltaY = (e.clientY - startY) / currentScale;
+                const currentScale = (mapPanzoom && mapPanzoom.getScale) ? mapPanzoom.getScale() : 1;
+                const rad = (currentMapRotation || 0) * Math.PI / 180;
+                const cos = Math.cos(-rad);
+                const sin = Math.sin(-rad);
 
-                pinElement.style.left = `${initialLeft + deltaX}px`;
-                pinElement.style.top = `${initialTop + deltaY}px`;
+                const rotatedDeltaX = (deltaScreenX * cos - deltaScreenY * sin) / currentScale;
+                const rotatedDeltaY = (deltaScreenX * sin + deltaScreenY * cos) / currentScale;
+
+                currentNewX = Math.round(startPinX + rotatedDeltaX);
+                currentNewY = Math.round(startPinY + rotatedDeltaY);
+
+                currentNewX = Math.max(0, Math.min(1000, currentNewX));
+                currentNewY = Math.max(0, Math.min(500, currentNewY));
+
+                item.style.left = `${currentNewX}px`;
+                item.style.top = `${currentNewY}px`;
+                item.setAttribute('data-x', currentNewX);
+                item.setAttribute('data-y', currentNewY);
+
+                const badge = item.querySelector('.admin-coord-badge');
+                if (badge) badge.innerText = `${currentNewX}, ${currentNewY}`;
+
+                const shopName = item.querySelector('.poi-label span')?.innerText || item.getAttribute('data-shop');
+                const coordDisplay = document.getElementById('admin-mouse-coords');
+                if (coordDisplay) {
+                    coordDisplay.innerText = `กำลังลาก [${shopName}]: X=${currentNewX}, Y=${currentNewY}`;
+                }
             });
 
-            pinElement.addEventListener('pointerup', (e) => {
+            item.addEventListener('pointerup', async (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                pinElement.classList.remove('cursor-grabbing');
-                pinElement.classList.add('cursor-grab');
-                pinElement.releasePointerCapture(e.pointerId);
-                
-                const finalX = Math.round(parseFloat(pinElement.style.left));
-                const finalY = Math.round(parseFloat(pinElement.style.top));
-                
-                // Slight delay so the user sees it dropped
-                setTimeout(() => {
-                    alert(`[${identifier}] พิกัดใหม่ที่ถูกลากไปคือ: X=${finalX}, Y=${finalY}\n\nคุณสามารถคัดลอกพิกัดนี้เพื่อนำไปแก้ไขในโค้ดได้เลยครับ`);
-                }, 50);
+                item.style.cursor = 'grab';
+                item.style.zIndex = '12';
+                try { item.releasePointerCapture(e.pointerId); } catch(ex) {}
+                e.stopPropagation();
+
+                if (!hasMoved) return;
+
+                const shopNumber = item.getAttribute('data-shop');
+                const shopName = item.querySelector('.poi-label span')?.innerText || shopNumber;
+
+                if (currentNewX !== startPinX || currentNewY !== startPinY) {
+                    await saveStorePinCoordinates(shopNumber, currentNewX, currentNewY, shopName);
+                }
             });
         }
 
-        // Allow clicking on map to get exact coordinates
-        document.getElementById('map-image-container').addEventListener('click', function(e) {
+        async function saveStorePinCoordinates(shopNumber, x, y, shopName) {
+            try {
+                const pass = adminPin || sessionStorage.getItem('admin_password') || '6515';
+                const res = await fetch(`/api/admin/stores/${encodeURIComponent(shopNumber)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: pass,
+                        x: x.toString(),
+                        y: y.toString()
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`📍 บันทึกพิกัด [${shopName}] เป็น (${x}, ${y}) เรียบร้อยแล้ว!`, 'success');
+                    const storeInList = allStorePOIs.find(s => (s.shop_number || '').trim() === shopNumber.trim());
+                    if (storeInList) {
+                        storeInList.x = x.toString();
+                        storeInList.y = y.toString();
+                    }
+                } else {
+                    alert(`ไม่สามารถบันทึกพิกัดได้: ${data.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error('Error saving pin coordinate:', err);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+            }
+        }
+
+        function updateMouseCoordsDisplay(e) {
             if (!isAdminMode) return;
-            // Prevent if clicking on a pin or button
-            if (e.target.closest('.dynamic-map-pin') || e.target.closest('button')) return;
+            const container = document.getElementById('map-image-container');
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
+            const currentScale = (mapPanzoom && mapPanzoom.getScale) ? mapPanzoom.getScale() : 1;
+            
+            const rad = (currentMapRotation || 0) * Math.PI / 180;
+            const cos = Math.cos(-rad);
+            const sin = Math.sin(-rad);
+
+            const dx = (e.clientX - rect.left - rect.width / 2);
+            const dy = (e.clientY - rect.top - rect.height / 2);
+            const rotX = (dx * cos - dy * sin) / currentScale + 500;
+            const rotY = (dx * sin + dy * cos) / currentScale + 250;
+
+            const x = Math.max(0, Math.min(1000, Math.round(rotX)));
+            const y = Math.max(0, Math.min(500, Math.round(rotY)));
+
+            const display = document.getElementById('admin-mouse-coords');
+            if (display && !display.innerText.includes('กำลังลาก')) {
+                display.innerText = `พิกัดเมาส์: X=${x}, Y=${y}`;
+            }
+        }
+
+        // Global Toast Notification Helper
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('global-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'global-toast';
+                document.body.appendChild(toast);
+            }
+            const isSuccess = type === 'success' || type === 'check_circle';
+            const isError = type === 'error' || type === 'red';
+            toast.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[200] px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold transition-all duration-300 pointer-events-none opacity-100 translate-y-0 ${isSuccess ? 'bg-[#000a1e] text-emerald-400 border border-emerald-500/40' : isError ? 'bg-red-900 text-white border border-red-500/40' : 'bg-[#000a1e] text-amber-300 border border-amber-400/40'}`;
+            const icon = isSuccess ? 'check_circle' : isError ? 'error' : 'info';
+            toast.innerHTML = `<span class="material-symbols-outlined text-base">${icon}</span><span>${message}</span>`;
+
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.className = toast.className.replace('opacity-100 translate-y-0', 'opacity-0 translate-y-4');
+            }, 3500);
+        }
+
+        // Click on map to show coordinate badge in Admin Mode
+        document.getElementById('map-image-container')?.addEventListener('click', function(e) {
+            if (!isAdminMode) return;
+            if (e.target.closest('.store-poi-item') || e.target.closest('.dynamic-map-pin') || e.target.closest('button')) return;
 
             const rect = this.getBoundingClientRect();
-            // Calculate coordinates relative to the 1000x500 SVG coordinate system
-            const scaleX = 1000 / rect.width;
-            const scaleY = 500 / rect.height;
+            const currentScale = (mapPanzoom && mapPanzoom.getScale) ? mapPanzoom.getScale() : 1;
+            const rad = (currentMapRotation || 0) * Math.PI / 180;
+            const cos = Math.cos(-rad);
+            const sin = Math.sin(-rad);
+
+            const dx = (e.clientX - rect.left - rect.width / 2);
+            const dy = (e.clientY - rect.top - rect.height / 2);
+            const rotX = (dx * cos - dy * sin) / currentScale + 500;
+            const rotY = (dx * sin + dy * cos) / currentScale + 250;
+
+            const x = Math.max(0, Math.min(1000, Math.round(rotX)));
+            const y = Math.max(0, Math.min(500, Math.round(rotY)));
             
-            const x = Math.round((e.clientX - rect.left) * scaleX);
-            const y = Math.round((e.clientY - rect.top) * scaleY);
-            
-            alert(`พิกัดที่คลิก: X=${x}, Y=${y}\nคุณสามารถคัดลอกพิกัดนี้เพื่อนำไปแก้ไขในโค้ดได้`);
+            showToast(`📍 พิกัดตรงนี้คือ X=${x}, Y=${y}`, 'info');
         });
 
         // =============================================
