@@ -128,6 +128,24 @@
                     <span>Store Matrix</span>
                     <span id="badge-stores-count" class="ml-auto bg-[#3B465A] text-white text-[10px] px-2 py-0.5 rounded-md font-bold">0</span>
                 </button>
+
+                <button onclick="switchTable('restaurants')" id="tab-restaurants" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
+                    <span class="material-symbols-outlined text-lg text-orange-400">restaurant</span>
+                    <span>Restaurant Matrix</span>
+                    <span id="badge-restaurants-count" class="ml-auto bg-slate-800 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold">0</span>
+                </button>
+
+                <button onclick="switchTable('services')" id="tab-services" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
+                    <span class="material-symbols-outlined text-lg text-emerald-400">room_service</span>
+                    <span>Service Matrix</span>
+                    <span id="badge-services-count" class="ml-auto bg-slate-800 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold">0</span>
+                </button>
+
+                <button onclick="switchTable('lounges')" id="tab-lounges" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
+                    <span class="material-symbols-outlined text-lg text-purple-400">weekend</span>
+                    <span>Lounge Matrix</span>
+                    <span id="badge-lounges-count" class="ml-auto bg-slate-800 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold">0</span>
+                </button>
                 
                 <button onclick="switchTable('products')" id="tab-products" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white">
                     <span class="material-symbols-outlined text-lg">inventory_2</span>
@@ -386,6 +404,39 @@
                 TOP_HERO_PRODUCTS: { label: "Top Hero Products", type: "textarea", placeholder: "Best selling items" },
                 PROMOTION_TAGS: { label: "Promotion Tags", type: "text", placeholder: "e.g., 10% Duty Free Discount" }
             },
+            restaurants: {
+                restaurant_id: { label: "Restaurant ID (e.g., REST-01)", type: "text", required: true },
+                name: { label: "Restaurant Name (ชื่อร้านอาหาร)", type: "text", required: true },
+                image_url: { label: "รูปภาพร้านอาหาร (Image)", type: "text", defaultValue: "cutlery.png" },
+                category: { label: "Category", type: "select", options: ["Thai Food", "Fast Food", "Cafe & Bakery", "Japanese", "Western", "Bar & Bistro", "Halal Food", "Dessert & Beverage"] },
+                concourse: { label: "Concourse Zone", type: "select", options: ["A", "B", "C", "D", "E", "F", "G", "SAT-1"] },
+                floor: { label: "Floor", type: "select", options: ["4", "3", "2", "SAT-1"] },
+                x: { label: "Map X Coordinate (0-1000)", type: "number", required: true, min: 0, max: 1000 },
+                y: { label: "Map Y Coordinate (0-500)", type: "number", required: true, min: 0, max: 500 },
+                description: { label: "Description / Menu Highlights", type: "textarea", placeholder: "e.g., Burger, fries, coffee, opening hours" }
+            },
+            services: {
+                service_id: { label: "Service ID (e.g., SRV-INFO-01)", type: "text", required: true },
+                name: { label: "Facility / Service Name (ชื่อจุดบริการ)", type: "text", required: true },
+                image_url: { label: "รูปภาพ / สัญลักษณ์ (Image)", type: "text", defaultValue: "information.png" },
+                category: { label: "Service Category", type: "select", options: ["Airport information", "Currency exchange", "Vat refund", "Pharmacy", "Restroom", "Information Desk"] },
+                concourse: { label: "Concourse Zone", type: "select", options: ["A", "B", "C", "D", "E", "F", "G", "SAT-1"] },
+                floor: { label: "Floor", type: "select", options: ["4", "3", "2", "SAT-1"] },
+                x: { label: "Map X Coordinate (0-1000)", type: "number", required: true, min: 0, max: 1000 },
+                y: { label: "Map Y Coordinate (0-500)", type: "number", required: true, min: 0, max: 500 },
+                description: { label: "Service Details", type: "textarea", placeholder: "Operating hours, languages, counters" }
+            },
+            lounges: {
+                lounge_id: { label: "Lounge ID (e.g., LNG-01)", type: "text", required: true },
+                name: { label: "Lounge Name (ชื่อห้องรับรอง)", type: "text", required: true },
+                image_url: { label: "รูปภาพเลานจ์ (Image)", type: "text", defaultValue: "lounge.png" },
+                category: { label: "Lounge Type", type: "select", options: ["Royal Silk Lounge", "Miracle Lounge", "Pay-per-use Lounge", "First Class Lounge", "Boutique Lounge"] },
+                concourse: { label: "Concourse Zone", type: "select", options: ["A", "B", "C", "D", "E", "F", "G", "SAT-1"] },
+                floor: { label: "Floor", type: "select", options: ["4", "3", "2", "SAT-1"] },
+                x: { label: "Map X Coordinate (0-1000)", type: "number", required: true, min: 0, max: 1000 },
+                y: { label: "Map Y Coordinate (0-500)", type: "number", required: true, min: 0, max: 500 },
+                description: { label: "Lounge Amenities & Access", type: "textarea", placeholder: "Showers, buffet, eligibility, Wi-Fi" }
+            },
             products: {
                 PRODUCT_ID: { label: "Product ID", type: "text", required: true },
                 SHOP_NUMBER: { label: "Shop Number (Store Matrix Link)", type: "text", required: true },
@@ -509,7 +560,7 @@
             currentTable = tableName;
             
             // UI tabs update
-            ['stores', 'products', 'flights', 'nodes', 'overrides'].forEach(tab => {
+            ['stores', 'restaurants', 'services', 'lounges', 'products', 'flights', 'nodes', 'overrides'].forEach(tab => {
                 const btn = document.getElementById(`tab-${tab}`);
                 if (btn) {
                     if (tab === tableName) {
@@ -523,21 +574,25 @@
             // Adjust titles and headers
             const tableTitleMap = {
                 stores: "Store Matrix (store_matrix.csv)",
+                restaurants: "Restaurant Matrix (ร้านอาหาร)",
+                services: "Service Matrix (จุดบริการ / สิ่งอำนวยความสะดวก)",
+                lounges: "Lounge Matrix (ห้องรับรอง)",
                 products: "Product Matrix (product_matrix.csv)",
                 flights: "Flight Matrix (flight_matrix.csv)",
-                nodes: "Airport Map Nodes (airport_map_nodes.csv)", overrides: "Flight Gate Overrides"
+                nodes: "Airport Map Nodes (airport_map_nodes.csv)",
+                overrides: "Flight Gate Overrides"
             };
             document.getElementById('table-title').innerText = tableTitleMap[tableName] || tableName;
 
             // Hide/Show Add Row button
             const addRowBtn = document.getElementById('add-row-btn');
-            if (tableName === 'stores' || tableName === 'products' || tableName === 'nodes' || tableName === 'overrides') {
+            if (tableName === 'stores' || tableName === 'restaurants' || tableName === 'services' || tableName === 'lounges' || tableName === 'products' || tableName === 'nodes' || tableName === 'overrides') {
                 addRowBtn.classList.remove('hidden');
             } else {
                 addRowBtn.classList.add('hidden');
             }
 
-                        const csvBtn = document.getElementById('csv-upload-container');
+            const csvBtn = document.getElementById('csv-upload-container');
             if (tableName === 'overrides') {
                 csvBtn.classList.remove('hidden');
             } else {
@@ -554,6 +609,12 @@
                 let url = '';
                 if (currentTable === 'stores') {
                     url = `/api/admin/stores?password=${adminPassword}`;
+                } else if (currentTable === 'restaurants') {
+                    url = `/api/admin/restaurants?password=${encodeURIComponent(adminPassword)}`;
+                } else if (currentTable === 'services') {
+                    url = `/api/admin/services?password=${encodeURIComponent(adminPassword)}`;
+                } else if (currentTable === 'lounges') {
+                    url = `/api/admin/lounges?password=${encodeURIComponent(adminPassword)}`;
                 } else if (currentTable === 'products') {
                     url = `/api/admin/product_matrix?password=${adminPassword}`;
                 } else if (currentTable === 'nodes') {
@@ -562,7 +623,7 @@
                     url = `/api/admin/flight-overrides?password=${encodeURIComponent(adminPassword)}`;
                 }
 
-                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
+                if (currentTable === 'stores' || currentTable === 'restaurants' || currentTable === 'services' || currentTable === 'lounges' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(response.statusText);
                     tableData = await response.json();
@@ -583,6 +644,12 @@
                 // Update tab sidebar counts
                 if (currentTable === 'stores') {
                     document.getElementById('badge-stores-count').innerText = tableData.length;
+                } else if (currentTable === 'restaurants') {
+                    document.getElementById('badge-restaurants-count').innerText = tableData.length;
+                } else if (currentTable === 'services') {
+                    document.getElementById('badge-services-count').innerText = tableData.length;
+                } else if (currentTable === 'lounges') {
+                    document.getElementById('badge-lounges-count').innerText = tableData.length;
                 } else if (currentTable === 'products') {
                     document.getElementById('badge-products-count').innerText = tableData.length;
                 } else if (currentTable === 'overrides') {
@@ -683,9 +750,12 @@
                 const actionTd = document.createElement('td');
                 actionTd.className = "px-6 py-4 text-right border-b border-slate-100 whitespace-nowrap";
                 
-                if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
+                if (currentTable === 'stores' || currentTable === 'restaurants' || currentTable === 'services' || currentTable === 'lounges' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
                     let rowId;
                     if (currentTable === 'stores') rowId = row.shop_number;
+                    else if (currentTable === 'restaurants') rowId = row.restaurant_id;
+                    else if (currentTable === 'services') rowId = row.service_id;
+                    else if (currentTable === 'lounges') rowId = row.lounge_id;
                     else if (currentTable === 'products') rowId = row.PRODUCT_ID;
                     else if (currentTable === 'overrides') rowId = row.flight_id;
                     else rowId = row.node_id;
@@ -730,6 +800,9 @@
             currentEditRowIndex = null;
             const tableTitleMap = {
                 stores: "Store",
+                restaurants: "Restaurant",
+                services: "Service",
+                lounges: "Lounge",
                 products: "Product",
                 nodes: "Node"
             };
@@ -747,6 +820,15 @@
             if (currentTable === 'stores') {
                 document.getElementById('drawer-title').innerText = `Edit Shop ${rowData.shop_number}`;
                 document.getElementById('drawer-subtitle').innerText = rowData.shop_name || "Edit database row";
+            } else if (currentTable === 'restaurants') {
+                document.getElementById('drawer-title').innerText = `Edit Restaurant ${rowData.restaurant_id}`;
+                document.getElementById('drawer-subtitle').innerText = rowData.name || "Edit database row";
+            } else if (currentTable === 'services') {
+                document.getElementById('drawer-title').innerText = `Edit Service ${rowData.service_id}`;
+                document.getElementById('drawer-subtitle').innerText = rowData.name || "Edit database row";
+            } else if (currentTable === 'lounges') {
+                document.getElementById('drawer-title').innerText = `Edit Lounge ${rowData.lounge_id}`;
+                document.getElementById('drawer-subtitle').innerText = rowData.name || "Edit database row";
             } else if (currentTable === 'products') {
                 document.getElementById('drawer-title').innerText = `Edit Product ${rowData.PRODUCT_ID}`;
                 document.getElementById('drawer-subtitle').innerText = rowData.PRODUCT_NAME || "Edit database row";
@@ -916,19 +998,33 @@
             }
 
             const isCreate = currentEditRowIndex === null;
-            let url = currentTable === 'stores' ? '/api/admin/stores' : currentTable === 'products' ? '/api/admin/product_matrix' : currentTable === 'overrides' ? '/api/admin/flight-overrides' : '/api/admin/nodes';
+            let url = currentTable === 'stores' ? '/api/admin/stores' : 
+                      currentTable === 'restaurants' ? '/api/admin/restaurants' :
+                      currentTable === 'services' ? '/api/admin/services' :
+                      currentTable === 'lounges' ? '/api/admin/lounges' :
+                      currentTable === 'products' ? '/api/admin/product_matrix' : 
+                      currentTable === 'overrides' ? '/api/admin/flight-overrides' : '/api/admin/nodes';
             let method = 'POST';
 
             if (!isCreate) {
                 if (currentTable === 'stores') {
                     const shopNum = filterData[currentEditRowIndex].shop_number;
-                    url = `/api/admin/stores/${shopNum}`;
+                    url = `/api/admin/stores/${encodeURIComponent(shopNum)}`;
+                } else if (currentTable === 'restaurants') {
+                    const restId = filterData[currentEditRowIndex].restaurant_id;
+                    url = `/api/admin/restaurants/${encodeURIComponent(restId)}`;
+                } else if (currentTable === 'services') {
+                    const servId = filterData[currentEditRowIndex].service_id;
+                    url = `/api/admin/services/${encodeURIComponent(servId)}`;
+                } else if (currentTable === 'lounges') {
+                    const lngId = filterData[currentEditRowIndex].lounge_id;
+                    url = `/api/admin/lounges/${encodeURIComponent(lngId)}`;
                 } else if (currentTable === 'products') {
                     const prodId = filterData[currentEditRowIndex].PRODUCT_ID;
-                    url = `/api/admin/product_matrix/${prodId}`;
+                    url = `/api/admin/product_matrix/${encodeURIComponent(prodId)}`;
                 } else if (currentTable === 'nodes') {
                     const nodeId = filterData[currentEditRowIndex].node_id;
-                    url = `/api/admin/nodes/${nodeId}`;
+                    url = `/api/admin/nodes/${encodeURIComponent(nodeId)}`;
                 }
                 method = 'PUT';
             }
@@ -947,6 +1043,12 @@
                     let msg = '';
                     if (currentTable === 'stores') {
                         msg = isCreate ? `Successfully created Shop ${result.store.shop_number}!` : `Successfully updated Shop ${result.store.shop_number}!`;
+                    } else if (currentTable === 'restaurants') {
+                        msg = isCreate ? `Successfully created Restaurant!` : `Successfully updated Restaurant!`;
+                    } else if (currentTable === 'services') {
+                        msg = isCreate ? `Successfully created Service!` : `Successfully updated Service!`;
+                    } else if (currentTable === 'lounges') {
+                        msg = isCreate ? `Successfully created Lounge!` : `Successfully updated Lounge!`;
                     } else if (currentTable === 'products') {
                         msg = isCreate ? `Successfully created Product ${result.product.PRODUCT_ID}!` : `Successfully updated Product ${result.product.PRODUCT_ID}!`;
                     } else if (currentTable === 'nodes') {
@@ -966,13 +1068,16 @@
         }
 
         async function deleteRow(rowId) {
-            const confirmDelete = confirm(`Are you sure you want to DELETE ${currentTable === 'stores' ? 'Shop' : currentTable === 'products' ? 'Product' : 'Node'} ${rowId}?`);
+            const confirmDelete = confirm(`Are you sure you want to DELETE ${currentTable} ${rowId}?`);
             if (!confirmDelete) return;
 
             try {
                 showLoading(true);
-                let url = currentTable === 'stores' ? `/api/admin/stores/${rowId}` : 
-                          currentTable === 'products' ? `/api/admin/product_matrix/${rowId}` : `/api/admin/nodes/${rowId}`;
+                let url = currentTable === 'stores' ? `/api/admin/stores/${encodeURIComponent(rowId)}` : 
+                          currentTable === 'restaurants' ? `/api/admin/restaurants/${encodeURIComponent(rowId)}` :
+                          currentTable === 'services' ? `/api/admin/services/${encodeURIComponent(rowId)}` :
+                          currentTable === 'lounges' ? `/api/admin/lounges/${encodeURIComponent(rowId)}` :
+                          currentTable === 'products' ? `/api/admin/product_matrix/${encodeURIComponent(rowId)}` : `/api/admin/nodes/${encodeURIComponent(rowId)}`;
                 const response = await fetch(url, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },

@@ -13,6 +13,7 @@ const productsRoutes = require('./products');
 const stockRoutes = require('./stock');
 const storeSettingsRoutes = require('./storeSettings');
 const flightOverridesRoutes = require('./flightOverrides');
+const amenitiesRoutes = require('./amenities');
 
 // Use pages as root since they define /admin, /store, etc.
 router.use('/', pagesRoutes);
@@ -21,6 +22,7 @@ router.use('/', flightsRoutes);
 router.use('/', flightOverridesRoutes);
 router.use('/', navigationRoutes);
 router.use('/', storesRoutes);
+router.use('/', amenitiesRoutes);
 router.use('/', nodesRoutes);
 router.use('/', dashboardRoutes);
 router.use('/', ordersRoutes);

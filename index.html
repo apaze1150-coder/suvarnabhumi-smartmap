@@ -1225,6 +1225,33 @@
                 </div>
             </div>
 
+            <!-- Top Quick-Category Bar (Inside green box area) -->
+            <div id="map-quick-category-bar" class="absolute top-[64px] left-[70px] right-[70px] z-30 flex items-center gap-1.5 overflow-x-auto no-scrollbar pointer-events-auto py-0.5">
+                <!-- 1. Shop (Store Matrix) -->
+                <button onclick="switchMapCategory('shop')" id="map-cat-btn-shop" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-black transition-all shadow-md active:scale-95 whitespace-nowrap bg-[#001a3d] text-[#ffe088] border border-amber-400/50 ring-2 ring-amber-400/20" title="Shop (ร้านค้าใน Store Matrix)">
+                    <span class="material-symbols-outlined text-[17px] text-[#38bdf8]">shopping_bag</span>
+                    <span>Shop</span>
+                </button>
+
+                <!-- 2. Restaurants -->
+                <button onclick="switchMapCategory('restaurants')" id="map-cat-btn-restaurants" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap bg-white/95 text-slate-700 hover:bg-white border border-outline-variant/30" title="Restaurants (ร้านอาหาร)">
+                    <span class="material-symbols-outlined text-[17px] text-orange-500">restaurant</span>
+                    <span>Restaurants</span>
+                </button>
+
+                <!-- 3. Services -->
+                <button onclick="switchMapCategory('services')" id="map-cat-btn-services" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap bg-white/95 text-slate-700 hover:bg-white border border-outline-variant/30" title="Services (จุดบริการและสิ่งอำนวยความสะดวก)">
+                    <span class="material-symbols-outlined text-[17px] text-emerald-600">room_service</span>
+                    <span>Services</span>
+                </button>
+
+                <!-- 4. Lounge -->
+                <button onclick="switchMapCategory('lounge')" id="map-cat-btn-lounge" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap bg-white/95 text-slate-700 hover:bg-white border border-outline-variant/30" title="Lounge (ห้องรับรอง)">
+                    <span class="material-symbols-outlined text-[17px] text-purple-600">weekend</span>
+                    <span>Lounge</span>
+                </button>
+            </div>
+
             <!-- Left-Side Floating Toggleable Category Panel -->
             <div class="absolute top-[62px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
                 <!-- Floating Round Action Button -->
@@ -1940,16 +1967,53 @@
             });
         }
 
+        let currentMapCategory = 'shop'; // 'shop' | 'restaurants' | 'services' | 'lounge'
+        let allPOIData = {
+            shops: [],
+            restaurants: [],
+            services: [],
+            lounges: []
+        };
+
+        function switchMapCategory(category) {
+            currentMapCategory = category;
+
+            const catKeys = ['shop', 'restaurants', 'services', 'lounge'];
+            catKeys.forEach(k => {
+                const btn = document.getElementById(`map-cat-btn-${k}`);
+                if (!btn) return;
+                if (k === category) {
+                    btn.className = "map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-black transition-all shadow-md active:scale-95 whitespace-nowrap bg-[#001a3d] text-[#ffe088] border border-amber-400/50 ring-2 ring-amber-400/20";
+                } else {
+                    btn.className = "map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap bg-white/95 text-slate-700 hover:bg-white border border-outline-variant/30";
+                }
+            });
+
+            renderAmbientPOIs();
+        }
+
         async function loadMapStoresPOIs() {
             try {
-                const res = await fetch('/api/stores?t=' + Date.now(), { cache: 'no-store' });
+                const res = await fetch('/api/map/all-pois?t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
-                if (data && data.success && Array.isArray(data.stores)) {
-                    allStorePOIs = data.stores;
+                if (data && data.success) {
+                    allPOIData.shops = data.shops || [];
+                    allPOIData.restaurants = data.restaurants || [];
+                    allPOIData.services = data.services || [];
+                    allPOIData.lounges = data.lounges || [];
+                    allStorePOIs = allPOIData.shops;
                     renderAmbientPOIs();
+                } else {
+                    const fallbackRes = await fetch('/api/stores?t=' + Date.now(), { cache: 'no-store' });
+                    const fallbackData = await fallbackRes.json();
+                    if (fallbackData && fallbackData.success) {
+                        allPOIData.shops = fallbackData.stores || [];
+                        allStorePOIs = allPOIData.shops;
+                        renderAmbientPOIs();
+                    }
                 }
             } catch(e) {
-                console.error('Failed to load store POIs:', e);
+                console.error('Failed to load map POIs:', e);
             }
         }
 
@@ -1958,45 +2022,110 @@
             if (!poiLayer) return;
             poiLayer.innerHTML = '';
 
-            allStorePOIs.forEach(s => {
-                const x = parseFloat(s.x);
-                const y = parseFloat(s.y);
+            let itemsToRender = [];
+
+            if (currentMapCategory === 'shop') {
+                itemsToRender = (allPOIData.shops || []).map(s => ({
+                    id: s.shop_number,
+                    name: getCleanStoreName(s),
+                    x: parseFloat(s.x),
+                    y: parseFloat(s.y),
+                    floor: s.floor || '4',
+                    type: 'shop',
+                    icon: 'shopping_bag',
+                    stroke: '#0284c7',
+                    fill: '#0284c7',
+                    raw: s
+                }));
+            } else if (currentMapCategory === 'restaurants') {
+                itemsToRender = (allPOIData.restaurants || []).map(r => ({
+                    id: r.restaurant_id,
+                    name: r.name,
+                    x: parseFloat(r.x),
+                    y: parseFloat(r.y),
+                    floor: r.floor || '4',
+                    type: 'restaurants',
+                    icon: 'restaurant',
+                    stroke: '#ea580c',
+                    fill: '#ea580c',
+                    raw: r
+                }));
+            } else if (currentMapCategory === 'services') {
+                itemsToRender = (allPOIData.services || []).map(s => {
+                    const cat = (s.category || '').toLowerCase();
+                    let icon = 'info';
+                    let stroke = '#0284c7';
+                    let fill = '#0284c7';
+
+                    if (cat.includes('exchange') || cat.includes('currency')) {
+                        icon = 'currency_exchange';
+                        stroke = '#059669';
+                        fill = '#059669';
+                    } else if (cat.includes('vat')) {
+                        icon = 'receipt_long';
+                        stroke = '#7c3aed';
+                        fill = '#7c3aed';
+                    } else if (cat.includes('pharmacy')) {
+                        icon = 'local_pharmacy';
+                        stroke = '#059669';
+                        fill = '#059669';
+                    } else if (cat.includes('restroom') || cat.includes('wc')) {
+                        icon = 'wc';
+                        stroke = '#dc2626';
+                        fill = '#dc2626';
+                    }
+
+                    return {
+                        id: s.service_id,
+                        name: s.name,
+                        x: parseFloat(s.x),
+                        y: parseFloat(s.y),
+                        floor: s.floor || '4',
+                        type: 'services',
+                        icon: icon,
+                        stroke: stroke,
+                        fill: fill,
+                        raw: s
+                    };
+                });
+            } else if (currentMapCategory === 'lounge') {
+                itemsToRender = (allPOIData.lounges || []).map(l => ({
+                    id: l.lounge_id,
+                    name: l.name,
+                    x: parseFloat(l.x),
+                    y: parseFloat(l.y),
+                    floor: l.floor || '3',
+                    type: 'lounge',
+                    icon: 'weekend',
+                    stroke: '#7c3aed',
+                    fill: '#7c3aed',
+                    raw: l
+                }));
+            }
+
+            itemsToRender.forEach(item => {
+                const x = item.x;
+                const y = item.y;
                 if (isNaN(x) || isNaN(y)) return;
 
-                const storeFloor = s.floor || '4';
-                const cleanName = getCleanStoreName(s);
+                const pinStroke = item.stroke;
+                const pinFill = item.fill;
+                const pinIcon = item.icon;
+                const displayName = item.name;
 
-                // Determine pin color and icon matching Image 2 & 3 Atrius reference
-                let pinStroke = '#0284c7'; // Sky Blue
-                let pinFill = '#0284c7';   // Sky Blue
-                let pinIcon = 'shopping_bag';
+                const pinEl = document.createElement('div');
+                pinEl.className = 'store-poi-item absolute select-none cursor-pointer flex flex-col items-center pointer-events-auto group';
+                pinEl.setAttribute('data-shop', item.id || '');
+                pinEl.setAttribute('data-type', item.type || '');
+                pinEl.setAttribute('data-floor', item.floor || '4');
+                pinEl.setAttribute('data-x', x);
+                pinEl.setAttribute('data-y', y);
+                pinEl.style.left = `${x}px`;
+                pinEl.style.top = `${y}px`;
+                pinEl.style.zIndex = '12';
 
-                const cat = (s.category || '').toLowerCase();
-                const nameLower = cleanName.toLowerCase();
-
-                if (cat.includes('food') || nameLower.includes('taste')) {
-                    pinStroke = '#ea580c';
-                    pinFill = '#ea580c';
-                    pinIcon = 'restaurant';
-                } else if (cat.includes('royal')) {
-                    pinStroke = '#b45309';
-                    pinFill = '#b45309';
-                    pinIcon = 'shopping_bag';
-                }
-
-                const item = document.createElement('div');
-                item.className = 'store-poi-item absolute select-none cursor-pointer flex flex-col items-center pointer-events-auto group';
-                item.setAttribute('data-shop', s.shop_number || '');
-                item.setAttribute('data-floor', storeFloor);
-                item.setAttribute('data-x', x);
-                item.setAttribute('data-y', y);
-                // Anchored directly at (x, y)
-                item.style.left = `${x}px`;
-                item.style.top = `${y}px`;
-                item.style.zIndex = '12';
-
-                item.innerHTML = `
-                    <!-- Delicate Teardrop Pin Marker (matching Image 2 & 3) -->
+                pinEl.innerHTML = `
+                    <!-- Delicate Teardrop Pin Marker -->
                     <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform group-hover:scale-115 active:scale-90"
                          style="margin-top: -24px; transform-origin: 10px 24px; width: 20px; height: 24px;">
                         <svg width="20" height="24" viewBox="0 0 20 24" fill="none" class="filter drop-shadow-[0_1.5px_3px_rgba(0,10,30,0.18)]">
@@ -2006,45 +2135,69 @@
                         <span class="material-symbols-outlined text-white text-[10px] absolute top-[5px] pointer-events-none select-none">${pinIcon}</span>
                     </div>
 
-                    <!-- Clean Floating Text Label with White Halo (Zero Bulky Boxes) -->
+                    <!-- Clean Floating Text Label with White Halo -->
                     <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-all duration-200"
-                         style="max-width: 85px; width: max-content; transform-origin: center top;">
+                         style="max-width: 95px; width: max-content; transform-origin: center top;">
                         <span class="text-[9px] font-bold text-[#1e293b] leading-tight block tracking-tight text-halo"
                               style="font-family: 'Outfit', -apple-system, sans-serif;">
-                            ${cleanName}
+                            ${displayName}
                         </span>
                     </div>
                 `;
 
-                item.onclick = (e) => {
+                pinEl.onclick = (e) => {
                     e.stopPropagation();
-                    if (item._wasDragged) {
-                        item._wasDragged = false;
+                    if (pinEl._wasDragged) {
+                        pinEl._wasDragged = false;
                         return;
                     }
                     if (isAdminMode) {
                         return;
                     }
-                    selectAmbientStore(s.shop_number);
+                    handlePOIClick(item);
                 };
 
                 // Attach drag & drop listeners for Admin Mode
-                attachDragListenersToPin(item);
+                attachDragListenersToPin(pinEl);
 
                 if (isAdminMode) {
-                    item.classList.add('panzoom-exclude', 'admin-editable-pin');
-                    item.style.cursor = 'grab';
+                    pinEl.classList.add('panzoom-exclude', 'admin-editable-pin');
+                    pinEl.style.cursor = 'grab';
                     let coordBadge = document.createElement('div');
                     coordBadge.className = 'admin-coord-badge pointer-events-none bg-slate-900/90 text-amber-300 border border-amber-400/60 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold whitespace-nowrap shadow-md mt-0.5';
                     coordBadge.innerText = `${Math.round(x)}, ${Math.round(y)}`;
-                    item.appendChild(coordBadge);
+                    pinEl.appendChild(coordBadge);
                 }
 
-                poiLayer.appendChild(item);
+                poiLayer.appendChild(pinEl);
             });
 
             if (typeof mapPanzoom !== 'undefined' && mapPanzoom) {
                 updateMapSemanticZoom(mapPanzoom.getScale());
+            }
+        }
+
+        function handlePOIClick(item) {
+            if (item.type === 'shop') {
+                selectAmbientStore(item.id);
+            } else {
+                const formattedStore = {
+                    shop_number: item.id,
+                    shop_name: item.name,
+                    shop_image: item.raw.image_url || 'default.jpg',
+                    category: item.raw.category || item.type,
+                    x: item.x,
+                    y: item.y,
+                    concourse: item.raw.concourse || 'D',
+                    floor: item.raw.floor || '4',
+                    coordinates: { x: item.x, y: item.y }
+                };
+                activeStores = [formattedStore];
+                selectedShopNumber = item.id;
+                renderResultsCards(activeStores);
+                renderStoreRoutes(activeStores);
+                document.getElementById('results-container')?.classList.remove('hidden');
+                document.getElementById('clear-search-btn')?.classList.remove('hidden');
             }
         }
 
@@ -3851,19 +4004,29 @@
 
                 if (!hasMoved) return;
 
-                const shopNumber = item.getAttribute('data-shop');
-                const shopName = item.querySelector('.poi-label span')?.innerText || shopNumber;
+                const targetId = item.getAttribute('data-shop');
+                const targetType = item.getAttribute('data-type') || 'shop';
+                const name = item.querySelector('.poi-label span')?.innerText || targetId;
 
                 if (currentNewX !== startPinX || currentNewY !== startPinY) {
-                    await saveStorePinCoordinates(shopNumber, currentNewX, currentNewY, shopName);
+                    await saveStorePinCoordinates(targetId, currentNewX, currentNewY, name, targetType);
                 }
             });
         }
 
-        async function saveStorePinCoordinates(shopNumber, x, y, shopName) {
+        async function saveStorePinCoordinates(targetId, x, y, name, type = 'shop') {
             try {
                 const pass = adminPin || sessionStorage.getItem('admin_password') || '6515';
-                const res = await fetch(`/api/admin/stores/${encodeURIComponent(shopNumber)}`, {
+                let endpoint = `/api/admin/stores/${encodeURIComponent(targetId)}`;
+                if (type === 'restaurants') {
+                    endpoint = `/api/admin/restaurants/${encodeURIComponent(targetId)}`;
+                } else if (type === 'services') {
+                    endpoint = `/api/admin/services/${encodeURIComponent(targetId)}`;
+                } else if (type === 'lounge') {
+                    endpoint = `/api/admin/lounges/${encodeURIComponent(targetId)}`;
+                }
+
+                const res = await fetch(endpoint, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3874,11 +4037,19 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`📍 บันทึกพิกัด [${shopName}] เป็น (${x}, ${y}) เรียบร้อยแล้ว!`, 'success');
-                    const storeInList = allStorePOIs.find(s => (s.shop_number || '').trim() === shopNumber.trim());
-                    if (storeInList) {
-                        storeInList.x = x.toString();
-                        storeInList.y = y.toString();
+                    showToast(`📍 บันทึกพิกัด [${name}] เป็น (${x}, ${y}) เรียบร้อยแล้ว!`, 'success');
+                    if (type === 'shop') {
+                        const s = (allPOIData.shops || []).find(it => (it.shop_number || '').trim() === targetId.trim());
+                        if (s) { s.x = x.toString(); s.y = y.toString(); }
+                    } else if (type === 'restaurants') {
+                        const r = (allPOIData.restaurants || []).find(it => (it.restaurant_id || '').trim() === targetId.trim());
+                        if (r) { r.x = x; r.y = y; }
+                    } else if (type === 'services') {
+                        const s = (allPOIData.services || []).find(it => (it.service_id || '').trim() === targetId.trim());
+                        if (s) { s.x = x; s.y = y; }
+                    } else if (type === 'lounge') {
+                        const l = (allPOIData.lounges || []).find(it => (it.lounge_id || '').trim() === targetId.trim());
+                        if (l) { l.x = x; l.y = y; }
                     }
                 } else {
                     alert(`ไม่สามารถบันทึกพิกัดได้: ${data.error || 'Server error'}`);
