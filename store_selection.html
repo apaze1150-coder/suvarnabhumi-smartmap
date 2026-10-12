@@ -159,7 +159,7 @@
 <!-- Store Item 1 -->
 <div class="store-card haptic-btn bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,10,30,0.06)] border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectStore('TE3')">
     <div class="relative w-full h-44 sm:h-52 bg-gray-100 overflow-hidden">
-        <img id="img-TE3" src="uploads/prod-1791708962118-861179416.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE3] PANPURI Concourse D East">
+        <img id="img-TE3" src="uploads/prod-1791771996717-377299682.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TE3] PANPURI Concourse D East">
         <div class="absolute top-3.5 right-3.5">
             <span class="bg-kingpower-status/95 backdrop-blur-sm text-kingpower-statusText text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-green-200/50">Open</span>
         </div>
@@ -213,7 +213,7 @@
 <!-- Store Item 3 -->
 <div class="store-card haptic-btn bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,10,30,0.06)] border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectStore('TW4')">
     <div class="relative w-full h-44 sm:h-52 bg-gray-100 overflow-hidden">
-        <img id="img-TW4" src="uploads/prod-1791708985025-400787670.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TW4] PANPURI Concourse D West">
+        <img id="img-TW4" src="uploads/prod-1791772021379-828844676.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://panpuri.com/wp-content/uploads/2023/10/Siamese-Water-Extract-Perfume-Oil_50ml_1-1050x1050.jpg'" alt="[TW4] PANPURI Concourse D West">
         <div class="absolute top-3.5 right-3.5">
             <span class="bg-kingpower-status/95 backdrop-blur-sm text-kingpower-statusText text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-green-200/50">Open</span>
         </div>
@@ -254,7 +254,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
       // 1. Load store matrix images dynamically from backend
       try {
-          const storeRes = await fetch('/api/stores');
+          const storeRes = await fetch('/api/stores?t=' + Date.now(), { cache: 'no-store' });
           const storeData = await storeRes.json();
           if (storeData.success && Array.isArray(storeData.stores)) {
               storeData.stores.forEach(s => {
@@ -262,9 +262,11 @@
                   if (!sId || !s.shop_image) return;
                   const img = document.getElementById('img-' + sId);
                   if (img) {
-                      const imagePath = s.shop_image.startsWith('/') 
+                      const imagePath = (s.shop_image.startsWith('http://') || s.shop_image.startsWith('https://'))
                           ? s.shop_image 
-                          : (s.shop_image.startsWith('uploads/') ? '/' + s.shop_image : '/uploads/' + s.shop_image);
+                          : (s.shop_image.startsWith('/') 
+                              ? s.shop_image 
+                              : (s.shop_image.startsWith('uploads/') ? '/' + s.shop_image : '/uploads/' + s.shop_image));
                       img.src = imagePath;
                   }
               });

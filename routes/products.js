@@ -335,7 +335,7 @@ router.delete('/api/admin/products/:Code', async (req, res) => {
 });
 
 // POST /api/admin/products/upload-image - Upload product image
-router.post('/api/admin/products/upload-image', upload.single('image'), (req, res) => {
+router.post('/api/admin/products/upload-image', upload.single('image'), async (req, res) => {
   const { password } = req.body;
   if (password !== ADMIN_PASSWORD) {
     if (req.file) fs.unlinkSync(req.file.path);
@@ -344,6 +344,25 @@ router.post('/api/admin/products/upload-image', upload.single('image'), (req, re
   
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No image provided' });
+  }
+
+  try {
+    const buffer = fs.readFileSync(req.file.path);
+    const ext = path.extname(req.file.filename).toLowerCase();
+    let mime = req.file.mimetype || 'image/jpeg';
+    if (ext === '.png') mime = 'image/png';
+    else if (ext === '.webp') mime = 'image/webp';
+    else if (ext === '.gif') mime = 'image/gif';
+    else if (ext === '.svg') mime = 'image/svg+xml';
+
+    await db.query(`
+      INSERT INTO uploaded_files (filename, mime_type, data, size, updated_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (filename) DO UPDATE
+      SET mime_type = EXCLUDED.mime_type, data = EXCLUDED.data, size = EXCLUDED.size, updated_at = NOW()
+    `, [req.file.filename, mime, buffer, buffer.length]);
+  } catch (err) {
+    console.error('[Product Upload Image] Error saving to DB:', err);
   }
 
   // Construct URL path

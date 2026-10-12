@@ -212,12 +212,6 @@
                         <span id="row-count-badge" class="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded-full font-extrabold">0 rows</span>
                     </div>
                     <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <!-- SAP Stock Import Button -->
-                        <button onclick="openSapImportModal()" id="btn-sap-import" class="bg-[#008f68] hover:bg-[#007a59] text-white transition-all font-bold text-sm px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shrink-0 active:scale-95" title="นำเข้าสต็อกสินค้า SAP (ZLMMRP63_NAN) เข้า Supabase">
-                            <span class="material-symbols-outlined text-sm">cloud_upload</span>
-                            <span class="hidden md:inline">นำเข้าสต็อก SAP เข้า Supabase</span>
-                            <span class="md:hidden">SAP Stock</span>
-                        </button>
                         <!-- CSV Upload -->
                         <div id="csv-upload-container" class="hidden relative">
                             <label class="bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-bold text-sm px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer active:scale-95">
@@ -329,6 +323,33 @@
         <span id="toast-message" class="text-xs font-bold">Successfully saved coordinate edits!</span>
     </div>
 
+    <!-- Image Preview Lightbox Modal -->
+    <div id="image-preview-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] hidden items-center justify-center p-4 transition-all" onclick="closeAdminImagePreview()">
+        <div class="relative bg-white rounded-3xl p-4 max-w-xl w-full max-h-[90vh] shadow-2xl flex flex-col items-center overflow-hidden animate-[scaleIn_0.2s_ease-out]" onclick="event.stopPropagation()">
+            <div class="w-full flex items-center justify-between pb-3 border-b border-slate-100 mb-3 px-1">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="material-symbols-outlined text-slate-400 text-lg">image</span>
+                    <span id="preview-modal-title" class="font-mono text-xs font-bold text-slate-800 truncate max-w-[320px]">Image Preview</span>
+                </div>
+                <button onclick="closeAdminImagePreview()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-all">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+            <div class="w-full flex items-center justify-center bg-slate-50 rounded-2xl p-2 border border-slate-100 overflow-hidden">
+                <img id="preview-modal-img" src="" alt="Full Preview" class="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-sm" />
+            </div>
+            <div class="w-full flex justify-end mt-3 gap-2">
+                <a id="preview-modal-open-link" href="#" target="_blank" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    เปิดในแท็บใหม่
+                </a>
+                <button onclick="closeAdminImagePreview()" class="px-4 py-2 bg-[#000a1e] text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JS Application Script -->
     <script>
         let currentTable = 'stores';
@@ -348,7 +369,7 @@
             stores: {
                 shop_number: { label: "Shop Number (e.g., DE1, DW1)", type: "text", required: true },
                 shop_name: { label: "Shop Name", type: "text", required: true },
-                shop_image: { label: "Shop Image (Filename)", type: "text", defaultValue: "default.jpg" },
+                shop_image: { label: "รูปภาพตัวอย่าง (Shop Image)", type: "text", defaultValue: "default.jpg" },
                 category: { label: "Category", type: "select", options: ["Perfumes & Cosmetics", "BOUTIQUES", "WATCH & JEWELLERY", "LOCAL FOOD", "Thai Product", "Royal Project", "Sports", "ELECTRONICS", "OTHER"] },
                 brands_available: { label: "Brands Available (Semicolon separated)", type: "textarea" },
                 graph_node_id: { label: "Graph Node ID", type: "text", placeholder: "e.g., Node_Shop_X" },
@@ -537,6 +558,8 @@
                     url = `/api/admin/product_matrix?password=${adminPassword}`;
                 } else if (currentTable === 'nodes') {
                     url = `/api/admin/nodes?password=${encodeURIComponent(adminPassword)}`;
+                } else if (currentTable === 'overrides') {
+                    url = `/api/admin/flight-overrides?password=${encodeURIComponent(adminPassword)}`;
                 }
 
                 if (currentTable === 'stores' || currentTable === 'products' || currentTable === 'nodes' || currentTable === 'overrides') {
@@ -624,13 +647,30 @@
                     td.className = "px-6 py-4 truncate max-w-[200px] border-b border-slate-100 font-semibold";
                     
                     const val = row[col];
-                    if ((col === 'shop_image' || col === 'PRODUCT_IMAGE_FILENAME' || col === 'image_url') && val) {
-                        td.innerHTML = `
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-slate-400 text-base">image</span>
-                                <span class="truncate font-mono text-xs">${val}</span>
-                            </div>
-                        `;
+                    if (col === 'shop_image' || col === 'PRODUCT_IMAGE_FILENAME' || col === 'image_url') {
+                        if (val) {
+                            const fallback = (col === 'PRODUCT_IMAGE_FILENAME') ? 'default_product.jpg' : 'default.jpg';
+                            const imgUrl = (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/uploads/') || val.startsWith('uploads/'))
+                                ? (val.startsWith('uploads/') ? '/' + val : val)
+                                : `/uploads/${val}`;
+                            td.className = "px-6 py-3 border-b border-slate-100 font-semibold min-w-[200px]";
+                            td.innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <div class="relative w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 shadow-sm cursor-pointer group/thumb hover:ring-2 hover:ring-[#000a1e] transition-all" onclick="openAdminImagePreview('${imgUrl}', '${escapeHtml(val)}')" title="คลิกเพื่อดูรูปภาพขนาดเต็ม">
+                                        <img src="${imgUrl}" alt="Thumbnail" class="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-110" onerror="this.onerror=null; this.src='/uploads/${fallback}';" />
+                                        <div class="absolute inset-0 bg-black/25 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity text-white">
+                                            <span class="material-symbols-outlined text-sm">zoom_in</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col min-w-0 max-w-[130px]">
+                                        <span class="truncate font-mono text-xs text-slate-700 font-bold" title="${escapeHtml(val)}">${escapeHtml(val)}</span>
+                                        <button type="button" onclick="openAdminImagePreview('${imgUrl}', '${escapeHtml(val)}')" class="text-[10px] text-blue-600 hover:text-blue-800 text-left font-semibold hover:underline">ดูรูปตัวอย่าง</button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            td.innerHTML = `<span class="text-slate-400 text-xs italic">ไม่มีรูป</span>`;
+                        }
                     } else if (col === 'shop_number' || col === 'PRODUCT_ID' || col === 'node_id' || col === 'x' || col === 'y') {
                         td.innerHTML = `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono text-xs">${val}</span>`;
                     } else {
@@ -1010,6 +1050,38 @@
             
             document.getElementById(`filename-${key}`).innerText = trimmed;
             showToast("Web link set successfully!", "check_circle", "green");
+        }
+
+        function openAdminImagePreview(url, title) {
+            const modal = document.getElementById('image-preview-modal');
+            const img = document.getElementById('preview-modal-img');
+            const titleEl = document.getElementById('preview-modal-title');
+            const link = document.getElementById('preview-modal-open-link');
+            if (modal && img) {
+                img.src = url;
+                if (titleEl) titleEl.innerText = title || url;
+                if (link) link.href = url;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeAdminImagePreview() {
+            const modal = document.getElementById('image-preview-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
         // Helper visual utility triggers

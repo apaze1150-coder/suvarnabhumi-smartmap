@@ -13,6 +13,9 @@ const { loadNavigationGraph } = require('./navigation');
 // GET /api/stores - Public list of all stores for store selection and customer UI
 router.get('/api/stores', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     const stores = await readCsv(STORE_CSV);
     return res.json({ success: true, stores });
   } catch (error) {
@@ -71,25 +74,63 @@ router.post('/api/search-store', async (req, res) => {
   }
 });
 
-// Helper function to save stores to csv (synchronously to match existing pattern)
+// Helper function to save stores to csv and DB
 async function saveStoresToCsvSync(stores) {
   try {
     await db.query('TRUNCATE store_matrix');
     for (let row of stores) {
       await db.query('INSERT INTO store_matrix (shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)', [row.shop_number, row.shop_name, row.shop_image, row.category, row.brands_available, row.graph_node_id, Number(row.x)||0, Number(row.y)||0, row.parent_node_id, row.store_id, row.AI_KEYWORDS, row.TOP_HERO_PRODUCTS, row.PROMOTION_TAGS]);
     }
+
+    // Also write back to store_matrix.csv so local file copy stays synced
+    try {
+      const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
+      const escapeCsv = (v) => {
+        if (v === null || v === undefined) return '""';
+        const s = String(v);
+        return '"' + s.replace(/"/g, '""') + '"';
+      };
+      const lines = [headers.join(',')];
+      for (let row of stores) {
+        lines.push(headers.map(h => escapeCsv(row[h])).join(','));
+      }
+      fs.writeFileSync(STORE_CSV, lines.join('\n'), 'utf8');
+    } catch (csvErr) {
+      console.warn('Could not write STORE_CSV:', csvErr.message);
+    }
   } catch(e) { console.error('Error saving stores to DB:', e); }
 }
 
 // POST /api/admin/upload-image - Upload a shop image
-router.post('/api/admin/upload-image', upload.single('image'), (req, res) => {
+router.post('/api/admin/upload-image', upload.single('image'), async (req, res) => {
   const { password } = req.body;
   if (password !== '6515') {
+    if (req.file) fs.unlink(req.file.path, () => {});
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
 
   if (!req.file) {
     return res.status(400).json({ error: 'No image file uploaded.' });
+  }
+
+  try {
+    // Save image permanently to PostgreSQL uploaded_files table
+    const buffer = fs.readFileSync(req.file.path);
+    const ext = path.extname(req.file.filename).toLowerCase();
+    let mime = req.file.mimetype || 'image/jpeg';
+    if (ext === '.png') mime = 'image/png';
+    else if (ext === '.webp') mime = 'image/webp';
+    else if (ext === '.gif') mime = 'image/gif';
+    else if (ext === '.svg') mime = 'image/svg+xml';
+
+    await db.query(`
+      INSERT INTO uploaded_files (filename, mime_type, data, size, updated_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (filename) DO UPDATE
+      SET mime_type = EXCLUDED.mime_type, data = EXCLUDED.data, size = EXCLUDED.size, updated_at = NOW()
+    `, [req.file.filename, mime, buffer, buffer.length]);
+  } catch (err) {
+    console.error('[Upload Image] Error saving to DB:', err);
   }
 
   const relativePath = `/uploads/${req.file.filename}`;

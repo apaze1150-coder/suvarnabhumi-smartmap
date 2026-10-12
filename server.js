@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const path = require('path');
 const { apiLimiter } = require('./middlewares/rateLimiter');
 
+const fs = require('fs');
+const db = require('./db');
+
 // Import combined routes
 const routes = require('./routes');
 
@@ -34,6 +37,37 @@ app.use('/api/', apiLimiter);
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+// ── Persistent Uploads (Serve from local disk or fallback to Supabase DB) ──
+app.get('/uploads/:filename', async (req, res, next) => {
+  const filename = path.basename(req.params.filename);
+  const localPath = path.join(__dirname, 'uploads', filename);
+
+  if (fs.existsSync(localPath)) {
+    return res.sendFile(localPath);
+  }
+
+  try {
+    const result = await db.query('SELECT mime_type, data FROM uploaded_files WHERE filename = $1', [filename]);
+    if (result.rows.length > 0) {
+      const fileRow = result.rows[0];
+      try {
+        const uploadDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+        fs.writeFileSync(localPath, fileRow.data);
+      } catch (writeErr) {
+        console.warn('[Uploads Cache] Write error:', writeErr.message);
+      }
+      res.setHeader('Content-Type', fileRow.mime_type || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.send(fileRow.data);
+    }
+  } catch (dbErr) {
+    console.error('[Uploads DB] Query error:', dbErr.message);
+  }
+
+  return res.status(404).send('Image not found');
+});
 
 // ── Static Files ───────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

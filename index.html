@@ -1937,7 +1937,7 @@
 
         async function loadMapStoresPOIs() {
             try {
-                const res = await fetch('/api/stores');
+                const res = await fetch('/api/stores?t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.stores)) {
                     allStorePOIs = data.stores;
