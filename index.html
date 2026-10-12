@@ -1990,6 +1990,8 @@
             });
 
             renderAmbientPOIs();
+            // Live background sync: pull any latest changes added from other computers
+            loadMapStoresPOIs();
         }
 
         async function loadMapStoresPOIs() {
@@ -3206,8 +3208,10 @@
                 navMap.classList.remove('text-gray-400');
                 navMap.classList.add('text-[#001a3d]');
                 const span = navMap.querySelector('.material-symbols-outlined');
-                if (span) span.style.fontVariationSettings = "'FILL' 1";
-                setTimeout(() => fitMapToScreen(), 50);
+                setTimeout(() => {
+                    fitMapToScreen();
+                    if (typeof loadMapStoresPOIs === 'function') loadMapStoresPOIs();
+                }, 50);
             } else if (pageId === 'page-preorder') {
                 const trackStep = document.getElementById('preorder-step-track');
                 const isTrackActive = trackStep && !trackStep.classList.contains('hidden');
