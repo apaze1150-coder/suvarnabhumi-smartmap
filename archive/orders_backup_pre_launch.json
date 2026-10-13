@@ -1,0 +1,1974 @@
+[
+  {
+    "order_id": "ORD-1783487490193",
+    "order_number": "KP-2026-0001",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต",
+    "flight_number": "ํTG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PANPURI Body Wash Siamese Water 330ml",
+        "price": "890",
+        "product_id": "p001",
+        "product_code": "PFB01001"
+      },
+      {
+        "qty": 1,
+        "name": "PANPURI Body Wash Andaman Sails 330ml",
+        "price": "890",
+        "product_id": "p002",
+        "product_code": "PFB01002"
+      }
+    ],
+    "total_price": "1780.00",
+    "status": "cancelled",
+    "created_at": "2026-07-08T05:11:30.194Z",
+    "updated_at": "2026-07-08T18:13:16.933Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1783539291734",
+    "order_number": "KP-2026-0002",
+    "store_id": "DE40",
+    "customer_name": "apaze",
+    "flight_number": "TG679",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PANPURI Body Wash Eternal Sunshine 330ml",
+        "price": "890",
+        "product_id": "p003",
+        "product_code": "PFB01003"
+      },
+      {
+        "qty": 3,
+        "name": "PANPURI Body Wash Sacred Santal 330ml",
+        "price": "890",
+        "product_id": "p004",
+        "product_code": "PFB01004"
+      }
+    ],
+    "total_price": "4450.00",
+    "status": "ready",
+    "created_at": "2026-07-08T19:34:51.735Z",
+    "updated_at": "2026-07-08T19:35:38.358Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1784388067262",
+    "order_number": "KP-2026-0003",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต",
+    "flight_number": "TG601",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "ready",
+    "created_at": "2026-07-18T15:21:07.262Z",
+    "updated_at": "2026-07-18T15:22:01.036Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1784436316860",
+    "order_number": "KP-2026-0004",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      }
+    ],
+    "total_price": "200.00",
+    "status": "ready",
+    "created_at": "2026-07-19T04:45:16.860Z",
+    "updated_at": "2026-07-19T04:56:59.234Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1784437084143",
+    "order_number": "KP-2026-0005",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต ทดลอง หลายรายการ",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      },
+      {
+        "qty": 2,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "200",
+        "product_id": "8003",
+        "product_code": "8003"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "400",
+        "product_id": "8004",
+        "product_code": "8004"
+      }
+    ],
+    "total_price": "900.00",
+    "status": "ready",
+    "created_at": "2026-07-19T04:58:04.143Z",
+    "updated_at": "2026-07-19T04:58:36.998Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1784438282151",
+    "order_number": "KP-2026-0006",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต ทดลอง หลายรายการ",
+    "flight_number": "TG604",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "200",
+        "product_id": "8003",
+        "product_code": "8003"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "400",
+        "product_id": "8004",
+        "product_code": "8004"
+      },
+      {
+        "qty": 1,
+        "name": "Hydrating Glow Satin Body Oil Mist",
+        "price": "100",
+        "product_id": "8006",
+        "product_code": "8006"
+      },
+      {
+        "qty": 1,
+        "name": "Softening Shower Oil",
+        "price": "100",
+        "product_id": "8007",
+        "product_code": "8007"
+      },
+      {
+        "qty": 1,
+        "name": "Strengthening Oil Serum",
+        "price": "100",
+        "product_id": "8008",
+        "product_code": "8008"
+      },
+      {
+        "qty": 1,
+        "name": "Ambience Diffuser",
+        "price": "100",
+        "product_id": "8009",
+        "product_code": "8009"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8010",
+        "product_code": "8010"
+      },
+      {
+        "qty": 1,
+        "name": "Ambience Candle",
+        "price": "200",
+        "product_id": "8011",
+        "product_code": "8011"
+      }
+    ],
+    "total_price": "1500.00",
+    "status": "ready",
+    "created_at": "2026-07-19T05:18:02.152Z",
+    "updated_at": "2026-07-19T05:52:29.129Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785260837689",
+    "order_number": "KP-2026-0007",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต test",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      }
+    ],
+    "total_price": "200.00",
+    "status": "pending",
+    "created_at": "2026-07-28T17:47:17.690Z",
+    "updated_at": "2026-07-28T17:47:17.690Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785261356138",
+    "order_number": "KP-2026-0008",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต test2",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "200",
+        "product_id": "8003",
+        "product_code": "8003"
+      }
+    ],
+    "total_price": "300.00",
+    "status": "pending",
+    "created_at": "2026-07-28T17:55:56.139Z",
+    "updated_at": "2026-07-28T17:55:56.139Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785261618171",
+    "order_number": "KP-2026-0009",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต test3",
+    "flight_number": "TG604",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "Softening Shower Oil",
+        "price": "100",
+        "product_id": "8007",
+        "product_code": "8007"
+      },
+      {
+        "qty": 1,
+        "name": "Strengthening Oil Serum",
+        "price": "100",
+        "product_id": "8008",
+        "product_code": "8008"
+      }
+    ],
+    "total_price": "300.00",
+    "status": "cancelled",
+    "created_at": "2026-07-28T18:00:18.171Z",
+    "updated_at": "2026-07-28T18:10:21.285Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785261818776",
+    "order_number": "KP-2026-0010",
+    "store_id": "DE12",
+    "customer_name": "อภิชาต test4",
+    "flight_number": "TG605",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "Ambience Candle",
+        "price": "200",
+        "product_id": "8011",
+        "product_code": "8011"
+      }
+    ],
+    "total_price": "200.00",
+    "status": "cancelled",
+    "created_at": "2026-07-28T18:03:38.776Z",
+    "updated_at": "2026-07-28T18:11:14.468Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785262317946",
+    "order_number": "KP-2026-0011",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต test5",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "Softening Shower Oil",
+        "price": "100",
+        "product_id": "8007",
+        "product_code": "8007"
+      },
+      {
+        "qty": 1,
+        "name": "Strengthening Oil Serum",
+        "price": "100",
+        "product_id": "8008",
+        "product_code": "8008"
+      },
+      {
+        "qty": 1,
+        "name": "Ambience Candle",
+        "price": "200",
+        "product_id": "8011",
+        "product_code": "8011"
+      }
+    ],
+    "total_price": "400.00",
+    "status": "cancelled",
+    "created_at": "2026-07-28T18:11:57.947Z",
+    "updated_at": "2026-07-28T18:17:47.228Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785263169896",
+    "order_number": "KP-2026-0012",
+    "store_id": "DE40",
+    "customer_name": "อภิชาต test5",
+    "flight_number": "TG605",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "200",
+        "product_id": "8003",
+        "product_code": "8003"
+      },
+      {
+        "qty": 1,
+        "name": "PPR",
+        "price": "400",
+        "product_id": "8004",
+        "product_code": "8004"
+      }
+    ],
+    "total_price": "800.00",
+    "status": "pending",
+    "created_at": "2026-07-28T18:26:09.896Z",
+    "updated_at": "2026-07-28T18:26:09.896Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785390476494",
+    "order_number": "KP-2026-0013",
+    "store_id": "DE40",
+    "customer_name": "Saowalak",
+    "flight_number": "TG910",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PPR",
+        "price": "100",
+        "product_id": "8002",
+        "product_code": "8002"
+      }
+    ],
+    "total_price": "200.00",
+    "status": "pending",
+    "created_at": "2026-07-30T05:47:56.494Z",
+    "updated_at": "2026-07-30T05:47:56.494Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785424286673",
+    "order_number": "KP-2026-0014",
+    "store_id": "DE40",
+    "customer_name": "Montatip",
+    "flight_number": "TG471",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR1",
+        "price": "100",
+        "product_id": "8001",
+        "product_code": "8001"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SIAMESE WATER",
+        "price": "3695",
+        "product_id": "4603728",
+        "product_code": "4603728"
+      }
+    ],
+    "total_price": "3795.00",
+    "status": "pending",
+    "created_at": "2026-07-30T15:11:26.673Z",
+    "updated_at": "2026-07-30T15:11:26.673Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785472565437",
+    "order_number": "KP-2026-0015",
+    "store_id": "DE40",
+    "customer_name": "ฟย",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SACRED SANTAL",
+        "price": "3695",
+        "product_id": "4603735",
+        "product_code": "4603735"
+      }
+    ],
+    "total_price": "3695.00",
+    "status": "pending",
+    "created_at": "2026-07-31T04:36:05.437Z",
+    "updated_at": "2026-07-31T04:36:05.437Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785473099145",
+    "order_number": "KP-2026-TEST",
+    "store_id": "DE40",
+    "customer_name": "Test",
+    "flight_number": "TG123",
+    "items_json": [
+      {
+        "qty": 1,
+        "price": "100",
+        "product_id": "test"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "pending",
+    "created_at": "2026-07-31T04:44:59.145Z",
+    "updated_at": "2026-07-31T04:44:59.145Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785473412614",
+    "order_number": "KP-2026-0017",
+    "store_id": "DE40",
+    "customer_name": "apichart",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SACRED SANTAL",
+        "price": "3695",
+        "product_id": "4603735",
+        "product_code": "4603735"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL HEAVEN MOON OSMANTHUS",
+        "price": "3695",
+        "product_id": "4810580",
+        "product_code": "4810580"
+      }
+    ],
+    "total_price": "7390.00",
+    "status": "pending",
+    "created_at": "2026-07-31T04:50:12.614Z",
+    "updated_at": "2026-07-31T04:50:12.614Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785473642423",
+    "order_number": "KP-2026-0018",
+    "store_id": "DE40",
+    "customer_name": "apichart",
+    "flight_number": "TG916",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL ONE NIGHT IN BANGKOK",
+        "price": "3695",
+        "product_id": "4603737",
+        "product_code": "4603737"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML FR.OIL EXT.AMBARA NECTAR",
+        "price": "1490",
+        "product_id": "4839410",
+        "product_code": "4839410"
+      }
+    ],
+    "total_price": "5185.00",
+    "status": "pending",
+    "created_at": "2026-07-31T04:54:02.423Z",
+    "updated_at": "2026-07-31T04:54:02.423Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785765693200",
+    "order_number": "KP-2026-0043",
+    "store_id": "TE3",
+    "customer_name": "apichart",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-03T14:01:33.200Z",
+    "updated_at": "2026-08-03T14:01:33.200Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785771765725",
+    "order_number": "KP-2026-0044",
+    "store_id": "TE3",
+    "customer_name": "Montatip",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 40G SACHET SACRED SANTAL",
+        "price": "550",
+        "product_id": "4695687",
+        "product_code": "4695687"
+      }
+    ],
+    "total_price": "550.00",
+    "status": "pending",
+    "created_at": "2026-08-03T15:42:45.725Z",
+    "updated_at": "2026-08-03T15:42:45.725Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785559517001",
+    "order_number": "KP-2026-0019",
+    "store_id": "DE40",
+    "customer_name": "Apichart New item test",
+    "flight_number": "MH785",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NOT THE END YET",
+        "price": "3925",
+        "product_id": "4972752",
+        "product_code": "4972752"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHAT THE WIND FORGOT",
+        "price": "3925",
+        "product_id": "4972753",
+        "product_code": "4972753"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP BLUE HOUR LETTERS",
+        "price": "3925",
+        "product_id": "4972754",
+        "product_code": "4972754"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP THE SOFT WITHIN",
+        "price": "3925",
+        "product_id": "4972755",
+        "product_code": "4972755"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP I'LL STAY UNTYOU SLEEP",
+        "price": "3925",
+        "product_id": "4972756",
+        "product_code": "4972756"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP LITTLE LIGHT STILL BURNING",
+        "price": "3925",
+        "product_id": "4972757",
+        "product_code": "4972757"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP THE GROUND  REMEMBERS",
+        "price": "3925",
+        "product_id": "4972758",
+        "product_code": "4972758"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP QUIET BETWEEN",
+        "price": "1825",
+        "product_id": "4972759",
+        "product_code": "4972759"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP WHISPER OF SUN",
+        "price": "1825",
+        "product_id": "4972760",
+        "product_code": "4972760"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP NO ONE IS WATCHING",
+        "price": "1825",
+        "product_id": "4972761",
+        "product_code": "4972761"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP WHAT THE WIND FORGOT",
+        "price": "1825",
+        "product_id": "4972763",
+        "product_code": "4972763"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP BLUE HOUR LETTERS",
+        "price": "1825",
+        "product_id": "4972764",
+        "product_code": "4972764"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP THE SOFT WITHIIN",
+        "price": "1825",
+        "product_id": "4972765",
+        "product_code": "4972765"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP I'LL STAY UNTIL YOU SLEEP",
+        "price": "1825",
+        "product_id": "4972766",
+        "product_code": "4972766"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP LITTLE LIGHTSTILL BURNING",
+        "price": "1825",
+        "product_id": "4972767",
+        "product_code": "4972767"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP THE GROUND RE",
+        "price": "1825",
+        "product_id": "4972768",
+        "product_code": "4972768"
+      },
+      {
+        "qty": 1,
+        "name": "PPR AMBER COMB",
+        "price": "610",
+        "product_id": "4972776",
+        "product_code": "4972776"
+      },
+      {
+        "qty": 1,
+        "name": "PPR IVORY COMB",
+        "price": "610",
+        "product_id": "4972777",
+        "product_code": "4972777"
+      },
+      {
+        "qty": 1,
+        "name": "PPR MARBLE COMB",
+        "price": "610",
+        "product_id": "4972778",
+        "product_code": "4972778"
+      }
+    ],
+    "total_price": "57505.00",
+    "status": "pending",
+    "created_at": "2026-08-01T04:45:17.001Z",
+    "updated_at": "2026-08-01T04:45:17.001Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785560552166",
+    "order_number": "KP-2026-0020",
+    "store_id": "DE12",
+    "customer_name": "te3",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-01T05:02:32.167Z",
+    "updated_at": "2026-08-01T14:53:03.443Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785560603599",
+    "order_number": "KP-2026-0021",
+    "store_id": "DE40",
+    "customer_name": "te1",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-01T05:03:23.599Z",
+    "updated_at": "2026-08-01T14:53:15.263Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785560633239",
+    "order_number": "KP-2026-0022",
+    "store_id": "DE12",
+    "customer_name": "te3",
+    "flight_number": "TG604",
+    "items_json": [
+      {
+        "qty": 4,
+        "name": "PPR 50ML EDP NOT THE END YET",
+        "price": "3925",
+        "product_id": "4972752",
+        "product_code": "4972752"
+      }
+    ],
+    "total_price": "15700.00",
+    "status": "cancelled",
+    "created_at": "2026-08-01T05:03:53.239Z",
+    "updated_at": "2026-08-01T14:53:29.980Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785561175606",
+    "order_number": "KP-2026-0023",
+    "store_id": "DE40",
+    "customer_name": "สังจอง TE1",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHAT THE WIND FORGOT",
+        "price": "3925",
+        "product_id": "4972753",
+        "product_code": "4972753"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-01T05:12:55.606Z",
+    "updated_at": "2026-08-01T05:12:55.606Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785562119696",
+    "order_number": "KP-2026-0024",
+    "store_id": "TE1",
+    "customer_name": "จอง TE1",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "collected",
+    "created_at": "2026-08-01T05:28:39.698Z",
+    "updated_at": "2026-08-11T15:30:25.749Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785562181651",
+    "order_number": "KP-2026-0025",
+    "store_id": "TE3",
+    "customer_name": "0v' ธฎ3",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHAT THE WIND FORGOT",
+        "price": "3925",
+        "product_id": "4972753",
+        "product_code": "4972753"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-01T05:29:41.651Z",
+    "updated_at": "2026-08-01T05:29:41.651Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785589641006",
+    "order_number": "KP-2026-0026",
+    "store_id": "DE40",
+    "customer_name": "Test ที่ Lotus",
+    "flight_number": "TG471",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP NO ONE IS WATCHING",
+        "price": "1825",
+        "product_id": "4972761",
+        "product_code": "4972761"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP LITTLE LIGHTSTILL BURNING",
+        "price": "1825",
+        "product_id": "4972767",
+        "product_code": "4972767"
+      }
+    ],
+    "total_price": "3650.00",
+    "status": "pending",
+    "created_at": "2026-08-01T13:07:21.006Z",
+    "updated_at": "2026-08-01T13:07:21.006Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785595207937",
+    "order_number": "KP-2026-0027",
+    "store_id": "TW4",
+    "customer_name": "tw4 test",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP LITTLE LIGHT STILL BURNING",
+        "price": "3925",
+        "product_id": "4972757",
+        "product_code": "4972757"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "collected",
+    "created_at": "2026-08-01T14:40:07.937Z",
+    "updated_at": "2026-10-12T08:21:51.077Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785595327465",
+    "order_number": "KP-2026-0028",
+    "store_id": "TE1",
+    "customer_name": "te1 test 9.40",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP WHISPER OF SUN",
+        "price": "1825",
+        "product_id": "4972760",
+        "product_code": "4972760"
+      }
+    ],
+    "total_price": "1825.00",
+    "status": "collected",
+    "created_at": "2026-08-01T14:42:07.465Z",
+    "updated_at": "2026-08-11T15:30:19.281Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785595391158",
+    "order_number": "KP-2026-0029",
+    "store_id": "TE3",
+    "customer_name": "te3 3รายการ 9.43",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP I'LL STAY UNTYOU SLEEP",
+        "price": "3925",
+        "product_id": "4972756",
+        "product_code": "4972756"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP LITTLE LIGHT STILL BURNING",
+        "price": "3925",
+        "product_id": "4972757",
+        "product_code": "4972757"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP THE GROUND  REMEMBERS",
+        "price": "3925",
+        "product_id": "4972758",
+        "product_code": "4972758"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "pending",
+    "created_at": "2026-08-01T14:43:11.158Z",
+    "updated_at": "2026-08-01T14:43:11.158Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785595567984",
+    "order_number": "KP-2026-0030",
+    "store_id": "TE3",
+    "customer_name": "te3 9.46",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-01T14:46:07.984Z",
+    "updated_at": "2026-08-01T14:52:21.834Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785596505946",
+    "order_number": "KP-2026-0031",
+    "store_id": "TE3",
+    "customer_name": "TE3 10.10",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-01T15:01:45.946Z",
+    "updated_at": "2026-08-01T15:12:17.606Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785597843886",
+    "order_number": "KP-2026-0032",
+    "store_id": "TW4",
+    "customer_name": "จอง TW4 10.23",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP BLUE HOUR LETTERS",
+        "price": "3925",
+        "product_id": "4972754",
+        "product_code": "4972754"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "collected",
+    "created_at": "2026-08-01T15:24:03.886Z",
+    "updated_at": "2026-10-12T08:21:36.887Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785597893758",
+    "order_number": "KP-2026-0033",
+    "store_id": "TW4",
+    "customer_name": "จอง TW4 10.23",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "collected",
+    "created_at": "2026-08-01T15:24:53.758Z",
+    "updated_at": "2026-10-12T08:21:20.008Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785652284428",
+    "order_number": "KP-2026-0034",
+    "store_id": "TE1",
+    "customer_name": "TE1 tEST 3  ชิ้น",
+    "flight_number": "TG605",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "collected",
+    "created_at": "2026-08-02T06:31:24.428Z",
+    "updated_at": "2026-08-11T15:30:14.218Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785653035843",
+    "order_number": "KP-2026-0035",
+    "store_id": "TE3",
+    "customer_name": "Apichart Test Te3",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "ready",
+    "created_at": "2026-08-02T06:43:55.843Z",
+    "updated_at": "2026-08-02T06:46:43.309Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785751716083",
+    "order_number": "KP-2026-0036",
+    "store_id": "TE3",
+    "customer_name": "TE3 Test",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-03T10:08:36.083Z",
+    "updated_at": "2026-08-03T10:08:36.083Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785751978295",
+    "order_number": "KP-2026-0037",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต ทดลอง หลายรายการ",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-03T10:12:58.295Z",
+    "updated_at": "2026-08-03T10:12:58.295Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785763799040",
+    "order_number": "KP-2026-0038",
+    "store_id": "TE3",
+    "customer_name": "Test",
+    "flight_number": "TG123",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "A",
+        "price": 100,
+        "product_id": "1",
+        "product_code": "TEST"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "pending",
+    "created_at": "2026-08-03T13:29:59.041Z",
+    "updated_at": "2026-08-03T13:29:59.041Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785764047272",
+    "order_number": "KP-2026-0039",
+    "store_id": "TE3",
+    "customer_name": "Test",
+    "flight_number": "TG123",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "A",
+        "price": 100,
+        "product_id": "1",
+        "product_code": "TEST"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "pending",
+    "created_at": "2026-08-03T13:34:07.272Z",
+    "updated_at": "2026-08-03T13:34:07.272Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785764399067",
+    "order_number": "KP-2026-0040",
+    "store_id": "TE3",
+    "customer_name": "Test",
+    "flight_number": "TG123",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "A",
+        "price": 100,
+        "product_id": "1",
+        "product_code": "TEST"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "pending",
+    "created_at": "2026-08-03T13:39:59.067Z",
+    "updated_at": "2026-08-03T13:39:59.067Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785764679469",
+    "order_number": "KP-2026-0041",
+    "store_id": "TE3",
+    "customer_name": "Test",
+    "flight_number": "TG123",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "A",
+        "price": 100,
+        "product_id": "1",
+        "product_code": "TEST"
+      }
+    ],
+    "total_price": "100.00",
+    "status": "preparing",
+    "created_at": "2026-08-03T13:44:39.469Z",
+    "updated_at": "2026-08-03T15:44:22.012Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785765612832",
+    "order_number": "KP-2026-0042",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต สำเภากิจ",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NOT THE END YET",
+        "price": "3925",
+        "product_id": "4972752",
+        "product_code": "4972752"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "ready",
+    "created_at": "2026-08-03T14:00:12.832Z",
+    "updated_at": "2026-08-03T14:05:41.546Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785827532470",
+    "order_number": "KP-2026-0045",
+    "store_id": "TE3",
+    "customer_name": "Kannika saentodsapron",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP I'LL STAY UNTYOU SLEEP",
+        "price": "3925",
+        "product_id": "4972756",
+        "product_code": "4972756"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML EDP THE GROUND RE",
+        "price": "1825",
+        "product_id": "4972768",
+        "product_code": "4972768"
+      }
+    ],
+    "total_price": "9675.00",
+    "status": "cancelled",
+    "created_at": "2026-08-04T07:12:12.470Z",
+    "updated_at": "2026-08-06T09:47:35.932Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1785827837034",
+    "order_number": "KP-2026-0046",
+    "store_id": "TE3",
+    "customer_name": "saowalak",
+    "flight_number": "TG910",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NOT THE END YET",
+        "price": "3925",
+        "product_id": "4972752",
+        "product_code": "4972752"
+      }
+    ],
+    "total_price": "15700.00",
+    "status": "pending",
+    "created_at": "2026-08-04T07:17:17.034Z",
+    "updated_at": "2026-08-04T07:17:17.034Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786029064737",
+    "order_number": "KP-2026-0047",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต",
+    "flight_number": "TG602",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-06T15:11:04.738Z",
+    "updated_at": "2026-08-06T15:11:04.738Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786029434877",
+    "order_number": "KP-2026-0048",
+    "store_id": "TE3",
+    "customer_name": "apichart",
+    "flight_number": "TG604",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-06T15:17:14.877Z",
+    "updated_at": "2026-08-06T15:17:14.877Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786030134395",
+    "order_number": "KP-2026-0049",
+    "store_id": "TE3",
+    "customer_name": "te3",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-06T15:28:54.395Z",
+    "updated_at": "2026-08-06T15:34:00.407Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786032356741",
+    "order_number": "KP-2026-0050",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต สำเภากิจ test 11.05",
+    "flight_number": "TG471",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-08-06T16:05:56.741Z",
+    "updated_at": "2026-08-06T16:05:56.741Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786053177415",
+    "order_number": "KP-2026-0051",
+    "store_id": "TE1",
+    "customer_name": "Montatip",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP THE SOFT WITHIN",
+        "price": "3925",
+        "product_id": "4972755",
+        "product_code": "4972755"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-06T21:52:57.415Z",
+    "updated_at": "2026-08-06T21:53:51.059Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1786199058001",
+    "order_number": "KP-2026-0052",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต",
+    "flight_number": "TG604",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "cancelled",
+    "created_at": "2026-08-08T14:24:18.001Z",
+    "updated_at": "2026-08-11T14:36:15.328Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1789684597571",
+    "order_number": "KP-2026-0053",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต",
+    "flight_number": "TG603",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      }
+    ],
+    "total_price": "3925.00",
+    "status": "pending",
+    "created_at": "2026-09-17T22:36:37.571Z",
+    "updated_at": "2026-09-17T22:36:37.571Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1789800551246",
+    "order_number": "KP-2026-0054",
+    "store_id": "TE3",
+    "customer_name": "saowalak",
+    "flight_number": "TG465",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "cancelled",
+    "created_at": "2026-09-19T06:49:11.246Z",
+    "updated_at": "2026-09-19T06:57:03.577Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1789801085382",
+    "order_number": "KP-2026-0055",
+    "store_id": "TE3",
+    "customer_name": "saowalak",
+    "flight_number": "TG465",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NO ONE IS WATCHING",
+        "price": "3925",
+        "product_id": "4972751",
+        "product_code": "4972751"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "collected",
+    "created_at": "2026-09-19T06:58:05.382Z",
+    "updated_at": "2026-09-19T07:00:14.220Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1789801267288",
+    "order_number": "KP-2026-0056",
+    "store_id": "TE3",
+    "customer_name": "saowalak",
+    "flight_number": "TG465",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP QUIET BETWEEN (Edited)",
+        "price": "3925",
+        "product_id": "4972749",
+        "product_code": "4972749"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP WHISPER OF SUN",
+        "price": "3925",
+        "product_id": "4972750",
+        "product_code": "4972750"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML EDP NOT THE END YET",
+        "price": "3925",
+        "product_id": "4972752",
+        "product_code": "4972752"
+      }
+    ],
+    "total_price": "11775.00",
+    "status": "collected",
+    "created_at": "2026-09-19T07:01:07.289Z",
+    "updated_at": "2026-09-19T07:03:28.265Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791532290140",
+    "order_number": "KP-2026-0057",
+    "store_id": "TE3",
+    "customer_name": "Test",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 450ML B/CLNS SIAMESE WATER",
+        "price": "1170",
+        "product_id": "4936047",
+        "product_code": "4936047"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 450ML B/CLNS INDOCHINE",
+        "price": "1170",
+        "product_id": "4936048",
+        "product_code": "4936048"
+      }
+    ],
+    "total_price": "2340.00",
+    "status": "pending",
+    "created_at": "2026-10-09T07:51:30.140Z",
+    "updated_at": "2026-10-09T07:51:30.140Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791532524837",
+    "order_number": "KP-2026-0058",
+    "store_id": "TE3",
+    "customer_name": "TEST 2",
+    "flight_number": "TG601",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PPR 450ML B/CLNS ANDAMAN SAILS",
+        "price": "1170",
+        "product_id": "4936050",
+        "product_code": "4936050"
+      }
+    ],
+    "total_price": "2340.00",
+    "status": "pending",
+    "created_at": "2026-10-09T07:55:24.837Z",
+    "updated_at": "2026-10-09T07:55:24.837Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791532593605",
+    "order_number": "KP-2026-0059",
+    "store_id": "TE3",
+    "customer_name": "TEST3",
+    "flight_number": "TG901",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 450ML B/CLNS ANDAMAN SAILS",
+        "price": "1170",
+        "product_id": "4936050",
+        "product_code": "4936050"
+      }
+    ],
+    "total_price": "1170.00",
+    "status": "pending",
+    "created_at": "2026-10-09T07:56:33.605Z",
+    "updated_at": "2026-10-12T01:57:11.278Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791618057504",
+    "order_number": "KP-2026-0060",
+    "store_id": "TE3",
+    "customer_name": "Apichart",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 2,
+        "name": "PPR 50ML FR.OIL LOTUS",
+        "price": "3695",
+        "product_id": "4918396",
+        "product_code": "4918396"
+      },
+      {
+        "qty": 1,
+        "name": "PPR+50ML FR.OIL EXT.GOLDEN EMBER",
+        "price": "3695",
+        "product_id": "4929063",
+        "product_code": "4929063"
+      }
+    ],
+    "total_price": "11085.00",
+    "status": "ready",
+    "created_at": "2026-10-10T07:40:57.504Z",
+    "updated_at": "2026-10-10T07:52:42.179Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791618104399",
+    "order_number": "KP-2026-0061",
+    "store_id": "TE3",
+    "customer_name": "Apichart",
+    "flight_number": "TG900",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 10ML FR.OIL EXT.KINDRED",
+        "price": "1580",
+        "product_id": "4918385",
+        "product_code": "4918385"
+      }
+    ],
+    "total_price": "1580.00",
+    "status": "out_of_stock",
+    "created_at": "2026-10-10T07:41:44.399Z",
+    "updated_at": "2026-10-10T07:49:03.787Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791666139067",
+    "order_number": "KP-2026-0062",
+    "store_id": "TE3",
+    "customer_name": "apichart",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SIAMESE WATER",
+        "price": "3695",
+        "product_id": "4603728",
+        "product_code": "4603728"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL EXT.AMBARA NECTAR",
+        "price": "3600",
+        "product_id": "4839407",
+        "product_code": "4839407"
+      }
+    ],
+    "total_price": "7295.00",
+    "status": "cancelled",
+    "created_at": "2026-10-10T21:02:19.067Z",
+    "updated_at": "2026-10-10T21:20:38.881Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791704810569",
+    "order_number": "KP-2026-0063",
+    "store_id": "TE3",
+    "customer_name": "saowalak",
+    "flight_number": "TG960",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL EXT.AMBARA NECTAR",
+        "price": "3600",
+        "product_id": "4839407",
+        "product_code": "4839407"
+      },
+      {
+        "qty": 1,
+        "name": "PPR+50ML FR.OIL EXT.GOLDEN EMBER",
+        "price": "3695",
+        "product_id": "4929063",
+        "product_code": "4929063"
+      }
+    ],
+    "total_price": "7295.00",
+    "status": "confirmed",
+    "created_at": "2026-10-11T07:46:50.569Z",
+    "updated_at": "2026-10-12T01:57:01.956Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791718822456",
+    "order_number": "KP-2026-0064",
+    "store_id": "TE3",
+    "customer_name": "อภิชาต สำเภากิจ",
+    "flight_number": "TG471",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SIAMESE WATER",
+        "price": "3695",
+        "product_id": "4603728",
+        "product_code": "4603728"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL EXT.AMBARA NECTAR",
+        "price": "3600",
+        "product_id": "4839407",
+        "product_code": "4839407"
+      },
+      {
+        "qty": 1,
+        "name": "PPR+50ML FR.OIL EXT.GOLDEN EMBER",
+        "price": "3695",
+        "product_id": "4929063",
+        "product_code": "4929063"
+      }
+    ],
+    "total_price": "10990.00",
+    "status": "ready",
+    "created_at": "2026-10-11T11:40:22.456Z",
+    "updated_at": "2026-10-11T11:42:08.377Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791719108829",
+    "order_number": "KP-2026-0065",
+    "store_id": "TE3",
+    "customer_name": "Apichart",
+    "flight_number": "TG471",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 10ML FR.OIL OOLONG RITUAL",
+        "price": "1490",
+        "product_id": "4872416",
+        "product_code": "4872416"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL FIGTIONALISM",
+        "price": "3600",
+        "product_id": "4889297",
+        "product_code": "4889297"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 10ML FR.OIL FIGTIONALISM",
+        "price": "1490",
+        "product_id": "4889298",
+        "product_code": "4889298"
+      }
+    ],
+    "total_price": "6580.00",
+    "status": "ready",
+    "created_at": "2026-10-11T11:45:08.829Z",
+    "updated_at": "2026-10-11T11:46:06.360Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791730517120",
+    "order_number": "KP-2026-0066",
+    "store_id": "TE3",
+    "customer_name": "Apichart",
+    "flight_number": "TG900",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SIAMESE WATER",
+        "price": "3695",
+        "product_id": "4603728",
+        "product_code": "4603728"
+      },
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL LOTUS",
+        "price": "3695",
+        "product_id": "4918396",
+        "product_code": "4918396"
+      }
+    ],
+    "total_price": "7390.00",
+    "status": "pending",
+    "created_at": "2026-10-11T14:55:17.120Z",
+    "updated_at": "2026-10-11T14:55:17.120Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791745809268",
+    "order_number": "KP-2026-0067",
+    "store_id": "TW4",
+    "customer_name": "apichart",
+    "flight_number": "TG600",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL ANDAMAN SAILS",
+        "price": "3695",
+        "product_id": "4603736",
+        "product_code": "4603736"
+      }
+    ],
+    "total_price": "3695.00",
+    "status": "collected",
+    "created_at": "2026-10-11T19:10:09.268Z",
+    "updated_at": "2026-10-12T08:17:12.817Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791772167994",
+    "order_number": "KP-2026-0068",
+    "store_id": "TE3",
+    "customer_name": "Kannika Saentodsapron",
+    "flight_number": "TG900",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR 50ML FR.OIL SIAMESE WATER",
+        "price": "3695",
+        "product_id": "4603728",
+        "product_code": "4603728"
+      }
+    ],
+    "total_price": "3695.00",
+    "status": "pending",
+    "created_at": "2026-10-12T02:29:27.994Z",
+    "updated_at": "2026-10-12T02:29:27.994Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791792021518",
+    "order_number": "KP-2026-0069",
+    "store_id": "TW4",
+    "customer_name": "Piyanuch",
+    "flight_number": "TG465",
+    "items_json": [
+      {
+        "qty": 3,
+        "name": "PPR 10ML FR.OIL OOLONG RITUAL",
+        "price": "1490",
+        "product_id": "4872416",
+        "product_code": "4872416"
+      }
+    ],
+    "total_price": "4470.00",
+    "status": "collected",
+    "created_at": "2026-10-12T08:00:21.518Z",
+    "updated_at": "2026-10-12T08:04:41.713Z",
+    "staff_note": ""
+  },
+  {
+    "order_id": "ORD-1791870624306",
+    "order_number": "KP-2026-0070",
+    "store_id": "TE3",
+    "customer_name": "Kdiuha",
+    "flight_number": "TG902",
+    "items_json": [
+      {
+        "qty": 1,
+        "name": "PPR+50ML FR.OIL EXT.GOLDEN EMBER",
+        "price": "3695",
+        "product_id": "4929063",
+        "product_code": "4929063"
+      }
+    ],
+    "total_price": "3695.00",
+    "status": "pending",
+    "created_at": "2026-10-13T05:50:24.306Z",
+    "updated_at": "2026-10-13T05:50:24.306Z",
+    "staff_note": ""
+  }
+]

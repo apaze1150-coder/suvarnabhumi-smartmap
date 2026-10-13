@@ -162,7 +162,7 @@
 <span class="material-symbols-outlined">settings</span>
 <span>Store Settings</span>
 </a>
-<a href="#" onclick="openSapImportModal()" class="w-full flex items-center gap-3 text-[#008f68] hover:bg-[#008f68]/10 rounded-full px-4 py-3 font-label-md transition-all duration-200 active:scale-[0.98] border border-[#008f68]/30 mt-2" id="nav-sap" >
+<a href="#" onclick="openSapImportModal()" class="w-full flex items-center gap-3 bg-[#008f68] hover:bg-[#007a59] text-white rounded-full px-4 py-3 font-label-md font-bold transition-all duration-200 active:scale-[0.98] shadow-md mt-2" id="nav-sap" >
 <span class="material-symbols-outlined">cloud_upload</span>
 <span>นำเข้าสต็อก SAP</span>
 </a>
@@ -189,11 +189,6 @@
   <input id="searchInput" class="pl-10 pr-4 py-2 bg-surface-container border-none rounded-full w-full lg:w-64 focus:ring-2 focus:ring-secondary text-body-sm" placeholder="Search orders, products..." type="text"/>
   </div>
   <div class="flex items-center gap-2 md:gap-4 shrink-0">
-  <button onclick="openSapImportModal()" class="bg-[#008f68] hover:bg-[#007a59] text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
-    <span class="material-symbols-outlined text-base">cloud_upload</span>
-    <span class="hidden sm:inline">นำเข้าสต็อก SAP เข้า Supabase</span>
-    <span class="sm:hidden">SAP</span>
-  </button>
   <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">notifications</button>
   <button class="material-symbols-outlined text-on-surface p-2 hover:bg-surface-container rounded-full">help</button>
   </div>
@@ -418,9 +413,6 @@
     </button>
     <button onclick="openBulkImportModal()" class="flex items-center gap-2 bg-surface-container-high text-on-surface px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
         <span class="material-symbols-outlined text-[20px]">upload_file</span> Bulk Import
-    </button>
-    <button onclick="openSapImportModal()" class="flex items-center gap-2 bg-[#008f68] text-white px-lg py-2.5 rounded-full font-label-md hover:opacity-90 active:scale-95 transition-all">
-        <span class="material-symbols-outlined text-[20px]">upload_file</span> SAP Import
     </button>
     <button class="hidden" id="saveBtnProducts" style="display: none !important;">
     </button>
