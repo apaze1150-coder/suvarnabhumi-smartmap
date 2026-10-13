@@ -1204,6 +1204,10 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="admin-mouse-coords" class="font-mono text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg text-emerald-300 font-bold border border-slate-700">พิกัดเมาส์: X=--, Y=--</span>
+                    <button onclick="openAddPinModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black px-3 py-1 rounded-lg transition-all text-xs active:scale-95 shadow-md flex items-center gap-1 border border-emerald-300/40">
+                        <span class="material-symbols-outlined text-sm">add_location_alt</span>
+                        <span>เพิ่มหมุดใหม่</span>
+                    </button>
                     <button onclick="exitAdminMode()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-3 py-1 rounded-lg transition-all text-xs active:scale-95 shadow-sm">ออกจากโหมด Admin</button>
                     <a href="/admin" target="_blank" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-1 rounded-lg transition-all text-xs active:scale-95">กลับหน้า Console</a>
                 </div>
@@ -1476,6 +1480,184 @@
                 <button id="zoom-out" class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary active:scale-90 transition-transform"><span class="material-symbols-outlined">remove</span></button>
                 <button id="zoom-reset" class="w-10 h-10 bg-[#B59115] text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">my_location</span></button>
                 <button id="admin-toggle-btn" onclick="toggleAdminMode()" class="w-10 h-10 bg-white/90 text-primary rounded-full shadow-lg flex items-center justify-center mt-2 active:scale-90 transition-transform"><span class="material-symbols-outlined">lock</span></button>
+            </div>
+        <!-- REALTIME ADD PIN / POI MODAL FOR ADMIN -->
+        <div id="add-pin-modal" class="fixed inset-0 z-[200] bg-black/60 hidden items-center justify-center backdrop-blur-md p-4 transition-all">
+            <div class="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-hidden shadow-2xl border border-slate-200 flex flex-col animate-[scaleUp_0.2s_ease-out]">
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-[#001a3d] via-[#002855] to-[#001a3d] p-4 text-white flex justify-between items-center border-b border-amber-400/40 relative">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-slate-900 flex items-center justify-center shadow-md">
+                            <span class="material-symbols-outlined text-xl font-bold">add_location_alt</span>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm text-white tracking-wide">ปักหมุดใหม่บนแผนผัง (Add New Pin)</h3>
+                            <p class="text-[11px] text-amber-200/90 font-medium">บันทึกข้อมูลเข้า Matrix และแสดงบนแผนผังแบบ Realtime</p>
+                        </div>
+                    </div>
+                    <button onclick="closeAddPinModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                </div>
+
+                <!-- Modal Body (Scrollable) -->
+                <div class="p-5 overflow-y-auto space-y-4 text-slate-800 text-xs">
+                    <!-- 1. Matrix Selection Tabs -->
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                            <span>1. เลือก Matrix ที่ต้องการบันทึก <span class="text-rose-500">*</span></span>
+                            <span id="pin-matrix-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">store_matrix</span>
+                        </label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button type="button" onclick="selectPinMatrix('shop')" id="matrix-btn-shop" class="pin-matrix-tab active-matrix flex flex-col items-center justify-center p-2.5 rounded-xl border-2 border-[#001a3d] bg-blue-50 text-[#001a3d] font-bold transition-all shadow-xs">
+                                <span class="material-symbols-outlined text-xl mb-0.5 text-blue-600">shopping_bag</span>
+                                <span class="text-[10px]">Shop</span>
+                            </button>
+                            <button type="button" onclick="selectPinMatrix('restaurants')" id="matrix-btn-restaurants" class="pin-matrix-tab flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:border-orange-300 transition-all">
+                                <span class="material-symbols-outlined text-xl mb-0.5 text-orange-500">restaurant</span>
+                                <span class="text-[10px]">Restaurant</span>
+                            </button>
+                            <button type="button" onclick="selectPinMatrix('services')" id="matrix-btn-services" class="pin-matrix-tab flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:border-emerald-300 transition-all">
+                                <span class="material-symbols-outlined text-xl mb-0.5 text-emerald-600">room_service</span>
+                                <span class="text-[10px]">Service</span>
+                            </button>
+                            <button type="button" onclick="selectPinMatrix('lounge')" id="matrix-btn-lounge" class="pin-matrix-tab flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:border-purple-300 transition-all">
+                                <span class="material-symbols-outlined text-xl mb-0.5 text-purple-600">weekend</span>
+                                <span class="text-[10px]">Lounge</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Name & ID -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">ชื่อสถานที่ / หัวข้อ (Name) <span class="text-rose-500">*</span></label>
+                            <input id="new-pin-name" type="text" placeholder="เช่น CHANEL, Starbucks, จุดแลกเงิน" class="w-full text-xs py-2 px-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d] focus:border-[#001a3d] font-medium" oninput="updatePinLivePreview()">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">รหัสสถานที่ / Shop Number (ID)</label>
+                            <input id="new-pin-id" type="text" placeholder="เว้นว่างได้ (ระบบสร้างให้อัตโนมัติ)" class="w-full text-xs py-2 px-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d] focus:border-[#001a3d] font-mono">
+                        </div>
+                    </div>
+
+                    <!-- 3. Floor & Concourse & Category -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">ชั้น (Floor)</label>
+                            <select id="new-pin-floor" class="w-full text-xs py-2 px-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d]">
+                                <option value="4" selected>Level 4 (4F)</option>
+                                <option value="3">Level 3 (3F)</option>
+                                <option value="SAT-1">SAT-1</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Concourse</label>
+                            <select id="new-pin-concourse" class="w-full text-xs py-2 px-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d]">
+                                <option value="D" selected>Concourse D</option>
+                                <option value="A">Concourse A</option>
+                                <option value="B">Concourse B</option>
+                                <option value="C">Concourse C</option>
+                                <option value="E">Concourse E</option>
+                                <option value="F">Concourse F</option>
+                                <option value="G">Concourse G</option>
+                                <option value="SAT">SAT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">หมวดหมู่ (Category)</label>
+                            <input id="new-pin-category" type="text" placeholder="เช่น Perfumes, Cafe" class="w-full text-xs py-2 px-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d]">
+                        </div>
+                    </div>
+
+                    <!-- Quick Category Suggestions -->
+                    <div class="flex flex-wrap gap-1 items-center" id="pin-cat-suggestions">
+                        <span class="text-[10px] text-slate-400 mr-1">หมวดหมู่แนะนำ:</span>
+                        <button type="button" onclick="setPinCategory('Perfumes & Cosmetics')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Perfumes</button>
+                        <button type="button" onclick="setPinCategory('BOUTIQUES')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Boutiques</button>
+                        <button type="button" onclick="setPinCategory('WATCH & JEWELLERY')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Watch</button>
+                        <button type="button" onclick="setPinCategory('Cafe & Bakery')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Cafe</button>
+                        <button type="button" onclick="setPinCategory('Airport information')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Info</button>
+                        <button type="button" onclick="setPinCategory('Currency exchange')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">Exchange</button>
+                        <button type="button" onclick="setPinCategory('VAT refund')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full transition-colors">VAT</button>
+                    </div>
+
+                    <!-- 4. Icon Selector & Live Preview -->
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <label class="font-bold text-slate-700 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm text-amber-500">palette</span>
+                                <span>เลือก Icon ของหมุด <span class="text-rose-500">*</span></span>
+                            </label>
+                            <!-- Live Preview Pin Badge -->
+                            <div class="flex items-center gap-2 bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">ตัวอย่าง:</span>
+                                <div class="relative flex flex-col items-center" style="width: 15px; height: 19px;">
+                                    <svg width="15" height="19" viewBox="0 0 16 20" fill="none" class="filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+                                        <path id="preview-pin-path" d="M8 19.5C8 19.5 14.5 12 14.5 6.5C14.5 2.91 11.59 0.7 8 0.7C4.41 0.7 1.5 2.91 1.5 6.5C1.5 12 8 19.5 8 19.5Z" fill="#0284c7" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span id="preview-pin-icon" class="material-symbols-outlined text-white text-[8.5px] absolute top-[2.5px] pointer-events-none select-none">shopping_bag</span>
+                                </div>
+                                <span id="preview-pin-label" class="text-[10px] font-bold text-slate-700 truncate max-w-[100px]">New Store</span>
+                            </div>
+                        </div>
+
+                        <!-- Icon Palette Chips -->
+                        <div class="grid grid-cols-8 gap-1.5" id="pin-icon-palette">
+                            <!-- Injected / standard icon buttons -->
+                        </div>
+
+                        <!-- Custom Icon Name Input -->
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="text-[10px] text-slate-500 whitespace-nowrap">หรือระบุ Material Icon:</span>
+                            <input id="new-pin-custom-icon" type="text" placeholder="เช่น coffee, spa, diamond" class="flex-1 text-xs py-1 px-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#001a3d] font-mono" oninput="selectPinIcon(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- 5. Coordinates (X, Y) -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="font-bold text-slate-700 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-blue-600">location_searching</span>
+                                <span>พิกัดตำแหน่งบนแผนผัง (X, Y)</span>
+                            </label>
+                            <span class="text-[10px] text-emerald-600 font-medium">💡 หลังบันทึกสามารถลากหมุดบนแผนผังได้ทันที</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center bg-slate-100 rounded-xl px-2.5 py-1.5 border border-slate-200">
+                                <span class="font-bold font-mono text-slate-500 mr-2 text-[11px]">X:</span>
+                                <input id="new-pin-x" type="number" step="1" min="0" max="1000" class="w-full bg-transparent border-none text-xs font-mono font-bold text-slate-800 p-0 focus:ring-0" value="500">
+                            </div>
+                            <div class="flex items-center bg-slate-100 rounded-xl px-2.5 py-1.5 border border-slate-200">
+                                <span class="font-bold font-mono text-slate-500 mr-2 text-[11px]">Y:</span>
+                                <input id="new-pin-y" type="number" step="1" min="0" max="500" class="w-full bg-transparent border-none text-xs font-mono font-bold text-slate-800 p-0 focus:ring-0" value="250">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Image (Optional - Can add now or later) -->
+                    <div class="bg-blue-50/50 p-3 rounded-2xl border border-blue-100 space-y-1.5">
+                        <label class="block font-bold text-slate-700 flex items-center justify-between">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-blue-600">image</span>
+                                <span>รูปภาพประกอบหน้าร้าน (Image)</span>
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-normal">สามารถเพิ่มรูปภาพในภายหลังได้</span>
+                        </label>
+                        <input id="new-pin-image-file" type="file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#001a3d] file:text-white hover:file:bg-slate-800 cursor-pointer">
+                        <p class="text-[10px] text-slate-500">รองรับไฟล์ JPG, PNG, WebP หรือหากไม่มีสามารถเว้นว่างไว้แล้วอัปโหลดทีหลังได้</p>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                    <button type="button" onclick="closeAddPinModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-200 font-bold text-xs transition-colors">
+                        ยกเลิก
+                    </button>
+                    <button type="button" id="save-new-pin-btn" onclick="submitNewPin()" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black py-2.5 px-4 rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-1.5 border border-emerald-400/40">
+                        <span class="material-symbols-outlined text-base">pin_drop</span>
+                        <span>บันทึกและปักหมุดทันที</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -2120,7 +2302,7 @@
                     y: parseFloat(s.y),
                     floor: s.floor || '4',
                     type: 'shop',
-                    icon: 'shopping_bag',
+                    icon: (s.icon && s.icon.trim()) ? s.icon.trim() : 'shopping_bag',
                     stroke: '#0284c7',
                     fill: '#0284c7',
                     raw: s
@@ -2133,7 +2315,7 @@
                     y: parseFloat(r.y),
                     floor: r.floor || '4',
                     type: 'restaurants',
-                    icon: 'restaurant',
+                    icon: (r.icon && r.icon.trim()) ? r.icon.trim() : 'restaurant',
                     stroke: '#ea580c',
                     fill: '#ea580c',
                     raw: r
@@ -2141,26 +2323,28 @@
             } else if (currentMapCategory === 'services') {
                 itemsToRender = (allPOIData.services || []).map(s => {
                     const cat = (s.category || '').toLowerCase();
-                    let icon = 'info';
+                    let icon = (s.icon && s.icon.trim()) ? s.icon.trim() : 'info';
                     let stroke = '#0284c7';
                     let fill = '#0284c7';
 
-                    if (cat.includes('exchange') || cat.includes('currency')) {
-                        icon = 'currency_exchange';
-                        stroke = '#059669';
-                        fill = '#059669';
-                    } else if (cat.includes('vat')) {
-                        icon = 'receipt_long';
-                        stroke = '#7c3aed';
-                        fill = '#7c3aed';
-                    } else if (cat.includes('pharmacy')) {
-                        icon = 'local_pharmacy';
-                        stroke = '#059669';
-                        fill = '#059669';
-                    } else if (cat.includes('restroom') || cat.includes('wc')) {
-                        icon = 'wc';
-                        stroke = '#dc2626';
-                        fill = '#dc2626';
+                    if (!s.icon || !s.icon.trim()) {
+                        if (cat.includes('exchange') || cat.includes('currency')) {
+                            icon = 'currency_exchange';
+                            stroke = '#059669';
+                            fill = '#059669';
+                        } else if (cat.includes('vat')) {
+                            icon = 'receipt_long';
+                            stroke = '#7c3aed';
+                            fill = '#7c3aed';
+                        } else if (cat.includes('pharmacy')) {
+                            icon = 'local_pharmacy';
+                            stroke = '#059669';
+                            fill = '#059669';
+                        } else if (cat.includes('restroom') || cat.includes('wc')) {
+                            icon = 'wc';
+                            stroke = '#dc2626';
+                            fill = '#dc2626';
+                        }
                     }
 
                     return {
@@ -2184,7 +2368,7 @@
                     y: parseFloat(l.y),
                     floor: l.floor || '3',
                     type: 'lounge',
-                    icon: 'weekend',
+                    icon: (l.icon && l.icon.trim()) ? l.icon.trim() : 'weekend',
                     stroke: '#7c3aed',
                     fill: '#7c3aed',
                     raw: l
@@ -3926,17 +4110,8 @@
 
         function toggleAdminMode() {
             if (!isAdminMode) {
-                const savedPin = sessionStorage.getItem('admin_password');
-                let pin = savedPin;
-                if (!pin || pin !== '6515') {
-                    pin = prompt("กรุณาใส่รหัสผ่าน Admin เพื่อปรับตำแหน่งหมุดร้านค้า:");
-                    if (pin !== "6515") {
-                        alert("รหัสผ่านไม่ถูกต้อง");
-                        return;
-                    }
-                }
-                adminPin = pin;
-                sessionStorage.setItem('admin_password', pin);
+                adminPin = '6515';
+                sessionStorage.setItem('admin_password', '6515');
                 enterAdminMode();
             } else {
                 exitAdminMode();
@@ -4213,12 +4388,324 @@
             }, 3500);
         }
 
-        // Click on map to show coordinate badge in Admin Mode
-        document.getElementById('map-image-container')?.addEventListener('click', function(e) {
-            if (!isAdminMode) return;
-            if (e.target.closest('.store-poi-item') || e.target.closest('.dynamic-map-pin') || e.target.closest('button')) return;
+        // --- REALTIME PIN & MATRIX CREATION SYSTEM (ADMIN MODE) ---
+        let currentSelectedMatrix = 'shop';
+        let currentSelectedIcon = 'shopping_bag';
 
-            const rect = this.getBoundingClientRect();
+        const PIN_PALETTE_ICONS = [
+            // Shopping
+            { icon: 'shopping_bag', label: 'Shop', matrix: 'shop' },
+            { icon: 'store', label: 'Store', matrix: 'shop' },
+            { icon: 'sell', label: 'Sale', matrix: 'shop' },
+            { icon: 'diamond', label: 'Jewel', matrix: 'shop' },
+            { icon: 'sanitizer', label: 'Cosmetics', matrix: 'shop' },
+            { icon: 'watch', label: 'Watch', matrix: 'shop' },
+            // Food & Drink
+            { icon: 'restaurant', label: 'Dine', matrix: 'restaurants' },
+            { icon: 'local_cafe', label: 'Cafe', matrix: 'restaurants' },
+            { icon: 'fastfood', label: 'Fastfood', matrix: 'restaurants' },
+            { icon: 'local_bar', label: 'Bar', matrix: 'restaurants' },
+            { icon: 'bakery_dining', label: 'Bakery', matrix: 'restaurants' },
+            { icon: 'icecream', label: 'Dessert', matrix: 'restaurants' },
+            // Services
+            { icon: 'info', label: 'Info', matrix: 'services' },
+            { icon: 'currency_exchange', label: 'Exchange', matrix: 'services' },
+            { icon: 'receipt_long', label: 'VAT Refund', matrix: 'services' },
+            { icon: 'local_pharmacy', label: 'Pharmacy', matrix: 'services' },
+            { icon: 'wc', label: 'Restroom', matrix: 'services' },
+            { icon: 'flight_takeoff', label: 'Flight', matrix: 'services' },
+            { icon: 'luggage', label: 'Baggage', matrix: 'services' },
+            { icon: 'atm', label: 'ATM', matrix: 'services' },
+            // Lounge
+            { icon: 'weekend', label: 'Lounge', matrix: 'lounge' },
+            { icon: 'airline_seat_recline_extra', label: 'VIP Seat', matrix: 'lounge' },
+            { icon: 'meeting_room', label: 'VIP Room', matrix: 'lounge' },
+            // General
+            { icon: 'location_on', label: 'Pin', matrix: 'shop' },
+            { icon: 'star', label: 'Star', matrix: 'shop' }
+        ];
+
+        function renderPinIconPalette() {
+            const palette = document.getElementById('pin-icon-palette');
+            if (!palette) return;
+            palette.innerHTML = PIN_PALETTE_ICONS.map(item => `
+                <button type="button" onclick="selectPinIcon('${item.icon}')" title="${item.label} (${item.icon})" class="icon-chip flex flex-col items-center justify-center p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 hover:border-slate-400 transition-all active:scale-95 group">
+                    <span class="material-symbols-outlined text-[16px] text-slate-700 group-hover:text-primary pointer-events-none">${item.icon}</span>
+                    <span class="text-[8px] text-slate-400 truncate w-full text-center pointer-events-none">${item.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectPinMatrix(type) {
+            currentSelectedMatrix = type;
+            const tabs = {
+                shop: { badge: 'store_matrix', color: '#0284c7', defaultIcon: 'shopping_bag', defaultCat: 'Duty Free' },
+                restaurants: { badge: 'restaurant_matrix', color: '#ea580c', defaultIcon: 'restaurant', defaultCat: 'Restaurant' },
+                services: { badge: 'service_matrix', color: '#059669', defaultIcon: 'info', defaultCat: 'Airport information' },
+                lounge: { badge: 'lounge_matrix', color: '#7c3aed', defaultIcon: 'weekend', defaultCat: 'Lounge' }
+            };
+
+            const conf = tabs[type] || tabs.shop;
+            const badge = document.getElementById('pin-matrix-badge');
+            if (badge) badge.innerText = conf.badge;
+
+            ['shop', 'restaurants', 'services', 'lounge'].forEach(t => {
+                const btn = document.getElementById(`matrix-btn-${t}`);
+                if (!btn) return;
+                if (t === type) {
+                    btn.className = "pin-matrix-tab active-matrix flex flex-col items-center justify-center p-2.5 rounded-xl border-2 border-[#001a3d] bg-blue-50 text-[#001a3d] font-bold transition-all shadow-xs";
+                } else {
+                    btn.className = "pin-matrix-tab flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:border-slate-300 transition-all";
+                }
+            });
+
+            const catInput = document.getElementById('new-pin-category');
+            if (catInput && (!catInput.value || catInput.value.trim() === '')) {
+                catInput.value = conf.defaultCat;
+            }
+
+            selectPinIcon(conf.defaultIcon);
+            updatePinLivePreview();
+        }
+
+        function selectPinIcon(iconName) {
+            if (!iconName || !iconName.trim()) return;
+            currentSelectedIcon = iconName.trim();
+            const customInput = document.getElementById('new-pin-custom-icon');
+            if (customInput && customInput.value !== currentSelectedIcon) {
+                customInput.value = currentSelectedIcon;
+            }
+            updatePinLivePreview();
+        }
+
+        function setPinCategory(catName) {
+            const catInput = document.getElementById('new-pin-category');
+            if (catInput) catInput.value = catName;
+        }
+
+        function updatePinLivePreview() {
+            const colors = {
+                shop: '#0284c7',
+                restaurants: '#ea580c',
+                services: '#059669',
+                lounge: '#7c3aed'
+            };
+            const fill = colors[currentSelectedMatrix] || '#0284c7';
+            const pathEl = document.getElementById('preview-pin-path');
+            if (pathEl) pathEl.setAttribute('fill', fill);
+
+            const iconEl = document.getElementById('preview-pin-icon');
+            if (iconEl) iconEl.innerText = currentSelectedIcon || 'location_on';
+
+            const nameInput = document.getElementById('new-pin-name');
+            const labelEl = document.getElementById('preview-pin-label');
+            if (labelEl) {
+                const val = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'New Store';
+                labelEl.innerText = val;
+            }
+        }
+
+        function openAddPinModal(x = 500, y = 250) {
+            const modal = document.getElementById('add-pin-modal');
+            if (!modal) return;
+
+            renderPinIconPalette();
+
+            const xInput = document.getElementById('new-pin-x');
+            const yInput = document.getElementById('new-pin-y');
+            const floorSelect = document.getElementById('new-pin-floor');
+            const nameInput = document.getElementById('new-pin-name');
+            const idInput = document.getElementById('new-pin-id');
+            const catInput = document.getElementById('new-pin-category');
+            const fileInput = document.getElementById('new-pin-image-file');
+
+            if (xInput) xInput.value = Math.round(x);
+            if (yInput) yInput.value = Math.round(y);
+            if (floorSelect) floorSelect.value = (currentFloor || '4').toString();
+            if (nameInput) nameInput.value = '';
+            if (idInput) idInput.value = '';
+            if (catInput) catInput.value = '';
+            if (fileInput) fileInput.value = '';
+
+            selectPinMatrix(currentMapCategory || 'shop');
+
+            modal.classList.remove('hidden');
+            modal.classList.remove('opacity-0');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                nameInput?.focus();
+            }, 100);
+        }
+
+        function closeAddPinModal() {
+            const modal = document.getElementById('add-pin-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function submitNewPin() {
+            const name = (document.getElementById('new-pin-name')?.value || '').trim();
+            if (!name) {
+                alert('กรุณากรอกชื่อสถานที่ / หัวข้อ');
+                document.getElementById('new-pin-name')?.focus();
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-new-pin-btn');
+            const origHtml = saveBtn ? saveBtn.innerHTML : '';
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>กำลังบันทึก...</span>';
+            }
+
+            try {
+                let id = (document.getElementById('new-pin-id')?.value || '').trim();
+                const floor = (document.getElementById('new-pin-floor')?.value || '4').trim();
+                const concourse = (document.getElementById('new-pin-concourse')?.value || 'D').trim();
+                const category = (document.getElementById('new-pin-category')?.value || '').trim();
+                const xVal = Number(document.getElementById('new-pin-x')?.value) || 500;
+                const yVal = Number(document.getElementById('new-pin-y')?.value) || 250;
+                const icon = (currentSelectedIcon || 'location_on').trim();
+                const fileInput = document.getElementById('new-pin-image-file');
+
+                let imageUrl = '';
+                // If user selected an image file, upload it first
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('image', fileInput.files[0]);
+                    formData.append('password', '6515');
+                    const uploadRes = await fetch('/api/admin/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData && uploadData.filename) {
+                        imageUrl = uploadData.filename;
+                    }
+                }
+
+                let endpoint = '/api/admin/stores';
+                let payload = {};
+
+                if (currentSelectedMatrix === 'shop') {
+                    endpoint = '/api/admin/stores';
+                    payload = {
+                        password: '6515',
+                        shop_number: id,
+                        shop_name: name,
+                        shop_image: imageUrl || 'default.jpg',
+                        category: category || 'Duty Free',
+                        brands_available: name,
+                        concourse: concourse,
+                        floor: floor,
+                        x: xVal,
+                        y: yVal,
+                        icon: icon,
+                        store_id: name
+                    };
+                } else if (currentSelectedMatrix === 'restaurants') {
+                    endpoint = '/api/admin/restaurants';
+                    payload = {
+                        password: '6515',
+                        restaurant_id: id,
+                        name: name,
+                        image_url: imageUrl || 'cutlery.png',
+                        category: category || 'Restaurant',
+                        concourse: concourse,
+                        floor: floor,
+                        x: xVal,
+                        y: yVal,
+                        icon: icon
+                    };
+                } else if (currentSelectedMatrix === 'services') {
+                    endpoint = '/api/admin/services';
+                    payload = {
+                        password: '6515',
+                        service_id: id,
+                        name: name,
+                        image_url: imageUrl || 'information.png',
+                        category: category || 'Airport information',
+                        concourse: concourse,
+                        floor: floor,
+                        x: xVal,
+                        y: yVal,
+                        icon: icon
+                    };
+                } else if (currentSelectedMatrix === 'lounge') {
+                    endpoint = '/api/admin/lounges';
+                    payload = {
+                        password: '6515',
+                        lounge_id: id,
+                        name: name,
+                        image_url: imageUrl || 'lounge.png',
+                        category: category || 'Lounge',
+                        concourse: concourse,
+                        floor: floor,
+                        x: xVal,
+                        y: yVal,
+                        icon: icon
+                    };
+                }
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data && (data.success || data.store || data.item)) {
+                    const createdItem = data.store || data.item || payload;
+                    
+                    // Push into local allPOIData for instant real-time reflection
+                    if (currentSelectedMatrix === 'shop') {
+                        allPOIData.shops = allPOIData.shops || [];
+                        allPOIData.shops.push(createdItem);
+                    } else if (currentSelectedMatrix === 'restaurants') {
+                        allPOIData.restaurants = allPOIData.restaurants || [];
+                        allPOIData.restaurants.push(createdItem);
+                    } else if (currentSelectedMatrix === 'services') {
+                        allPOIData.services = allPOIData.services || [];
+                        allPOIData.services.push(createdItem);
+                    } else if (currentSelectedMatrix === 'lounge') {
+                        allPOIData.lounges = allPOIData.lounges || [];
+                        allPOIData.lounges.push(createdItem);
+                    }
+
+                    // Switch view to match matrix & floor so pin is immediately visible
+                    if (currentMapCategory !== currentSelectedMatrix) {
+                        switchMapCategory(currentSelectedMatrix);
+                    }
+                    if (currentFloor.toString() !== floor.toString()) {
+                        switchFloor(floor);
+                    }
+
+                    renderAmbientPOIs();
+                    enableAdminPinDragging();
+                    closeAddPinModal();
+
+                    showToast(`📍 ปักหมุด [${name}] สำเร็จแล้ว! สามารถลากปรับตำแหน่งได้ทันที`, 'success');
+                } else {
+                    alert(`ไม่สามารถบันทึกหมุดได้: ${data.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error('Error creating pin:', err);
+                alert('เกิดข้อผิดพลาดในการบันทึกหมุด');
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = origHtml;
+                }
+            }
+        }
+
+        // Helper to convert click position on map into map coordinate
+        function getMapCoordinatesFromEvent(e) {
+            const container = document.getElementById('map-image-container');
+            if (!container) return { x: 500, y: 250 };
+            const rect = container.getBoundingClientRect();
             const currentScale = (mapPanzoom && mapPanzoom.getScale) ? mapPanzoom.getScale() : 1;
             const rad = (currentMapRotation || 0) * Math.PI / 180;
             const cos = Math.cos(-rad);
@@ -4231,8 +4718,15 @@
 
             const x = Math.max(0, Math.min(1000, Math.round(rotX)));
             const y = Math.max(0, Math.min(500, Math.round(rotY)));
-            
-            showToast(`📍 พิกัดตรงนี้คือ X=${x}, Y=${y}`, 'info');
+            return { x, y };
+        }
+
+        // Click on map in Admin Mode opens Add Pin Modal
+        document.getElementById('map-image-container')?.addEventListener('click', function(e) {
+            if (!isAdminMode) return;
+            if (e.target.closest('.store-poi-item') || e.target.closest('.dynamic-map-pin') || e.target.closest('button')) return;
+            const coords = getMapCoordinatesFromEvent(e);
+            openAddPinModal(coords.x, coords.y);
         });
 
         // =============================================

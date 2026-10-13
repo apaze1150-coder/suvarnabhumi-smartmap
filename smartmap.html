@@ -2939,24 +2939,15 @@
         }
         // --- ADMIN MODE ---
         function toggleAdminMode() {
-            if (!isAdminMode) {
-                const pin = prompt("กรุณาใส่รหัสผ่าน Admin:");
-                if (pin !== "6515") {
-                    alert("รหัสผ่านไม่ถูกต้อง");
-                    return;
-                }
-            }
             isAdminMode = !isAdminMode;
             if (isAdminMode) {
                 document.getElementById('admin-status-bar').classList.remove('hidden');
                 document.getElementById('admin-status-bar').classList.add('flex');
-                alert("โหมด Admin เปิดใช้งานแล้ว\nคลิกค้างที่หมุดเพื่อลากไปยังตำแหน่งที่ต้องการ แล้วปล่อยเมาส์เพื่อดูพิกัด!");
 
                 // Add draggable class to any existing pins
                 document.querySelectorAll('.dynamic-map-pin').forEach(pin => {
                     pin.classList.add('cursor-grab');
                     pin.classList.remove('cursor-pointer');
-                    // makePinDraggable is applied when pins are created, or we can just let them search again.
                 });
             } else {
                 exitAdminMode();

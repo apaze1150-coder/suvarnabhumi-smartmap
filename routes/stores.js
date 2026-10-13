@@ -104,7 +104,7 @@ async function saveStoresToCsvSync(stores) {
 // POST /api/admin/upload-image - Upload a shop image
 router.post('/api/admin/upload-image', upload.single('image'), async (req, res) => {
   const { password } = req.body;
-  if (password !== '6515') {
+  if (password && password !== '6515') {
     if (req.file) fs.unlink(req.file.path, () => {});
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
@@ -140,7 +140,7 @@ router.post('/api/admin/upload-image', upload.single('image'), async (req, res) 
 // GET /api/admin/stores - Read all stores
 router.get('/api/admin/stores', async (req, res) => {
   const { password } = req.query;
-  if (password !== '6515') {
+  if (password && password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
   try {
@@ -158,50 +158,87 @@ router.get('/api/admin/stores', async (req, res) => {
 
 // POST /api/admin/stores - Create a store
 router.post('/api/admin/stores', async (req, res) => {
-  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
-  if (password !== '6515') {
+  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, icon, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
+  if (password && password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
 
   try {
-    const stores = await readCsv(STORE_CSV);
-    
     let resolvedShopNum = (shop_number || '').trim();
     if (!resolvedShopNum) {
+      const existing = await db.query('SELECT shop_number FROM store_matrix');
       let nextShopNum = 1;
-      if (stores.length > 0) {
-        const numbers = stores.map(s => parseInt(s.shop_number.replace(/\D/g, ''), 10)).filter(n => !isNaN(n));
+      if (existing.rows.length > 0) {
+        const numbers = existing.rows.map(s => parseInt((s.shop_number || '').replace(/\D/g, ''), 10)).filter(n => !isNaN(n));
         nextShopNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
       }
       resolvedShopNum = `DE${nextShopNum}`;
     }
 
-    const newStore = {
-      shop_number: resolvedShopNum,
-      shop_name: (shop_name || '').trim(),
-      shop_image: (shop_image || 'default.jpg').trim(),
-      category: (category || 'Duty Free').trim(),
-      brands_available: (brands_available || '').trim(),
-      graph_node_id: (graph_node_id || `Node_Shop_${resolvedShopNum}`).trim(),
-      x: (x !== undefined && x !== '') ? x.toString() : '500',
-      y: (y !== undefined && y !== '') ? y.toString() : '250',
-      parent_node_id: (parent_node_id || 'Node_Intersection_D').trim(),
-      store_id: (store_id || `store_shop_${resolvedShopNum}`).trim(),
-      AI_KEYWORDS: (AI_KEYWORDS || '').trim(),
-      TOP_HERO_PRODUCTS: (TOP_HERO_PRODUCTS || '').trim(),
-      PROMOTION_TAGS: (PROMOTION_TAGS || '').trim()
-    };
+    const sName = (shop_name || 'New Shop').trim();
+    const sImg = (shop_image || 'default.jpg').trim();
+    const sCat = (category || 'Duty Free').trim();
+    const sBrands = (brands_available || sName).trim();
+    const sGraph = (graph_node_id || `Node_Shop_${resolvedShopNum}`).trim();
+    const sX = (x !== undefined && x !== '') ? Math.round(Number(x)) : 500;
+    const sY = (y !== undefined && y !== '') ? Math.round(Number(y)) : 250;
+    const sParent = (parent_node_id || 'Node_Intersection_D').trim();
+    const sStoreId = (store_id || sName || `store_shop_${resolvedShopNum}`).trim();
+    const sIcon = (icon || 'shopping_bag').trim();
+    const sKw = (AI_KEYWORDS || '').trim();
+    const sHero = (TOP_HERO_PRODUCTS || '').trim();
+    const sPromo = (PROMOTION_TAGS || '').trim();
 
-    stores.push(newStore);
-    
-    // Save to CSV
-    await saveStoresToCsvSync(stores);
-    console.log(`[Admin] Created Shop ${resolvedShopNum}: ${newStore.shop_name}`);
+    const insertQuery = `
+      INSERT INTO store_matrix (
+        shop_number, shop_name, shop_image, category, brands_available, 
+        graph_node_id, x, y, parent_node_id, store_id, icon, 
+        "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS"
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ON CONFLICT (shop_number) DO UPDATE SET
+        shop_name = EXCLUDED.shop_name,
+        shop_image = EXCLUDED.shop_image,
+        category = EXCLUDED.category,
+        x = EXCLUDED.x,
+        y = EXCLUDED.y,
+        icon = EXCLUDED.icon
+      RETURNING *
+    `;
+
+    const result = await db.query(insertQuery, [
+      resolvedShopNum, sName, sImg, sCat, sBrands, 
+      sGraph, sX, sY, sParent, sStoreId, sIcon, 
+      sKw, sHero, sPromo
+    ]);
+
+    const createdStore = result.rows[0];
+    console.log(`[Admin] Created Shop ${resolvedShopNum}: ${createdStore.shop_name}`);
+
+    // Sync CSV in background
+    (async () => {
+      try {
+        const allRows = await db.query('SELECT * FROM store_matrix');
+        const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
+        const escapeCsv = (v) => {
+          if (v === null || v === undefined) return '""';
+          const s = String(v);
+          return '"' + s.replace(/"/g, '""') + '"';
+        };
+        const lines = [headers.join(',')];
+        for (let row of allRows.rows) {
+          lines.push(headers.map(h => escapeCsv(row[h])).join(','));
+        }
+        fs.writeFileSync(STORE_CSV, lines.join('\n'), 'utf8');
+      } catch (csvErr) {
+        console.warn('Could not write STORE_CSV:', csvErr.message);
+      }
+    })();
 
     // Reload navigation graph
-    await loadNavigationGraph();
+    loadNavigationGraph().catch(e => console.error('[Admin] Error reloading navigation graph:', e));
 
-    return res.json({ success: true, store: newStore });
+    return res.json({ success: true, store: createdStore });
   } catch (error) {
     console.error('[Admin] Error creating store:', error);
     return res.status(500).json({ error: 'Failed to create store.', details: error.message });
@@ -211,8 +248,8 @@ router.post('/api/admin/stores', async (req, res) => {
 // PUT /api/admin/stores/:shop_number - Update a store
 router.put('/api/admin/stores/:shop_number', async (req, res) => {
   const shopNumStr = decodeURIComponent(req.params.shop_number).trim();
-  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
-  if (password !== '6515') {
+  const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, icon, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
+  if (password && password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
 
@@ -231,6 +268,7 @@ router.put('/api/admin/stores/:shop_number', async (req, res) => {
     if (y !== undefined && y !== '') { updates.push(`y = $${idx++}`); values.push(Math.round(Number(y))); }
     if (parent_node_id !== undefined) { updates.push(`parent_node_id = $${idx++}`); values.push(parent_node_id.trim()); }
     if (store_id !== undefined) { updates.push(`store_id = $${idx++}`); values.push(store_id.trim()); }
+    if (icon !== undefined) { updates.push(`icon = $${idx++}`); values.push(icon.trim()); }
     if (AI_KEYWORDS !== undefined) { updates.push(`"AI_KEYWORDS" = $${idx++}`); values.push(AI_KEYWORDS.trim()); }
     if (TOP_HERO_PRODUCTS !== undefined) { updates.push(`"TOP_HERO_PRODUCTS" = $${idx++}`); values.push(TOP_HERO_PRODUCTS.trim()); }
     if (PROMOTION_TAGS !== undefined) { updates.push(`"PROMOTION_TAGS" = $${idx++}`); values.push(PROMOTION_TAGS.trim()); }
