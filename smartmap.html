@@ -2939,6 +2939,13 @@
         }
         // --- ADMIN MODE ---
         function toggleAdminMode() {
+            if (!isAdminMode) {
+                const pin = prompt("กรุณาใส่รหัสผ่าน Admin:");
+                if (pin !== "6515") {
+                    alert("รหัสผ่านไม่ถูกต้อง");
+                    return;
+                }
+            }
             isAdminMode = !isAdminMode;
             if (isAdminMode) {
                 document.getElementById('admin-status-bar').classList.remove('hidden');

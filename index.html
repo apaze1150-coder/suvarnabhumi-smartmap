@@ -1200,7 +1200,7 @@
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     <span class="text-xs font-black text-amber-300 uppercase tracking-wider">โหมดปรับตำแหน่งหมุดร้านค้า (Drag & Drop Mode)</span>
-                    <span class="text-[11px] text-slate-300 font-medium hidden md:inline">| คลิกค้างที่หมุดแล้วลากไปวางบนตำแหน่งที่ต้องการบนแผนผัง ระบบจะบันทึกให้อัตโนมัติ</span>
+                    <span class="text-[11px] text-slate-300 font-medium hidden md:inline">| 🖱️ คลิกขวาบนแผนผัง หรือกด "เพิ่มหมุดใหม่" เพื่อปักหมุด | คลิกค้างที่หมุดแล้วลากวางได้ทันที</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="admin-mouse-coords" class="font-mono text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg text-emerald-300 font-bold border border-slate-700">พิกัดเมาส์: X=--, Y=--</span>
@@ -4110,8 +4110,13 @@
 
         function toggleAdminMode() {
             if (!isAdminMode) {
-                adminPin = '6515';
-                sessionStorage.setItem('admin_password', '6515');
+                const pin = prompt("กรุณาใส่รหัสผ่าน Admin:");
+                if (pin !== "6515") {
+                    alert("รหัสผ่านไม่ถูกต้อง");
+                    return;
+                }
+                adminPin = pin;
+                sessionStorage.setItem('admin_password', pin);
                 enterAdminMode();
             } else {
                 exitAdminMode();
@@ -4505,11 +4510,14 @@
             }
         }
 
-        function openAddPinModal(x = 500, y = 250) {
+        function openAddPinModal(x, y) {
             const modal = document.getElementById('add-pin-modal');
             if (!modal) return;
 
             renderPinIconPalette();
+
+            const finalX = (x !== undefined && x !== null) ? x : (lastMouseMapCoords?.x || 500);
+            const finalY = (y !== undefined && y !== null) ? y : (lastMouseMapCoords?.y || 250);
 
             const xInput = document.getElementById('new-pin-x');
             const yInput = document.getElementById('new-pin-y');
@@ -4519,8 +4527,8 @@
             const catInput = document.getElementById('new-pin-category');
             const fileInput = document.getElementById('new-pin-image-file');
 
-            if (xInput) xInput.value = Math.round(x);
-            if (yInput) yInput.value = Math.round(y);
+            if (xInput) xInput.value = Math.round(finalX);
+            if (yInput) yInput.value = Math.round(finalY);
             if (floorSelect) floorSelect.value = (currentFloor || '4').toString();
             if (nameInput) nameInput.value = '';
             if (idInput) idInput.value = '';
@@ -4701,6 +4709,8 @@
             }
         }
 
+        let lastMouseMapCoords = { x: 500, y: 250 };
+
         // Helper to convert click position on map into map coordinate
         function getMapCoordinatesFromEvent(e) {
             const container = document.getElementById('map-image-container');
@@ -4718,13 +4728,16 @@
 
             const x = Math.max(0, Math.min(1000, Math.round(rotX)));
             const y = Math.max(0, Math.min(500, Math.round(rotY)));
+            lastMouseMapCoords = { x, y };
             return { x, y };
         }
 
-        // Click on map in Admin Mode opens Add Pin Modal
-        document.getElementById('map-image-container')?.addEventListener('click', function(e) {
+        // Right-Click (contextmenu) on map in Admin Mode opens Add Pin Modal
+        // Left-click remains 100% dedicated to map panning, dragging, and zooming!
+        document.getElementById('map-image-container')?.addEventListener('contextmenu', function(e) {
             if (!isAdminMode) return;
             if (e.target.closest('.store-poi-item') || e.target.closest('.dynamic-map-pin') || e.target.closest('button')) return;
+            e.preventDefault(); // Stop default browser context menu
             const coords = getMapCoordinatesFromEvent(e);
             openAddPinModal(coords.x, coords.y);
         });
