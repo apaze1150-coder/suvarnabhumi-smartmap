@@ -2323,13 +2323,16 @@
             fitMapToScreen();
             window.addEventListener('resize', fitMapToScreen);
 
-            // Auto-check URL query param for Admin Mode
+            // Auto-check URL query param or active session for Admin Mode
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('admin') === '1' || urlParams.get('adminMode') === '1') {
+            const shouldBeAdmin = urlParams.get('admin') === '1' || urlParams.get('adminMode') === '1' || sessionStorage.getItem('admin_mode') === 'true';
+            if (shouldBeAdmin) {
                 setTimeout(() => {
-                    showPage('map-view');
+                    if (urlParams.get('view') === 'map' || urlParams.get('admin') === '1' || sessionStorage.getItem('admin_mode') === 'true') {
+                        showPage('map-view');
+                    }
                     enterAdminMode();
-                }, 600);
+                }, 400);
             }
 
             trackFlightLive("TG679");
@@ -3942,6 +3945,8 @@
 
         function enterAdminMode() {
             isAdminMode = true;
+            sessionStorage.setItem('admin_mode', 'true');
+            sessionStorage.setItem('admin_password', adminPin || '6515');
             const statusBar = document.getElementById('admin-status-bar');
             if (statusBar) {
                 statusBar.classList.remove('hidden');
@@ -3959,6 +3964,7 @@
 
         function exitAdminMode() {
             isAdminMode = false;
+            sessionStorage.removeItem('admin_mode');
             const statusBar = document.getElementById('admin-status-bar');
             if (statusBar) {
                 statusBar.classList.add('hidden');
@@ -4089,9 +4095,20 @@
                     await saveStorePinCoordinates(targetId, currentNewX, currentNewY, name, targetType);
                 }
             });
+
+            item.addEventListener('pointercancel', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                item.style.cursor = 'grab';
+                item.style.zIndex = '12';
+            });
         }
 
         async function saveStorePinCoordinates(targetId, x, y, name, type = 'shop') {
+            if (!targetId) {
+                console.warn('Cannot save pin coordinate: targetId is missing');
+                return;
+            }
             try {
                 const pass = adminPin || sessionStorage.getItem('admin_password') || '6515';
                 let endpoint = `/api/admin/stores/${encodeURIComponent(targetId)}`;
@@ -4115,17 +4132,31 @@
                 const data = await res.json();
                 if (data.success) {
                     showToast(`📍 บันทึกพิกัด [${name}] เป็น (${x}, ${y}) เรียบร้อยแล้ว!`, 'success');
+                    const lowerId = targetId.trim().toLowerCase();
                     if (type === 'shop') {
-                        const s = (allPOIData.shops || []).find(it => (it.shop_number || '').trim() === targetId.trim());
+                        const s = (allPOIData.shops || []).find(it => 
+                            (it.shop_number || '').trim().toLowerCase() === lowerId ||
+                            (it.store_id || '').trim().toLowerCase() === lowerId ||
+                            (it.shop_name || '').trim().toLowerCase() === lowerId
+                        );
                         if (s) { s.x = x.toString(); s.y = y.toString(); }
                     } else if (type === 'restaurants') {
-                        const r = (allPOIData.restaurants || []).find(it => (it.restaurant_id || '').trim() === targetId.trim());
+                        const r = (allPOIData.restaurants || []).find(it => 
+                            (it.restaurant_id || '').trim().toLowerCase() === lowerId ||
+                            (it.name || '').trim().toLowerCase() === lowerId
+                        );
                         if (r) { r.x = x; r.y = y; }
                     } else if (type === 'services') {
-                        const s = (allPOIData.services || []).find(it => (it.service_id || '').trim() === targetId.trim());
+                        const s = (allPOIData.services || []).find(it => 
+                            (it.service_id || '').trim().toLowerCase() === lowerId ||
+                            (it.name || '').trim().toLowerCase() === lowerId
+                        );
                         if (s) { s.x = x; s.y = y; }
                     } else if (type === 'lounge') {
-                        const l = (allPOIData.lounges || []).find(it => (it.lounge_id || '').trim() === targetId.trim());
+                        const l = (allPOIData.lounges || []).find(it => 
+                            (it.lounge_id || '').trim().toLowerCase() === lowerId ||
+                            (it.name || '').trim().toLowerCase() === lowerId
+                        );
                         if (l) { l.x = x; l.y = y; }
                     }
                 } else {

@@ -59,7 +59,7 @@ router.post('/api/admin/restaurants', async (req, res) => {
 
 // PUT /api/admin/restaurants/:id
 router.put('/api/admin/restaurants/:id', async (req, res) => {
-  const targetId = req.params.id;
+  const targetId = decodeURIComponent(req.params.id).trim();
   const { password, restaurant_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description } = req.body;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
@@ -69,21 +69,21 @@ router.put('/api/admin/restaurants/:id', async (req, res) => {
     const values = [];
     let idx = 1;
 
-    if (restaurant_id !== undefined) { updates.push(`restaurant_id = $${idx++}`); values.push(restaurant_id); }
-    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name); }
-    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url); }
-    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category); }
-    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse); }
+    if (restaurant_id !== undefined) { updates.push(`restaurant_id = $${idx++}`); values.push(restaurant_id.trim()); }
+    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name.trim()); }
+    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url.trim()); }
+    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category.trim()); }
+    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse.trim()); }
     if (floor !== undefined) { updates.push(`floor = $${idx++}`); values.push(floor); }
-    if (x !== undefined) { updates.push(`x = $${idx++}`); values.push(Number(x)); }
-    if (y !== undefined) { updates.push(`y = $${idx++}`); values.push(Number(y)); }
-    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id); }
-    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description); }
+    if (x !== undefined && x !== '') { updates.push(`x = $${idx++}`); values.push(Math.round(Number(x))); }
+    if (y !== undefined && y !== '') { updates.push(`y = $${idx++}`); values.push(Math.round(Number(y))); }
+    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id.trim()); }
+    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description.trim()); }
 
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE restaurant_matrix SET ${updates.join(', ')} WHERE restaurant_id = $${idx} OR id::text = $${idx} RETURNING *`;
+    const query = `UPDATE restaurant_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(restaurant_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
     const result = await db.query(query, values);
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
@@ -161,7 +161,7 @@ router.post('/api/admin/services', async (req, res) => {
 
 // PUT /api/admin/services/:id
 router.put('/api/admin/services/:id', async (req, res) => {
-  const targetId = req.params.id;
+  const targetId = decodeURIComponent(req.params.id).trim();
   const { password, service_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description } = req.body;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
@@ -171,21 +171,21 @@ router.put('/api/admin/services/:id', async (req, res) => {
     const values = [];
     let idx = 1;
 
-    if (service_id !== undefined) { updates.push(`service_id = $${idx++}`); values.push(service_id); }
-    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name); }
-    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url); }
-    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category); }
-    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse); }
+    if (service_id !== undefined) { updates.push(`service_id = $${idx++}`); values.push(service_id.trim()); }
+    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name.trim()); }
+    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url.trim()); }
+    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category.trim()); }
+    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse.trim()); }
     if (floor !== undefined) { updates.push(`floor = $${idx++}`); values.push(floor); }
-    if (x !== undefined) { updates.push(`x = $${idx++}`); values.push(Number(x)); }
-    if (y !== undefined) { updates.push(`y = $${idx++}`); values.push(Number(y)); }
-    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id); }
-    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description); }
+    if (x !== undefined && x !== '') { updates.push(`x = $${idx++}`); values.push(Math.round(Number(x))); }
+    if (y !== undefined && y !== '') { updates.push(`y = $${idx++}`); values.push(Math.round(Number(y))); }
+    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id.trim()); }
+    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description.trim()); }
 
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE service_matrix SET ${updates.join(', ')} WHERE service_id = $${idx} OR id::text = $${idx} RETURNING *`;
+    const query = `UPDATE service_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
     const result = await db.query(query, values);
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
@@ -196,13 +196,13 @@ router.put('/api/admin/services/:id', async (req, res) => {
 
 // DELETE /api/admin/services/:id
 router.delete('/api/admin/services/:id', async (req, res) => {
-  const targetId = req.params.id;
+  const targetId = decodeURIComponent(req.params.id).trim();
   const { password } = req.body;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    await db.query('DELETE FROM service_matrix WHERE service_id = $1 OR id::text = $1', [targetId]);
+    await db.query('DELETE FROM service_matrix WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($1)) OR id::text = $1', [targetId]);
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete service error:', err);
@@ -263,7 +263,7 @@ router.post('/api/admin/lounges', async (req, res) => {
 
 // PUT /api/admin/lounges/:id
 router.put('/api/admin/lounges/:id', async (req, res) => {
-  const targetId = req.params.id;
+  const targetId = decodeURIComponent(req.params.id).trim();
   const { password, lounge_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description } = req.body;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
@@ -273,21 +273,21 @@ router.put('/api/admin/lounges/:id', async (req, res) => {
     const values = [];
     let idx = 1;
 
-    if (lounge_id !== undefined) { updates.push(`lounge_id = $${idx++}`); values.push(lounge_id); }
-    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name); }
-    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url); }
-    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category); }
-    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse); }
+    if (lounge_id !== undefined) { updates.push(`lounge_id = $${idx++}`); values.push(lounge_id.trim()); }
+    if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name.trim()); }
+    if (image_url !== undefined) { updates.push(`image_url = $${idx++}`); values.push(image_url.trim()); }
+    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category.trim()); }
+    if (concourse !== undefined) { updates.push(`concourse = $${idx++}`); values.push(concourse.trim()); }
     if (floor !== undefined) { updates.push(`floor = $${idx++}`); values.push(floor); }
-    if (x !== undefined) { updates.push(`x = $${idx++}`); values.push(Number(x)); }
-    if (y !== undefined) { updates.push(`y = $${idx++}`); values.push(Number(y)); }
-    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id); }
-    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description); }
+    if (x !== undefined && x !== '') { updates.push(`x = $${idx++}`); values.push(Math.round(Number(x))); }
+    if (y !== undefined && y !== '') { updates.push(`y = $${idx++}`); values.push(Math.round(Number(y))); }
+    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id.trim()); }
+    if (description !== undefined) { updates.push(`description = $${idx++}`); values.push(description.trim()); }
 
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE lounge_matrix SET ${updates.join(', ')} WHERE lounge_id = $${idx} OR id::text = $${idx} RETURNING *`;
+    const query = `UPDATE lounge_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
     const result = await db.query(query, values);
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
@@ -298,13 +298,13 @@ router.put('/api/admin/lounges/:id', async (req, res) => {
 
 // DELETE /api/admin/lounges/:id
 router.delete('/api/admin/lounges/:id', async (req, res) => {
-  const targetId = req.params.id;
+  const targetId = decodeURIComponent(req.params.id).trim();
   const { password } = req.body;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    await db.query('DELETE FROM lounge_matrix WHERE lounge_id = $1 OR id::text = $1', [targetId]);
+    await db.query('DELETE FROM lounge_matrix WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($1)) OR id::text = $1', [targetId]);
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete lounge error:', err);
@@ -318,7 +318,7 @@ router.delete('/api/admin/lounges/:id', async (req, res) => {
 router.get('/api/map/all-pois', async (req, res) => {
   try {
     const [shopsRes, restRes, srvRes, lngRes] = await Promise.all([
-      db.query('SELECT shop_number, shop_name, shop_image, category, x, y, graph_node_id FROM store_matrix'),
+      db.query('SELECT shop_number, shop_name, shop_image, category, x, y, graph_node_id, store_id FROM store_matrix'),
       db.query('SELECT restaurant_id, name, image_url, category, x, y, floor, concourse FROM restaurant_matrix'),
       db.query('SELECT service_id, name, image_url, category, x, y, floor, concourse FROM service_matrix'),
       db.query('SELECT lounge_id, name, image_url, category, x, y, floor, concourse FROM lounge_matrix')

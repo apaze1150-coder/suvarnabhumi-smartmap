@@ -210,42 +210,83 @@ router.post('/api/admin/stores', async (req, res) => {
 
 // PUT /api/admin/stores/:shop_number - Update a store
 router.put('/api/admin/stores/:shop_number', async (req, res) => {
-  const shopNumStr = req.params.shop_number.trim();
+  const shopNumStr = decodeURIComponent(req.params.shop_number).trim();
   const { password, shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, AI_KEYWORDS, TOP_HERO_PRODUCTS, PROMOTION_TAGS } = req.body;
   if (password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
 
   try {
-    const stores = await readCsv(STORE_CSV);
-    const idx = stores.findIndex(s => s.shop_number.toString().trim() === shopNumStr);
-    if (idx === -1) {
-      return res.status(404).json({ error: `Shop number ${shopNumStr} not found in database.` });
+    const updates = [];
+    const values = [];
+    let idx = 1;
+
+    if (shop_number !== undefined) { updates.push(`shop_number = $${idx++}`); values.push(shop_number.trim()); }
+    if (shop_name !== undefined) { updates.push(`shop_name = $${idx++}`); values.push(shop_name.trim()); }
+    if (shop_image !== undefined) { updates.push(`shop_image = $${idx++}`); values.push(shop_image.trim()); }
+    if (category !== undefined) { updates.push(`category = $${idx++}`); values.push(category.trim()); }
+    if (brands_available !== undefined) { updates.push(`brands_available = $${idx++}`); values.push(brands_available.trim()); }
+    if (graph_node_id !== undefined) { updates.push(`graph_node_id = $${idx++}`); values.push(graph_node_id.trim()); }
+    if (x !== undefined && x !== '') { updates.push(`x = $${idx++}`); values.push(Math.round(Number(x))); }
+    if (y !== undefined && y !== '') { updates.push(`y = $${idx++}`); values.push(Math.round(Number(y))); }
+    if (parent_node_id !== undefined) { updates.push(`parent_node_id = $${idx++}`); values.push(parent_node_id.trim()); }
+    if (store_id !== undefined) { updates.push(`store_id = $${idx++}`); values.push(store_id.trim()); }
+    if (AI_KEYWORDS !== undefined) { updates.push(`"AI_KEYWORDS" = $${idx++}`); values.push(AI_KEYWORDS.trim()); }
+    if (TOP_HERO_PRODUCTS !== undefined) { updates.push(`"TOP_HERO_PRODUCTS" = $${idx++}`); values.push(TOP_HERO_PRODUCTS.trim()); }
+    if (PROMOTION_TAGS !== undefined) { updates.push(`"PROMOTION_TAGS" = $${idx++}`); values.push(PROMOTION_TAGS.trim()); }
+
+    if (updates.length === 0) {
+      return res.json({ success: true });
     }
 
-    // Update store details
-    if (shop_number !== undefined) stores[idx].shop_number = shop_number.trim();
-    if (shop_name !== undefined) stores[idx].shop_name = shop_name.trim();
-    if (shop_image !== undefined) stores[idx].shop_image = shop_image.trim();
-    if (category !== undefined) stores[idx].category = category.trim();
-    if (brands_available !== undefined) stores[idx].brands_available = brands_available.trim();
-    if (graph_node_id !== undefined) stores[idx].graph_node_id = graph_node_id.trim();
-    if (x !== undefined) stores[idx].x = x.toString();
-    if (y !== undefined) stores[idx].y = y.toString();
-    if (parent_node_id !== undefined) stores[idx].parent_node_id = parent_node_id.trim();
-    if (store_id !== undefined) stores[idx].store_id = store_id.trim();
-    if (AI_KEYWORDS !== undefined) stores[idx].AI_KEYWORDS = AI_KEYWORDS.trim();
-    if (TOP_HERO_PRODUCTS !== undefined) stores[idx].TOP_HERO_PRODUCTS = TOP_HERO_PRODUCTS.trim();
-    if (PROMOTION_TAGS !== undefined) stores[idx].PROMOTION_TAGS = PROMOTION_TAGS.trim();
+    values.push(shopNumStr);
+    const query = `
+      UPDATE store_matrix 
+      SET ${updates.join(', ')} 
+      WHERE LOWER(TRIM(shop_number)) = LOWER(TRIM($${idx})) 
+         OR LOWER(TRIM(store_id)) = LOWER(TRIM($${idx}))
+         OR LOWER(TRIM(shop_name)) = LOWER(TRIM($${idx}))
+      RETURNING *
+    `;
+    const result = await db.query(query, values);
 
-    // Save to CSV
-    await saveStoresToCsvSync(stores);
-    console.log(`[Admin] Updated Shop ${shopNumStr}`);
+    if (result.rows.length === 0) {
+      // Fallback: match by graph_node_id
+      const fallbackQuery = `UPDATE store_matrix SET ${updates.join(', ')} WHERE graph_node_id = $${idx} RETURNING *`;
+      const fallbackResult = await db.query(fallbackQuery, values);
+      if (fallbackResult.rows.length === 0) {
+        return res.status(404).json({ error: `Shop number "${shopNumStr}" not found in database.` });
+      }
+      result.rows = fallbackResult.rows;
+    }
+
+    const updatedStore = result.rows[0];
+    console.log(`[Admin] Updated Shop ${shopNumStr}:`, updatedStore.shop_name, `(x=${updatedStore.x}, y=${updatedStore.y})`);
+
+    // Asynchronously sync local store_matrix.csv in background
+    (async () => {
+      try {
+        const allRows = await db.query('SELECT * FROM store_matrix');
+        const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
+        const escapeCsv = (v) => {
+          if (v === null || v === undefined) return '""';
+          const s = String(v);
+          return '"' + s.replace(/"/g, '""') + '"';
+        };
+        const lines = [headers.join(',')];
+        for (let row of allRows.rows) {
+          lines.push(headers.map(h => escapeCsv(row[h])).join(','));
+        }
+        fs.writeFileSync(STORE_CSV, lines.join('\n'), 'utf8');
+      } catch (err) {
+        console.warn('[Admin] Could not write STORE_CSV:', err.message);
+      }
+    })();
 
     // Reload navigation graph
-    await loadNavigationGraph();
+    loadNavigationGraph().catch(e => console.error('[Admin] Error reloading navigation graph:', e));
 
-    return res.json({ success: true, store: stores[idx] });
+    return res.json({ success: true, store: updatedStore });
   } catch (error) {
     console.error('[Admin] Error updating store:', error);
     return res.status(500).json({ error: 'Failed to update store.', details: error.message });
