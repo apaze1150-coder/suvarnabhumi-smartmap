@@ -1612,7 +1612,7 @@
 
         window.onload = function () {
             const mapElem = document.getElementById('map-image-container');
-            mapPanzoom = Panzoom(mapElem, { maxScale: 5, minScale: 0.3, contain: false, step: 0.3 });
+            mapPanzoom = Panzoom(mapElem, { maxScale: 25, minScale: 0.3, contain: false, step: 0.45 });
             mapElem.parentElement.addEventListener('wheel', mapPanzoom.zoomWithWheel);
 
             document.getElementById('zoom-in').addEventListener('click', mapPanzoom.zoomIn);

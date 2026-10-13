@@ -61,11 +61,11 @@ function getDGateCoords(gateCode) {
 
 window.onload = function () {
     const mapElem = document.getElementById('map-image-container');
-    mapPanzoom = Panzoom(mapElem, { maxScale: 5, minScale: 0.5, contain: false, step: 0.3 });
-    mapElem.parentElement.addEventListener('wheel', mapPanzoom.zoomWithWheel);
+    mapPanzoom = Panzoom(mapElem, { maxScale: 25, minScale: 0.3, contain: false, step: 0.45 });
+    mapElem.parentElement.addEventListener('wheel', (e) => mapPanzoom.zoomWithWheel(e, { step: 0.45 }));
 
-    document.getElementById('zoom-in').addEventListener('click', mapPanzoom.zoomIn);
-    document.getElementById('zoom-out').addEventListener('click', mapPanzoom.zoomOut);
+    document.getElementById('zoom-in').addEventListener('click', () => mapPanzoom.zoomIn({ step: 0.45 }));
+    document.getElementById('zoom-out').addEventListener('click', () => mapPanzoom.zoomOut({ step: 0.45 }));
     document.getElementById('zoom-reset').addEventListener('click', () => mapPanzoom.reset());
 
     trackFlightLive("TG679");

@@ -1905,8 +1905,8 @@
             if (items.length === 0) return;
 
             // 1. Counter-scale so pins remain crisp, readable, and never balloon into giant overlapping blobs
-            // At high zoom, counterScale keeps pin size stable (~22-26px on screen)
-            const counterScale = Math.min(1.0, Math.max(0.42, 1 / Math.pow(scale, 0.72))).toFixed(3);
+            // At high zoom, counterScale keeps pin size stable and compact (~16-20px on screen)
+            const counterScale = Math.min(1.0, Math.max(0.12, 1 / Math.pow(scale, 0.88))).toFixed(3);
             const rot = -currentMapRotation;
 
             // 2. Overview vs Detailed Mode (Like Reference Image 1 & 2):
@@ -1948,8 +1948,8 @@
             const placedPinBoxes = [];
             const placedLabelBoxes = [];
 
-            // Min distance between pin centers in screen pixels (pins are ~22px wide)
-            const minPinCenterDist = scale < 1.25 ? 22 : 18;
+            // Min distance between pin centers in screen pixels (compact pins ~15px wide)
+            const minPinCenterDist = scale < 1.25 ? 15 : 12;
 
             // PASS 1: Apply counter-scale and resolve PIN COLLISION (หมุดไม่ทับกัน)
             items.forEach(item => {
@@ -2213,20 +2213,20 @@
                 pinEl.style.zIndex = '12';
 
                 pinEl.innerHTML = `
-                    <!-- Airport Standard Circular Badge Pin with Sharp Stalk Tip (Matches Reference Image 1 & 2) -->
+                    <!-- Airport Standard Circular Badge Pin with Sharp Stalk Tip (Compact & Refined) -->
                     <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150 group-hover:scale-115 active:scale-90"
-                         style="margin-top: -26px; transform-origin: 11px 26px; width: 22px; height: 26px;">
-                        <svg width="22" height="26" viewBox="0 0 22 26" fill="none" class="filter drop-shadow-[0_2px_4px_rgba(0,20,50,0.24)]">
-                            <path d="M11 25.5C11 25.5 20.5 16.5 20.5 10.5C20.5 5.25329 16.2467 1 11 1C5.75329 1 1.5 5.25329 1.5 10.5C1.5 16.5 11 25.5 11 25.5Z"
-                                  fill="${pinFill}" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                         style="margin-top: -19px; transform-origin: 7.5px 19px; width: 15px; height: 19px;">
+                        <svg width="15" height="19" viewBox="0 0 16 20" fill="none" class="filter drop-shadow-[0_1.5px_3px_rgba(0,20,50,0.22)]">
+                            <path d="M8 19.5C8 19.5 14.5 12 14.5 6.5C14.5 2.91 11.59 0.7 8 0.7C4.41 0.7 1.5 2.91 1.5 6.5C1.5 12 8 19.5 8 19.5Z"
+                                  fill="${pinFill}" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>
                         </svg>
-                        <span class="material-symbols-outlined text-white text-[11px] absolute top-[5px] pointer-events-none select-none">${pinIcon}</span>
+                        <span class="material-symbols-outlined text-white text-[8.5px] absolute top-[2.5px] pointer-events-none select-none">${pinIcon}</span>
                     </div>
 
                     <!-- Crisp Floating Store Label with Clean White Vector Halo (No Overlap) -->
-                    <div class="poi-label pointer-events-none select-none mt-1 text-center transition-opacity duration-200"
-                         style="max-width: 80px; width: max-content; transform-origin: center top;">
-                        <span class="text-[9.5px] font-bold text-[#1e293b] leading-[1.15] block tracking-tight text-halo whitespace-normal"
+                    <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-opacity duration-200"
+                         style="max-width: 68px; width: max-content; transform-origin: center top;">
+                        <span class="text-[8px] font-bold text-[#1e293b] leading-[1.1] block tracking-tight text-halo whitespace-normal"
                               style="font-family: 'Outfit', -apple-system, sans-serif;">
                             ${displayName}
                         </span>
@@ -2303,21 +2303,21 @@
         window.onload = function () {
             const mapElem = document.getElementById('map-image-container');
             mapPanzoom = Panzoom(mapElem, {
-                maxScale: 10,
+                maxScale: 25,
                 minScale: 0.3,
                 contain: false,
-                step: 0.35,
+                step: 0.45,
                 setTransform: (elem, { scale, x, y }) => {
                     elem.style.transform = `scale(${scale}) translate(${x}px, ${y}px) rotate(${currentMapRotation}deg)`;
                     updateMapSemanticZoom(scale);
                 }
             });
-            mapElem.parentElement.addEventListener('wheel', mapPanzoom.zoomWithWheel);
+            mapElem.parentElement.addEventListener('wheel', (e) => mapPanzoom.zoomWithWheel(e, { step: 0.45 }));
             setupMapRotationGestures();
             loadMapStoresPOIs();
 
-            document.getElementById('zoom-in').addEventListener('click', mapPanzoom.zoomIn);
-            document.getElementById('zoom-out').addEventListener('click', mapPanzoom.zoomOut);
+            document.getElementById('zoom-in').addEventListener('click', () => mapPanzoom.zoomIn({ step: 0.45 }));
+            document.getElementById('zoom-out').addEventListener('click', () => mapPanzoom.zoomOut({ step: 0.45 }));
             document.getElementById('zoom-reset').addEventListener('click', () => { setMapRotation(0, true); fitMapToScreen(); });
 
             fitMapToScreen();
