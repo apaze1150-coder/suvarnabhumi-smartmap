@@ -2309,6 +2309,7 @@
                     pinWrapper.style.transform = `rotate(${rot}deg)`;
                 }
 
+                const isNavigating = (selectedShopNumber !== null && selectedShopNumber !== undefined) || (typeof activeNavigatedGate !== 'undefined' && activeNavigatedGate !== null);
                 const isSelected = (item.getAttribute('data-shop') === selectedShopNumber);
 
                 // Calculate screen position accurately
@@ -2319,7 +2320,42 @@
                     shop: item.getAttribute('data-shop')
                 };
 
-                // Check collision with already accepted pins
+                // Navigation Mode: Hide 90% of stores to declutter view, keep only key landmarks
+                if (isNavigating && !isAdminMode) {
+                    const nameText = (item.querySelector('.poi-label span')?.innerText || '').toLowerCase();
+                    const isLandmark = (
+                        nameText.includes('restroom') || 
+                        nameText.includes('สุขา') || 
+                        nameText.includes('ห้องน้ำ') ||
+                        nameText.includes('information') || 
+                        nameText.includes('jim thompson') || 
+                        nameText.includes('otop') || 
+                        nameText.includes('touch of thailand') ||
+                        nameText.includes('panpuri')
+                    );
+
+                    if (isSelected) {
+                        // Ambient pin replaced by active glowing destination pin
+                        item.style.opacity = '0';
+                        item.style.pointerEvents = 'none';
+                        const label = item.querySelector('.poi-label');
+                        if (label) label.style.display = 'none';
+                    } else if (isLandmark) {
+                        // Keep landmarks visible as reference points (~10%)
+                        item.style.opacity = '0.85';
+                        item.style.pointerEvents = 'auto';
+                        placedPinBoxes.push(pinCenter);
+                    } else {
+                        // Hide 90% of stores along the way
+                        item.style.opacity = '0';
+                        item.style.pointerEvents = 'none';
+                        const label = item.querySelector('.poi-label');
+                        if (label) label.style.display = 'none';
+                    }
+                    return;
+                }
+
+                // Normal Mode (or Admin Mode): Check collision with already accepted pins
                 let pinOverlaps = false;
                 for (const p of placedPinBoxes) {
                     const dist = Math.hypot(pinCenter.cx - p.cx, pinCenter.cy - p.cy);
@@ -2924,12 +2960,40 @@
             document.querySelectorAll('.dynamic-start-pin').forEach(pin => pin.remove());
             document.querySelectorAll('.escalator-anim').forEach(el => el.remove());
 
-            // Temporarily hide the matching ambient POI pin so the active destination pin replaces it seamlessly
+            // Hide ~90% of stores along the way during navigation to keep the view clean and uncluttered, leaving only key landmarks as reference points
             document.querySelectorAll('.store-poi-item').forEach(el => {
-                if (selectedShopNumber && el.getAttribute('data-shop') === String(selectedShopNumber)) {
+                const shopId = el.getAttribute('data-shop') || '';
+                const nameText = (el.querySelector('.poi-label span')?.innerText || '').toLowerCase();
+                const type = el.getAttribute('data-type') || '';
+
+                if (selectedShopNumber && shopId === String(selectedShopNumber)) {
+                    // Hide the ambient pin of the selected destination so the active glowing destination pin replaces it seamlessly
                     el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                } else if (selectedShopNumber) {
+                    // Keep essential landmarks as visual reference points (~10% remaining)
+                    const isLandmark = (
+                        nameText.includes('restroom') || 
+                        nameText.includes('สุขา') || 
+                        nameText.includes('ห้องน้ำ') ||
+                        nameText.includes('information') || 
+                        nameText.includes('jim thompson') || 
+                        nameText.includes('otop') || 
+                        nameText.includes('touch of thailand') ||
+                        nameText.includes('panpuri')
+                    );
+
+                    if (isLandmark) {
+                        el.style.opacity = '0.85';
+                        el.style.pointerEvents = 'auto';
+                    } else {
+                        // Hide 90% of stores along the route to keep the map clean and readable
+                        el.style.opacity = '0';
+                        el.style.pointerEvents = 'none';
+                    }
                 } else {
                     el.style.opacity = '1';
+                    el.style.pointerEvents = 'auto';
                 }
             });
 
@@ -2967,7 +3031,7 @@
                     }
 
                     let startX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
-                    let startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
+                    let startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 224;
                     
                     if (isSat && (!currentStartLocation || !currentStartLocation.isCustom)) {
                         // Start point for SAT map (e.g., Shuttle Train Arrival)
@@ -2981,23 +3045,91 @@
                         : ((s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489);
                     const targetY = (s.y !== undefined && !isNaN(parseFloat(s.y))) 
                         ? parseFloat(s.y) 
-                        : ((s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227);
+                        : ((s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 224);
 
-                    const dx = targetX - startX;
-                    const dy = targetY - startY;
+                    // --- SMART INDOOR CORRIDOR PATH ROUTING (Using East Junction 183, 224) ---
+                    const EAST_INT_X = 183;
+                    const EAST_INT_Y = 224;
+                    const WEST_INT_X = 746;
+                    const WEST_INT_Y = 224;
+                    const R = 6;
                     let d = "";
 
-                    if (Math.abs(dx) < 5) {
-                        d = `M ${startX} ${startY} L ${targetX} ${targetY}`;
+                    // Check if target is on East side (Concourse C north, Concourse A south)
+                    const isTargetNorthSouthEast = (targetX <= 260 && Math.abs(targetY - EAST_INT_Y) > 10);
+                    // Check if target is on West side (Concourse E north, Concourse G south)
+                    const isTargetNorthSouthWest = (targetX >= 700 && Math.abs(targetY - WEST_INT_Y) > 10);
+
+                    if (isTargetNorthSouthEast && startX >= EAST_INT_X - 10) {
+                        // 1. Path to East Branch via Junction (183, 224)
+                        const goingNorth = targetY < EAST_INT_Y;
+                        const dirY = goingNorth ? -1 : 1;
+                        
+                        d = `M ${startX} ${startY}`;
+                        if (Math.abs(startY - EAST_INT_Y) > 6 && Math.abs(startX - EAST_INT_X) > 20) {
+                            const dirToCenterline = EAST_INT_Y > startY ? 1 : -1;
+                            const dirToJunction = startX > EAST_INT_X ? -1 : 1;
+                            d += ` L ${startX} ${EAST_INT_Y - dirToCenterline * R}`;
+                            d += ` Q ${startX} ${EAST_INT_Y} ${startX + dirToJunction * R} ${EAST_INT_Y}`;
+                        }
+                        
+                        // Travel along corridor centerline y = 224 to East Intersection (183, 224)
+                        d += ` L ${EAST_INT_X + R} ${EAST_INT_Y}`;
+                        // Precise smooth turn at East Junction (183, 224)
+                        d += ` Q ${EAST_INT_X} ${EAST_INT_Y} ${EAST_INT_X} ${EAST_INT_Y + dirY * R}`;
+
+                        // Walk vertically along Concourse C/A corridor x = 183 towards targetY
+                        const dxToStore = targetX - EAST_INT_X;
+                        if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (EAST_INT_Y + dirY * R)) > R * 1.5) {
+                            const dirStoreX = dxToStore > 0 ? 1 : -1;
+                            d += ` L ${EAST_INT_X} ${targetY - dirY * R}`;
+                            d += ` Q ${EAST_INT_X} ${targetY} ${EAST_INT_X + dirStoreX * R} ${targetY}`;
+                            d += ` L ${targetX} ${targetY}`;
+                        } else {
+                            d += ` L ${targetX} ${targetY}`;
+                        }
+                    } else if (isTargetNorthSouthWest && startX <= WEST_INT_X + 10) {
+                        // 2. Path to West Branch via Junction (746, 224)
+                        const goingNorth = targetY < WEST_INT_Y;
+                        const dirY = goingNorth ? -1 : 1;
+
+                        d = `M ${startX} ${startY}`;
+                        if (Math.abs(startY - WEST_INT_Y) > 6 && Math.abs(startX - WEST_INT_X) > 20) {
+                            const dirToCenterline = WEST_INT_Y > startY ? 1 : -1;
+                            const dirToJunction = startX < WEST_INT_X ? 1 : -1;
+                            d += ` L ${startX} ${WEST_INT_Y - dirToCenterline * R}`;
+                            d += ` Q ${startX} ${WEST_INT_Y} ${startX + dirToJunction * R} ${WEST_INT_Y}`;
+                        }
+
+                        d += ` L ${WEST_INT_X - R} ${WEST_INT_Y}`;
+                        d += ` Q ${WEST_INT_X} ${WEST_INT_Y} ${WEST_INT_X} ${WEST_INT_Y + dirY * R}`;
+
+                        const dxToStore = targetX - WEST_INT_X;
+                        if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (WEST_INT_Y + dirY * R)) > R * 1.5) {
+                            const dirStoreX = dxToStore > 0 ? 1 : -1;
+                            d += ` L ${WEST_INT_X} ${targetY - dirY * R}`;
+                            d += ` Q ${WEST_INT_X} ${targetY} ${WEST_INT_X + dirStoreX * R} ${targetY}`;
+                            d += ` L ${targetX} ${targetY}`;
+                        } else {
+                            d += ` L ${targetX} ${targetY}`;
+                        }
                     } else {
-                        const dirX = dx > 0 ? 1 : -1;
-                        const dirY = dy > 0 ? 1 : -1;
-                        const R = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
+                        // 3. Main Concourse Corridor Navigation
+                        const dx = targetX - startX;
+                        const dy = targetY - startY;
 
-                        const turnX = targetX - dirX * R;
-                        const turnY = startY + dirY * R;
+                        if (Math.abs(dx) < 5) {
+                            d = `M ${startX} ${startY} L ${targetX} ${targetY}`;
+                        } else {
+                            const dirX = dx > 0 ? 1 : -1;
+                            const dirY = dy > 0 ? 1 : -1;
+                            const rad = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
 
-                        d = `M ${startX} ${startY} L ${turnX} ${startY} Q ${targetX} ${startY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                            const turnX = targetX - dirX * rad;
+                            const turnY = startY + dirY * rad;
+
+                            d = `M ${startX} ${startY} L ${turnX} ${startY} Q ${targetX} ${startY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                        }
                     }
 
                     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -3599,9 +3731,16 @@
 
             activeStores = [];
             selectedShopNumber = null;
+            if (typeof activeNavigatedGate !== 'undefined') activeNavigatedGate = null;
             
             // Restore visibility of all ambient POI pins
-            document.querySelectorAll('.store-poi-item').forEach(el => el.style.opacity = '1');
+            document.querySelectorAll('.store-poi-item').forEach(el => {
+                el.style.opacity = '1';
+                el.style.pointerEvents = 'auto';
+            });
+            if (typeof updateMapSemanticZoom === 'function' && typeof mapPanzoom !== 'undefined' && mapPanzoom) {
+                updateMapSemanticZoom(mapPanzoom.getScale());
+            }
 
             // Zoom back to fit screen when cancelling
             fitMapToScreen();
@@ -4198,14 +4337,67 @@
 
             activeNavigatedGate = cleanGate;
 
-            // 4. Draw Path Line (Green dashed line) for D, C, E, F, G gates
+            // 4. Draw Path Line with Smooth Corridor Turns (Using East 183,224 & West 746,224 junctions)
             if (svg) {
-                let pathD = `M ${startX} ${startY}`;
+                const EAST_INT_X = 183;
+                const EAST_INT_Y = 224;
+                const WEST_INT_X = 746;
+                const WEST_INT_Y = 224;
+                const R = 6;
+                let pathD = "";
 
-                if (Math.abs(targetX - startX) > Math.abs(targetY - startY)) {
-                    pathD += ` L ${targetX} ${startY} L ${targetX} ${targetY}`;
+                const isTargetNorthSouthEast = (targetX <= 260 && Math.abs(targetY - EAST_INT_Y) > 10);
+                const isTargetNorthSouthWest = (targetX >= 700 && Math.abs(targetY - WEST_INT_Y) > 10);
+
+                if (isTargetNorthSouthEast && startX >= EAST_INT_X - 10) {
+                    const goingNorth = targetY < EAST_INT_Y;
+                    const dirY = goingNorth ? -1 : 1;
+                    pathD = `M ${startX} ${startY}`;
+                    if (Math.abs(startY - EAST_INT_Y) > 6 && Math.abs(startX - EAST_INT_X) > 20) {
+                        const dirToCenterline = EAST_INT_Y > startY ? 1 : -1;
+                        const dirToJunction = startX > EAST_INT_X ? -1 : 1;
+                        pathD += ` L ${startX} ${EAST_INT_Y - dirToCenterline * R}`;
+                        pathD += ` Q ${startX} ${EAST_INT_Y} ${startX + dirToJunction * R} ${EAST_INT_Y}`;
+                    }
+                    pathD += ` L ${EAST_INT_X + R} ${EAST_INT_Y}`;
+                    pathD += ` Q ${EAST_INT_X} ${EAST_INT_Y} ${EAST_INT_X} ${EAST_INT_Y + dirY * R}`;
+                    const dxToStore = targetX - EAST_INT_X;
+                    if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (EAST_INT_Y + dirY * R)) > R * 1.5) {
+                        const dirStoreX = dxToStore > 0 ? 1 : -1;
+                        pathD += ` L ${EAST_INT_X} ${targetY - dirY * R}`;
+                        pathD += ` Q ${EAST_INT_X} ${targetY} ${EAST_INT_X + dirStoreX * R} ${targetY}`;
+                        pathD += ` L ${targetX} ${targetY}`;
+                    } else {
+                        pathD += ` L ${targetX} ${targetY}`;
+                    }
+                } else if (isTargetNorthSouthWest && startX <= WEST_INT_X + 10) {
+                    const goingNorth = targetY < WEST_INT_Y;
+                    const dirY = goingNorth ? -1 : 1;
+                    pathD = `M ${startX} ${startY}`;
+                    if (Math.abs(startY - WEST_INT_Y) > 6 && Math.abs(startX - WEST_INT_X) > 20) {
+                        const dirToCenterline = WEST_INT_Y > startY ? 1 : -1;
+                        const dirToJunction = startX < WEST_INT_X ? 1 : -1;
+                        pathD += ` L ${startX} ${WEST_INT_Y - dirToCenterline * R}`;
+                        pathD += ` Q ${startX} ${WEST_INT_Y} ${startX + dirToJunction * R} ${WEST_INT_Y}`;
+                    }
+                    pathD += ` L ${WEST_INT_X - R} ${WEST_INT_Y}`;
+                    pathD += ` Q ${WEST_INT_X} ${WEST_INT_Y} ${WEST_INT_X} ${WEST_INT_Y + dirY * R}`;
+                    const dxToStore = targetX - WEST_INT_X;
+                    if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (WEST_INT_Y + dirY * R)) > R * 1.5) {
+                        const dirStoreX = dxToStore > 0 ? 1 : -1;
+                        pathD += ` L ${WEST_INT_X} ${targetY - dirY * R}`;
+                        pathD += ` Q ${WEST_INT_X} ${targetY} ${WEST_INT_X + dirStoreX * R} ${targetY}`;
+                        pathD += ` L ${targetX} ${targetY}`;
+                    } else {
+                        pathD += ` L ${targetX} ${targetY}`;
+                    }
                 } else {
-                    pathD += ` L ${startX} ${targetY} L ${targetX} ${targetY}`;
+                    pathD = `M ${startX} ${startY}`;
+                    if (Math.abs(targetX - startX) > Math.abs(targetY - startY)) {
+                        pathD += ` L ${targetX} ${startY} L ${targetX} ${targetY}`;
+                    } else {
+                        pathD += ` L ${startX} ${targetY} L ${targetX} ${targetY}`;
+                    }
                 }
 
                 const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -4761,18 +4953,71 @@
                 const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : (s.x || 489);
                 const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : (s.y || 227);
                 
-                const dx = targetX - newStartX;
-                const dy = targetY - newStartY;
+                const EAST_INT_X = 183;
+                const EAST_INT_Y = 224;
+                const WEST_INT_X = 746;
+                const WEST_INT_Y = 224;
+                const R = 6;
                 let d = "";
-                if (Math.abs(dx) < 5) {
-                    d = `M ${newStartX} ${newStartY} L ${targetX} ${targetY}`;
+
+                const isTargetNorthSouthEast = (targetX <= 260 && Math.abs(targetY - EAST_INT_Y) > 10);
+                const isTargetNorthSouthWest = (targetX >= 700 && Math.abs(targetY - WEST_INT_Y) > 10);
+
+                if (isTargetNorthSouthEast && newStartX >= EAST_INT_X - 10) {
+                    const goingNorth = targetY < EAST_INT_Y;
+                    const dirY = goingNorth ? -1 : 1;
+                    d = `M ${newStartX} ${newStartY}`;
+                    if (Math.abs(newStartY - EAST_INT_Y) > 6 && Math.abs(newStartX - EAST_INT_X) > 20) {
+                        const dirToCenterline = EAST_INT_Y > newStartY ? 1 : -1;
+                        const dirToJunction = newStartX > EAST_INT_X ? -1 : 1;
+                        d += ` L ${newStartX} ${EAST_INT_Y - dirToCenterline * R}`;
+                        d += ` Q ${newStartX} ${EAST_INT_Y} ${newStartX + dirToJunction * R} ${EAST_INT_Y}`;
+                    }
+                    d += ` L ${EAST_INT_X + R} ${EAST_INT_Y}`;
+                    d += ` Q ${EAST_INT_X} ${EAST_INT_Y} ${EAST_INT_X} ${EAST_INT_Y + dirY * R}`;
+                    const dxToStore = targetX - EAST_INT_X;
+                    if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (EAST_INT_Y + dirY * R)) > R * 1.5) {
+                        const dirStoreX = dxToStore > 0 ? 1 : -1;
+                        d += ` L ${EAST_INT_X} ${targetY - dirY * R}`;
+                        d += ` Q ${EAST_INT_X} ${targetY} ${EAST_INT_X + dirStoreX * R} ${targetY}`;
+                        d += ` L ${targetX} ${targetY}`;
+                    } else {
+                        d += ` L ${targetX} ${targetY}`;
+                    }
+                } else if (isTargetNorthSouthWest && newStartX <= WEST_INT_X + 10) {
+                    const goingNorth = targetY < WEST_INT_Y;
+                    const dirY = goingNorth ? -1 : 1;
+                    d = `M ${newStartX} ${newStartY}`;
+                    if (Math.abs(newStartY - WEST_INT_Y) > 6 && Math.abs(newStartX - WEST_INT_X) > 20) {
+                        const dirToCenterline = WEST_INT_Y > newStartY ? 1 : -1;
+                        const dirToJunction = newStartX < WEST_INT_X ? 1 : -1;
+                        d += ` L ${newStartX} ${WEST_INT_Y - dirToCenterline * R}`;
+                        d += ` Q ${newStartX} ${WEST_INT_Y} ${newStartX + dirToJunction * R} ${WEST_INT_Y}`;
+                    }
+                    d += ` L ${WEST_INT_X - R} ${WEST_INT_Y}`;
+                    d += ` Q ${WEST_INT_X} ${WEST_INT_Y} ${WEST_INT_X} ${WEST_INT_Y + dirY * R}`;
+                    const dxToStore = targetX - WEST_INT_X;
+                    if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (WEST_INT_Y + dirY * R)) > R * 1.5) {
+                        const dirStoreX = dxToStore > 0 ? 1 : -1;
+                        d += ` L ${WEST_INT_X} ${targetY - dirY * R}`;
+                        d += ` Q ${WEST_INT_X} ${targetY} ${WEST_INT_X + dirStoreX * R} ${targetY}`;
+                        d += ` L ${targetX} ${targetY}`;
+                    } else {
+                        d += ` L ${targetX} ${targetY}`;
+                    }
                 } else {
-                    const dirX = dx > 0 ? 1 : -1;
-                    const dirY = dy > 0 ? 1 : -1;
-                    const R = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
-                    const turnX = targetX - dirX * R;
-                    const turnY = newStartY + dirY * R;
-                    d = `M ${newStartX} ${newStartY} L ${turnX} ${newStartY} Q ${targetX} ${newStartY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                    const dx = targetX - newStartX;
+                    const dy = targetY - newStartY;
+                    if (Math.abs(dx) < 5) {
+                        d = `M ${newStartX} ${newStartY} L ${targetX} ${targetY}`;
+                    } else {
+                        const dirX = dx > 0 ? 1 : -1;
+                        const dirY = dy > 0 ? 1 : -1;
+                        const rad = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
+                        const turnX = targetX - dirX * rad;
+                        const turnY = newStartY + dirY * rad;
+                        d = `M ${newStartX} ${newStartY} L ${turnX} ${newStartY} Q ${targetX} ${newStartY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                    }
                 }
                 path.setAttribute('d', d);
             });

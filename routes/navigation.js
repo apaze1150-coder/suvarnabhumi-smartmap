@@ -240,9 +240,9 @@ router.get('/api/navigation-path', (req, res) => {
 
 // --- PUBLIC FEATURE: Search Map Nodes ---
 router.get('/api/search-node', async (req, res) => {
-  const query = req.query.q;
+  const query = req.query.q || req.query.query;
   if (!query) {
-    return res.status(400).json({ error: 'Missing query parameter (q).' });
+    return res.status(400).json({ error: 'Missing query parameter (q or query).' });
   }
 
   try {

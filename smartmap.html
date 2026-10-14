@@ -1835,21 +1835,71 @@
                     const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
                     const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
 
-                    const dx = targetX - startX;
-                    const dy = targetY - startY;
+                    const EAST_INT_X = 183;
+                    const EAST_INT_Y = 224;
+                    const WEST_INT_X = 746;
+                    const WEST_INT_Y = 224;
+                    const R = 6;
                     let d = "";
 
-                    if (Math.abs(dx) < 5) {
-                        d = `M ${startX} ${startY} L ${targetX} ${targetY}`;
+                    const isTargetNorthSouthEast = (targetX <= 260 && Math.abs(targetY - EAST_INT_Y) > 10);
+                    const isTargetNorthSouthWest = (targetX >= 700 && Math.abs(targetY - WEST_INT_Y) > 10);
+
+                    if (isTargetNorthSouthEast && startX >= EAST_INT_X - 10) {
+                        const goingNorth = targetY < EAST_INT_Y;
+                        const dirY = goingNorth ? -1 : 1;
+                        d = `M ${startX} ${startY}`;
+                        if (Math.abs(startY - EAST_INT_Y) > 6 && Math.abs(startX - EAST_INT_X) > 20) {
+                            const dirToCenterline = EAST_INT_Y > startY ? 1 : -1;
+                            const dirToJunction = startX > EAST_INT_X ? -1 : 1;
+                            d += ` L ${startX} ${EAST_INT_Y - dirToCenterline * R}`;
+                            d += ` Q ${startX} ${EAST_INT_Y} ${startX + dirToJunction * R} ${EAST_INT_Y}`;
+                        }
+                        d += ` L ${EAST_INT_X + R} ${EAST_INT_Y}`;
+                        d += ` Q ${EAST_INT_X} ${EAST_INT_Y} ${EAST_INT_X} ${EAST_INT_Y + dirY * R}`;
+                        const dxToStore = targetX - EAST_INT_X;
+                        if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (EAST_INT_Y + dirY * R)) > R * 1.5) {
+                            const dirStoreX = dxToStore > 0 ? 1 : -1;
+                            d += ` L ${EAST_INT_X} ${targetY - dirY * R}`;
+                            d += ` Q ${EAST_INT_X} ${targetY} ${EAST_INT_X + dirStoreX * R} ${targetY}`;
+                            d += ` L ${targetX} ${targetY}`;
+                        } else {
+                            d += ` L ${targetX} ${targetY}`;
+                        }
+                    } else if (isTargetNorthSouthWest && startX <= WEST_INT_X + 10) {
+                        const goingNorth = targetY < WEST_INT_Y;
+                        const dirY = goingNorth ? -1 : 1;
+                        d = `M ${startX} ${startY}`;
+                        if (Math.abs(startY - WEST_INT_Y) > 6 && Math.abs(startX - WEST_INT_X) > 20) {
+                            const dirToCenterline = WEST_INT_Y > startY ? 1 : -1;
+                            const dirToJunction = startX < WEST_INT_X ? 1 : -1;
+                            d += ` L ${startX} ${WEST_INT_Y - dirToCenterline * R}`;
+                            d += ` Q ${startX} ${WEST_INT_Y} ${startX + dirToJunction * R} ${WEST_INT_Y}`;
+                        }
+                        d += ` L ${WEST_INT_X - R} ${WEST_INT_Y}`;
+                        d += ` Q ${WEST_INT_X} ${WEST_INT_Y} ${WEST_INT_X} ${WEST_INT_Y + dirY * R}`;
+                        const dxToStore = targetX - WEST_INT_X;
+                        if (Math.abs(dxToStore) > 3 && Math.abs(targetY - (WEST_INT_Y + dirY * R)) > R * 1.5) {
+                            const dirStoreX = dxToStore > 0 ? 1 : -1;
+                            d += ` L ${WEST_INT_X} ${targetY - dirY * R}`;
+                            d += ` Q ${WEST_INT_X} ${targetY} ${WEST_INT_X + dirStoreX * R} ${targetY}`;
+                            d += ` L ${targetX} ${targetY}`;
+                        } else {
+                            d += ` L ${targetX} ${targetY}`;
+                        }
                     } else {
-                        const dirX = dx > 0 ? 1 : -1;
-                        const dirY = dy > 0 ? 1 : -1;
-                        const R = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
-
-                        const turnX = targetX - dirX * R;
-                        const turnY = startY + dirY * R;
-
-                        d = `M ${startX} ${startY} L ${turnX} ${startY} Q ${targetX} ${startY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                        const dx = targetX - startX;
+                        const dy = targetY - startY;
+                        if (Math.abs(dx) < 5) {
+                            d = `M ${startX} ${startY} L ${targetX} ${targetY}`;
+                        } else {
+                            const dirX = dx > 0 ? 1 : -1;
+                            const dirY = dy > 0 ? 1 : -1;
+                            const rad = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
+                            const turnX = targetX - dirX * rad;
+                            const turnY = startY + dirY * rad;
+                            d = `M ${startX} ${startY} L ${turnX} ${startY} Q ${targetX} ${startY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                        }
                     }
 
                     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
