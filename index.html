@@ -1234,24 +1234,6 @@
                     </div>
                 </div>
 
-                <!-- Navigation Start Point Indicator & Changer Bar -->
-                <div id="nav-start-point-pill" class="max-w-xl mx-auto mt-2 pointer-events-auto flex items-center justify-between bg-white/95 backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-md border border-slate-200/80 text-xs transition-all">
-                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 shrink-0 animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">จุดเริ่มต้น:</span>
-                        <span id="nav-start-name" class="font-extrabold text-slate-800 text-xs truncate max-w-[190px] sm:max-w-[280px]">จุดกึ่งกลาง Concourse D (Passport Control)</span>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                        <button onclick="openChangeStartModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-2.5 py-1 rounded-xl font-bold text-[10px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer">
-                            <span class="material-symbols-outlined text-[13px]">pin_drop</span>
-                            <span>ย้ายจุดเริ่มต้น</span>
-                        </button>
-                        <button onclick="resetStartPointToCenter()" id="nav-reset-start-btn" title="รีเซ็ตกลับเป็นจุดกึ่งกลาง" class="hidden text-slate-400 hover:text-slate-700 p-0.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">restart_alt</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- AI Summary Box (Hidden by default) -->
                 <div id="map-ai-summary-box" class="hidden max-w-xl mx-auto mt-2 bg-white/95 backdrop-blur-xl shadow-lg rounded-2xl p-4 border border-[#B59115]/30 animate-[slideDown_0.3s_ease-out] pointer-events-auto">
                     <p id="map-ai-summary-content" class="text-xs text-on-surface-variant leading-relaxed"></p>
@@ -2980,9 +2962,9 @@
                     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     pathElement.setAttribute('d', d);
                     pathElement.setAttribute('fill', 'none');
-                    pathElement.setAttribute('stroke', '#0ea5e9'); // Green path line
-                    pathElement.setAttribute('stroke-width', '2');
-                    pathElement.setAttribute('stroke-dasharray', '6 6');
+                    pathElement.setAttribute('stroke', '#0ea5e9'); // Clean cyan route line
+                    pathElement.setAttribute('stroke-width', '1.2'); // Refined thinner stroke
+                    pathElement.setAttribute('stroke-dasharray', '4 4');
                     pathElement.setAttribute('stroke-linecap', 'round');
                     pathElement.setAttribute('stroke-linejoin', 'round');
                     pathElement.setAttribute('class', 'path-animated transition-all duration-300');
@@ -2994,19 +2976,19 @@
                         const startDotGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         startDotGlow.setAttribute('cx', startX);
                         startDotGlow.setAttribute('cy', startY);
-                        startDotGlow.setAttribute('r', '6');
-                        startDotGlow.setAttribute('fill', '#0ea5e9'); // Light blue glow
+                        startDotGlow.setAttribute('r', '4');
+                        startDotGlow.setAttribute('fill', '#0ea5e9');
                         
                         const animR = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
                         animR.setAttribute('attributeName', 'r');
-                        animR.setAttribute('values', '6;20;6');
+                        animR.setAttribute('values', '4;12;4');
                         animR.setAttribute('dur', '1.5s');
                         animR.setAttribute('repeatCount', 'indefinite');
                         startDotGlow.appendChild(animR);
     
                         const animOp = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
                         animOp.setAttribute('attributeName', 'opacity');
-                        animOp.setAttribute('values', '0.8;0;0.8');
+                        animOp.setAttribute('values', '0.7;0;0.7');
                         animOp.setAttribute('dur', '1.5s');
                         animOp.setAttribute('repeatCount', 'indefinite');
                         startDotGlow.appendChild(animOp);
@@ -3017,10 +2999,10 @@
                         const startDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         startDot.setAttribute('cx', startX);
                         startDot.setAttribute('cy', startY);
-                        startDot.setAttribute('r', '7');
-                        startDot.setAttribute('fill', '#0ea5e9'); // Blue color
+                        startDot.setAttribute('r', '4.5');
+                        startDot.setAttribute('fill', '#0ea5e9');
                         startDot.setAttribute('stroke', '#ffffff');
-                        startDot.setAttribute('stroke-width', '2.5');
+                        startDot.setAttribute('stroke-width', '1.2');
                         svg.appendChild(startDot);
 
                         // Draggable Start Pin
@@ -4112,6 +4094,8 @@
                 startY = 250;
             }
 
+            activeNavigatedGate = cleanGate;
+
             // 4. Draw Path Line (Green dashed line) for D, C, E, F, G gates
             if (svg) {
                 let pathD = `M ${startX} ${startY}`;
@@ -4126,8 +4110,8 @@
                 pathElement.setAttribute('d', pathD);
                 pathElement.setAttribute('fill', 'none');
                 pathElement.setAttribute('stroke', '#0ea5e9');
-                pathElement.setAttribute('stroke-width', '2.5');
-                pathElement.setAttribute('stroke-dasharray', '6 6');
+                pathElement.setAttribute('stroke-width', '1.2');
+                pathElement.setAttribute('stroke-dasharray', '4 4');
                 pathElement.setAttribute('class', 'path-animated transition-all duration-300');
                 svg.appendChild(pathElement);
 
@@ -4135,19 +4119,19 @@
                 const startDotGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 startDotGlow.setAttribute('cx', startX);
                 startDotGlow.setAttribute('cy', startY);
-                startDotGlow.setAttribute('r', '6');
+                startDotGlow.setAttribute('r', '4');
                 startDotGlow.setAttribute('fill', '#0ea5e9');
                 
                 const animR = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
                 animR.setAttribute('attributeName', 'r');
-                animR.setAttribute('values', '6;20;6');
+                animR.setAttribute('values', '4;12;4');
                 animR.setAttribute('dur', '1.5s');
                 animR.setAttribute('repeatCount', 'indefinite');
                 startDotGlow.appendChild(animR);
 
                 const animOp = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
                 animOp.setAttribute('attributeName', 'opacity');
-                animOp.setAttribute('values', '0.8;0;0.8');
+                animOp.setAttribute('values', '0.7;0;0.7');
                 animOp.setAttribute('dur', '1.5s');
                 animOp.setAttribute('repeatCount', 'indefinite');
                 startDotGlow.appendChild(animOp);
@@ -4158,10 +4142,10 @@
                 const startDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 startDot.setAttribute('cx', startX);
                 startDot.setAttribute('cy', startY);
-                startDot.setAttribute('r', '7');
+                startDot.setAttribute('r', '4.5');
                 startDot.setAttribute('fill', '#0ea5e9');
                 startDot.setAttribute('stroke', '#ffffff');
-                startDot.setAttribute('stroke-width', '2.5');
+                startDot.setAttribute('stroke-width', '1.2');
                 svg.appendChild(startDot);
             }
 
@@ -4183,13 +4167,6 @@
                 </div>
             `;
             document.getElementById('map-image-container').appendChild(pin);
-
-            // Show start point banner
-            const startBanner = document.getElementById('nav-start-point-pill');
-            if (startBanner) {
-                startBanner.classList.remove('hidden');
-                startBanner.classList.add('flex');
-            }
 
             // Add Draggable Start Pin
             document.querySelectorAll('.dynamic-start-pin').forEach(p => p.remove());
@@ -4522,6 +4499,8 @@
                 });
                 renderResultsCards(activeStores);
                 renderStoreRoutes(activeStores);
+            } else if (typeof activeNavigatedGate !== 'undefined' && activeNavigatedGate) {
+                navigateToGate(activeNavigatedGate);
             }
 
             showToast(`📍 ตั้งจุดเริ่มต้นเป็น: ${name}`, 'info');
@@ -5126,6 +5105,9 @@
         }
 
         function selectPinMatrix(type) {
+            if (!['shop', 'restaurants', 'services', 'lounge'].includes(type)) {
+                type = 'shop';
+            }
             currentSelectedMatrix = type;
             const tabs = {
                 shop: { badge: 'store_matrix', color: '#0284c7', defaultIcon: 'shopping_bag', defaultCat: 'Duty Free' },
@@ -5219,7 +5201,11 @@
             if (catInput) catInput.value = '';
             if (fileInput) fileInput.value = '';
 
-            selectPinMatrix(currentMapCategory || 'shop');
+            let initialMatrix = currentMapCategory;
+            if (!['shop', 'restaurants', 'services', 'lounge'].includes(initialMatrix)) {
+                initialMatrix = 'shop';
+            }
+            selectPinMatrix(initialMatrix);
 
             modal.classList.remove('hidden');
             modal.classList.remove('opacity-0');
@@ -5238,11 +5224,10 @@
         }
 
         async function submitNewPin() {
-            const name = (document.getElementById('new-pin-name')?.value || '').trim();
+            let name = (document.getElementById('new-pin-name')?.value || '').trim();
+            let id = (document.getElementById('new-pin-id')?.value || '').trim();
             if (!name) {
-                alert('กรุณากรอกชื่อสถานที่ / หัวข้อ');
-                document.getElementById('new-pin-name')?.focus();
-                return;
+                name = id || 'New Store';
             }
 
             const saveBtn = document.getElementById('save-new-pin-btn');
@@ -5253,7 +5238,6 @@
             }
 
             try {
-                let id = (document.getElementById('new-pin-id')?.value || '').trim();
                 const floor = (document.getElementById('new-pin-floor')?.value || '4').trim();
                 const concourse = (document.getElementById('new-pin-concourse')?.value || 'D').trim();
                 const category = (document.getElementById('new-pin-category')?.value || '').trim();
@@ -5278,10 +5262,15 @@
                     }
                 }
 
+                let matrix = currentSelectedMatrix;
+                if (!['shop', 'restaurants', 'services', 'lounge'].includes(matrix)) {
+                    matrix = 'shop';
+                }
+
                 let endpoint = '/api/admin/stores';
                 let payload = {};
 
-                if (currentSelectedMatrix === 'shop') {
+                if (matrix === 'shop') {
                     endpoint = '/api/admin/stores';
                     payload = {
                         password: '6515',
@@ -5297,7 +5286,7 @@
                         icon: icon,
                         store_id: name
                     };
-                } else if (currentSelectedMatrix === 'restaurants') {
+                } else if (matrix === 'restaurants') {
                     endpoint = '/api/admin/restaurants';
                     payload = {
                         password: '6515',
@@ -5311,7 +5300,7 @@
                         y: yVal,
                         icon: icon
                     };
-                } else if (currentSelectedMatrix === 'services') {
+                } else if (matrix === 'services') {
                     endpoint = '/api/admin/services';
                     payload = {
                         password: '6515',
@@ -5325,7 +5314,7 @@
                         y: yVal,
                         icon: icon
                     };
-                } else if (currentSelectedMatrix === 'lounge') {
+                } else if (matrix === 'lounge') {
                     endpoint = '/api/admin/lounges';
                     payload = {
                         password: '6515',
@@ -5350,25 +5339,39 @@
 
                 if (data && (data.success || data.store || data.item)) {
                     const createdItem = data.store || data.item || payload;
+                    createdItem.x = Number(createdItem.x || xVal);
+                    createdItem.y = Number(createdItem.y || yVal);
+                    createdItem.floor = floor;
+                    createdItem.concourse = concourse;
+                    createdItem.icon = icon;
                     
                     // Push into local allPOIData for instant real-time reflection
-                    if (currentSelectedMatrix === 'shop') {
+                    if (matrix === 'shop') {
+                        createdItem.shop_number = createdItem.shop_number || id;
+                        createdItem.shop_name = createdItem.shop_name || name;
                         allPOIData.shops = allPOIData.shops || [];
                         allPOIData.shops.push(createdItem);
-                    } else if (currentSelectedMatrix === 'restaurants') {
+                    } else if (matrix === 'restaurants') {
+                        createdItem.restaurant_id = createdItem.restaurant_id || id;
+                        createdItem.name = createdItem.name || name;
                         allPOIData.restaurants = allPOIData.restaurants || [];
                         allPOIData.restaurants.push(createdItem);
-                    } else if (currentSelectedMatrix === 'services') {
+                    } else if (matrix === 'services') {
+                        createdItem.service_id = createdItem.service_id || id;
+                        createdItem.name = createdItem.name || name;
                         allPOIData.services = allPOIData.services || [];
                         allPOIData.services.push(createdItem);
-                    } else if (currentSelectedMatrix === 'lounge') {
+                    } else if (matrix === 'lounge') {
+                        createdItem.lounge_id = createdItem.lounge_id || id;
+                        createdItem.name = createdItem.name || name;
                         allPOIData.lounges = allPOIData.lounges || [];
                         allPOIData.lounges.push(createdItem);
                     }
+                    allStorePOIs = allPOIData.shops || [];
 
                     // Switch view to match matrix & floor so pin is immediately visible
-                    if (currentMapCategory !== currentSelectedMatrix) {
-                        switchMapCategory(currentSelectedMatrix);
+                    if (currentMapCategory !== 'all' && currentMapCategory !== matrix) {
+                        switchMapCategory(matrix);
                     }
                     if (currentFloor.toString() !== floor.toString()) {
                         switchFloor(floor);
@@ -5378,7 +5381,10 @@
                     enableAdminPinDragging();
                     closeAddPinModal();
 
-                    showToast(`📍 ปักหมุด [${name}] สำเร็จแล้ว! สามารถลากปรับตำแหน่งได้ทันที`, 'success');
+                    // Sync fresh data from server in background
+                    loadMapStoresPOIs();
+
+                    showToast(`📍 ปักหมุด [${name}] สำเร็จแล้ว! บันทึกเข้า Matrix เรียบร้อย`, 'success');
                 } else {
                     alert(`ไม่สามารถบันทึกหมุดได้: ${data.error || 'Server error'}`);
                 }
@@ -5436,6 +5442,64 @@
                 setStartLocation(coords.x, coords.y, `ตำแหน่งที่เลือก (${coords.x}, ${coords.y})`, true);
             }
         });
+
+        // Double-Click / 2-Tap on Map to change Navigation Start Point (Requirement 2)
+        let lastTapTimestamp = 0;
+        let lastTapCoords = { x: 0, y: 0 };
+
+        function handleMapDoubleClick(e) {
+            if (isAdminMode) return;
+            if (e.target.closest('button') || e.target.closest('#product-detail-drawer') || e.target.closest('#results-container')) return;
+            
+            const coords = getMapCoordinatesFromEvent(e);
+            if (!coords || isNaN(coords.x) || isNaN(coords.y)) return;
+
+            setStartLocation(coords.x, coords.y, `จุดเริ่มต้น (${coords.x}, ${coords.y})`, true);
+            showStartPointRipple(coords.x, coords.y);
+            showToast(`📍 ย้ายจุดเริ่มต้นมาที่ (${coords.x}, ${coords.y}) เรียบร้อยแล้ว`, 'info');
+        }
+
+        function showStartPointRipple(x, y) {
+            const container = document.getElementById('map-image-container');
+            if (!container) return;
+            const ripple = document.createElement('div');
+            ripple.className = 'absolute pointer-events-none rounded-full border-2 border-emerald-400 animate-ping z-40';
+            ripple.style.width = '24px';
+            ripple.style.height = '24px';
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.style.transform = 'translate(-50%, -50%)';
+            container.appendChild(ripple);
+            setTimeout(() => { ripple.remove(); }, 800);
+        }
+
+        const mapContainerEl = document.getElementById('map-image-container');
+        if (mapContainerEl) {
+            mapContainerEl.addEventListener('dblclick', function(e) {
+                if (isAdminMode) return;
+                e.preventDefault();
+                e.stopPropagation();
+                handleMapDoubleClick(e);
+            });
+
+            // Fast double-tap detection for mobile & touchpads
+            mapContainerEl.addEventListener('pointerdown', function(e) {
+                if (isAdminMode || e.button !== 0) return;
+                if (e.target.closest('button') || e.target.closest('#product-detail-drawer') || e.target.closest('#results-container') || e.target.closest('.store-poi-item')) return;
+                const now = Date.now();
+                const diff = now - lastTapTimestamp;
+                const dist = Math.hypot(e.clientX - lastTapCoords.x, e.clientY - lastTapCoords.y);
+                if (diff > 50 && diff < 380 && dist < 25) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    lastTapTimestamp = 0;
+                    handleMapDoubleClick(e);
+                } else {
+                    lastTapTimestamp = now;
+                    lastTapCoords = { x: e.clientX, y: e.clientY };
+                }
+            });
+        }
 
         // =============================================
         // PANPURI PRE-ORDER SYSTEM

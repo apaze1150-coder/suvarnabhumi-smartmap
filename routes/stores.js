@@ -167,21 +167,21 @@ router.post('/api/admin/stores', async (req, res) => {
     let resolvedShopNum = (shop_number || '').trim();
     if (!resolvedShopNum) {
       const existing = await db.query('SELECT shop_number FROM store_matrix');
-      let nextShopNum = 1;
-      if (existing.rows.length > 0) {
-        const numbers = existing.rows.map(s => parseInt((s.shop_number || '').replace(/\D/g, ''), 10)).filter(n => !isNaN(n));
-        nextShopNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+      const existingNums = new Set((existing.rows || []).map(s => (s.shop_number || '').trim().toUpperCase()));
+      let nextNum = 1;
+      while (existingNums.has(`DE${nextNum}`)) {
+        nextNum++;
       }
-      resolvedShopNum = `DE${nextShopNum}`;
+      resolvedShopNum = `DE${nextNum}`;
     }
 
-    const sName = (shop_name || 'New Shop').trim();
+    const sName = (shop_name || resolvedShopNum || 'New Shop').trim();
     const sImg = (shop_image || 'default.jpg').trim();
     const sCat = (category || 'Duty Free').trim();
     const sBrands = (brands_available || sName).trim();
     const sGraph = (graph_node_id || `Node_Shop_${resolvedShopNum}`).trim();
-    const sX = (x !== undefined && x !== '') ? Math.round(Number(x)) : 500;
-    const sY = (y !== undefined && y !== '') ? Math.round(Number(y)) : 250;
+    const sX = (x !== undefined && x !== '' && !isNaN(Number(x))) ? Math.round(Number(x)) : 500;
+    const sY = (y !== undefined && y !== '' && !isNaN(Number(y))) ? Math.round(Number(y)) : 250;
     const sParent = (parent_node_id || 'Node_Intersection_D').trim();
     const sStoreId = (store_id || sName || `store_shop_${resolvedShopNum}`).trim();
     const sIcon = (icon || 'shopping_bag').trim();
@@ -215,25 +215,23 @@ router.post('/api/admin/stores', async (req, res) => {
     const createdStore = result.rows[0];
     console.log(`[Admin] Created Shop ${resolvedShopNum}: ${createdStore.shop_name}`);
 
-    // Sync CSV in background
-    (async () => {
-      try {
-        const allRows = await db.query('SELECT * FROM store_matrix');
-        const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
-        const escapeCsv = (v) => {
-          if (v === null || v === undefined) return '""';
-          const s = String(v);
-          return '"' + s.replace(/"/g, '""') + '"';
-        };
-        const lines = [headers.join(',')];
-        for (let row of allRows.rows) {
-          lines.push(headers.map(h => escapeCsv(row[h])).join(','));
-        }
-        fs.writeFileSync(STORE_CSV, lines.join('\n'), 'utf8');
-      } catch (csvErr) {
-        console.warn('Could not write STORE_CSV:', csvErr.message);
+    // Sync CSV synchronously
+    try {
+      const allRows = await db.query('SELECT * FROM store_matrix');
+      const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
+      const escapeCsv = (v) => {
+        if (v === null || v === undefined) return '""';
+        const s = String(v);
+        return '"' + s.replace(/"/g, '""') + '"';
+      };
+      const lines = [headers.join(',')];
+      for (let row of allRows.rows) {
+        lines.push(headers.map(h => escapeCsv(row[h])).join(','));
       }
-    })();
+      fs.writeFileSync(STORE_CSV, lines.join('\n'), 'utf8');
+    } catch (csvErr) {
+      console.warn('Could not write STORE_CSV:', csvErr.message);
+    }
 
     // Reload navigation graph
     loadNavigationGraph().catch(e => console.error('[Admin] Error reloading navigation graph:', e));
