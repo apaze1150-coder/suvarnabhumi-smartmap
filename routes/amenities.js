@@ -95,13 +95,13 @@ router.put('/api/admin/restaurants/:id', async (req, res) => {
 
 // DELETE /api/admin/restaurants/:id
 router.delete('/api/admin/restaurants/:id', async (req, res) => {
-  const targetId = req.params.id;
-  const { password } = req.body;
+  const targetId = decodeURIComponent(req.params.id || '').trim();
+  const password = req.body?.password || req.query?.password;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    await db.query('DELETE FROM restaurant_matrix WHERE restaurant_id = $1 OR id::text = $1', [targetId]);
+    await db.query('DELETE FROM restaurant_matrix WHERE LOWER(TRIM(restaurant_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete restaurant error:', err);
@@ -198,13 +198,13 @@ router.put('/api/admin/services/:id', async (req, res) => {
 
 // DELETE /api/admin/services/:id
 router.delete('/api/admin/services/:id', async (req, res) => {
-  const targetId = decodeURIComponent(req.params.id).trim();
-  const { password } = req.body;
+  const targetId = decodeURIComponent(req.params.id || '').trim();
+  const password = req.body?.password || req.query?.password;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    await db.query('DELETE FROM service_matrix WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($1)) OR id::text = $1', [targetId]);
+    await db.query('DELETE FROM service_matrix WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete service error:', err);
@@ -301,13 +301,13 @@ router.put('/api/admin/lounges/:id', async (req, res) => {
 
 // DELETE /api/admin/lounges/:id
 router.delete('/api/admin/lounges/:id', async (req, res) => {
-  const targetId = decodeURIComponent(req.params.id).trim();
-  const { password } = req.body;
+  const targetId = decodeURIComponent(req.params.id || '').trim();
+  const password = req.body?.password || req.query?.password;
   if (!checkPassword(password)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    await db.query('DELETE FROM lounge_matrix WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($1)) OR id::text = $1', [targetId]);
+    await db.query('DELETE FROM lounge_matrix WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete lounge error:', err);

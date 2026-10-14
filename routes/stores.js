@@ -333,26 +333,27 @@ router.put('/api/admin/stores/:shop_number', async (req, res) => {
 
 // DELETE /api/admin/stores/:shop_number - Delete a store
 router.delete('/api/admin/stores/:shop_number', async (req, res) => {
-  const shopNumStr = req.params.shop_number.trim();
-  const { password } = req.body;
-  const checkPassword = password || req.query.password;
+  const shopNumStr = decodeURIComponent(req.params.shop_number || '').trim();
+  const password = req.body?.password || req.query?.password;
 
-  if (checkPassword !== '6515') {
+  if (password !== '6515') {
     return res.status(403).json({ error: 'Unauthorized: Invalid password.' });
   }
 
   try {
+    // 1. Delete from PostgreSQL store_matrix table
+    await db.query('DELETE FROM store_matrix WHERE LOWER(TRIM(shop_number)) = LOWER(TRIM($1)) OR LOWER(TRIM(store_id)) = LOWER(TRIM($1)) OR LOWER(TRIM(shop_name)) = LOWER(TRIM($1))', [shopNumStr]);
+
+    // 2. Delete from CSV if present
     const stores = await readCsv(STORE_CSV);
-    const idx = stores.findIndex(s => s.shop_number.toString().trim() === shopNumStr);
-    if (idx === -1) {
-      return res.status(404).json({ error: `Shop number ${shopNumStr} not found in database.` });
-    }
+    const filteredStores = stores.filter(s => 
+      (s.shop_number || '').toString().trim().toLowerCase() !== shopNumStr.toLowerCase() &&
+      (s.store_id || '').toString().trim().toLowerCase() !== shopNumStr.toLowerCase() &&
+      (s.shop_name || '').toString().trim().toLowerCase() !== shopNumStr.toLowerCase()
+    );
 
-    const deletedStore = stores.splice(idx, 1)[0];
-
-    // Save to CSV
-    await saveStoresToCsvSync(stores);
-    console.log(`[Admin] Deleted Shop ${shopNumStr}: ${deletedStore.shop_name}`);
+    await saveStoresToCsvSync(filteredStores);
+    console.log(`[Admin] Deleted Shop ${shopNumStr} from DB and CSV`);
 
     // Reload navigation graph
     await loadNavigationGraph();

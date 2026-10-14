@@ -1199,8 +1199,8 @@
             <div id="admin-status-bar" class="hidden absolute top-0 left-0 w-full bg-[#001a3d]/95 backdrop-blur-md text-white font-bold py-2.5 px-4 z-[100] flex flex-wrap justify-between items-center shadow-2xl border-b border-amber-400/40">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="text-xs font-black text-amber-300 uppercase tracking-wider">โหมดปรับตำแหน่งหมุดร้านค้า (Drag & Drop Mode)</span>
-                    <span class="text-[11px] text-slate-300 font-medium hidden md:inline">| 🖱️ คลิกขวาบนแผนผัง หรือกด "เพิ่มหมุดใหม่" เพื่อปักหมุด | คลิกค้างที่หมุดแล้วลากวางได้ทันที</span>
+                    <span class="text-xs font-black text-amber-300 uppercase tracking-wider">โหมดปรับตำแหน่ง / จัดการหมุด (Admin Mode)</span>
+                    <span class="text-[11px] text-slate-300 font-medium hidden md:inline">| 🗑️ คลิกที่หมุดเพื่อลบ | 🖱️ คลิกค้างแล้วลากเพื่อย้าย | ➕ กด "เพิ่มหมุดใหม่" เพื่อปักหมุด</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="admin-mouse-coords" class="font-mono text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg text-emerald-300 font-bold border border-slate-700">พิกัดเมาส์: X=--, Y=--</span>
@@ -1222,14 +1222,32 @@
                     <!-- Search Input Box -->
                     <div class="flex-1 bg-white/95 backdrop-blur-md shadow-lg rounded-2xl p-1.5 flex items-center gap-2 border border-outline-variant/30">
                         <div class="pl-2 text-primary/40"><span class="material-symbols-outlined text-xl">search</span></div>
-                        <input id="map-search-input" class="w-full border-none focus:ring-0 text-on-surface bg-transparent font-bold placeholder:text-on-surface-variant/50 py-2 text-sm" placeholder="Ask AI or search brands..." type="text" onkeypress="handleMapSearchEnter(event); if(event.key === 'Enter') triggerMapAISearch(this.value);">
+                        <input id="map-search-input" class="w-full border-none focus:ring-0 text-on-surface bg-transparent font-bold placeholder:text-on-surface-variant/50 py-2 text-sm" placeholder="Ask AI or search brands..." type="text" onkeypress="handleMapSearchEnter(event); if(event.key === 'Enter' && typeof triggerMapAISearch === 'function') triggerMapAISearch(this.value);">
                         <!-- Cancel Button (Hidden by default, shown when input has value) -->
                         <button id="clear-search-btn" onclick="clearSearch(); document.getElementById('map-ai-summary-box')?.classList.add('hidden');" class="hidden text-on-surface-variant hover:text-primary active:scale-95 transition-all p-1.5 rounded-full">
                             <span class="material-symbols-outlined text-sm">close</span>
                         </button>
-                        <button onclick="searchMapLive(); triggerMapAISearch(document.getElementById('map-search-input').value);" class="bg-[#001a3d] text-white p-2.5 rounded-xl mr-1 shadow-md flex items-center justify-center gap-1 shrink-0">
+                        <button onclick="searchMapLive(); if(typeof triggerMapAISearch === 'function') triggerMapAISearch(document.getElementById('map-search-input').value);" class="bg-[#001a3d] text-white p-2.5 rounded-xl mr-1 shadow-md flex items-center justify-center gap-1 shrink-0">
                             <span class="material-symbols-outlined text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 text-sm" style="background-image: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">auto_awesome</span>
                             <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Start Point Indicator & Changer Bar -->
+                <div id="nav-start-point-pill" class="max-w-xl mx-auto mt-2 pointer-events-auto flex items-center justify-between bg-white/95 backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-md border border-slate-200/80 text-xs transition-all">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 shrink-0 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">จุดเริ่มต้น:</span>
+                        <span id="nav-start-name" class="font-extrabold text-slate-800 text-xs truncate max-w-[190px] sm:max-w-[280px]">จุดกึ่งกลาง Concourse D (Passport Control)</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="openChangeStartModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-2.5 py-1 rounded-xl font-bold text-[10px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer">
+                            <span class="material-symbols-outlined text-[13px]">pin_drop</span>
+                            <span>ย้ายจุดเริ่มต้น</span>
+                        </button>
+                        <button onclick="resetStartPointToCenter()" id="nav-reset-start-btn" title="รีเซ็ตกลับเป็นจุดกึ่งกลาง" class="hidden text-slate-400 hover:text-slate-700 p-0.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">restart_alt</span>
                         </button>
                     </div>
                 </div>
@@ -1241,7 +1259,13 @@
             </div>
 
             <!-- Top Quick-Category Bar (Inside green box area) -->
-            <div id="map-quick-category-bar" class="absolute top-[64px] left-[70px] right-[70px] z-30 flex items-center gap-1.5 overflow-x-auto no-scrollbar pointer-events-auto py-0.5">
+            <div id="map-quick-category-bar" class="absolute top-[102px] left-[70px] right-[70px] z-30 flex items-center gap-1.5 overflow-x-auto no-scrollbar pointer-events-auto py-0.5">
+                <!-- 0. All Categories -->
+                <button onclick="switchMapCategory('all')" id="map-cat-btn-all" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap bg-white/95 text-slate-700 hover:bg-white border border-outline-variant/30" title="All (แสดงหมุดทุกประเภท)">
+                    <span class="material-symbols-outlined text-[17px] text-amber-500">grid_view</span>
+                    <span>All</span>
+                </button>
+
                 <!-- 1. Shop (Store Matrix) -->
                 <button onclick="switchMapCategory('shop')" id="map-cat-btn-shop" class="map-cat-pill flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-black transition-all shadow-md active:scale-95 whitespace-nowrap bg-[#001a3d] text-[#ffe088] border border-amber-400/50 ring-2 ring-amber-400/20" title="Shop (ร้านค้าใน Store Matrix)">
                     <span class="material-symbols-outlined text-[17px] text-[#38bdf8]">shopping_bag</span>
@@ -1268,7 +1292,7 @@
             </div>
 
             <!-- Left-Side Floating Toggleable Category Panel -->
-            <div class="absolute top-[62px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
+            <div class="absolute top-[100px] left-4 z-40 flex flex-col items-start gap-2.5 pointer-events-auto">
                 <!-- Floating Round Action Button -->
                 <button id="toggle-sidebar" onclick="toggleCategoryPanel()" title="Toggle Categories Filter" class="bg-white/95 backdrop-blur-md text-primary hover:text-[#B59115] shadow-lg rounded-2xl w-12 h-12 flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer group">
                     <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">tune</span>
@@ -1656,6 +1680,166 @@
                     <button type="button" id="save-new-pin-btn" onclick="submitNewPin()" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black py-2.5 px-4 rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-1.5 border border-emerald-400/40">
                         <span class="material-symbols-outlined text-base">pin_drop</span>
                         <span>บันทึกและปักหมุดทันที</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIRM DELETE PIN MODAL FOR ADMIN -->
+        <div id="delete-pin-modal" class="fixed inset-0 z-[210] bg-black/60 hidden items-center justify-center backdrop-blur-md p-4 transition-all">
+            <div class="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col animate-[scaleUp_0.2s_ease-out]">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-rose-950 via-slate-900 to-rose-950 p-4 text-white flex justify-between items-center border-b border-rose-500/30">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center border border-rose-500/40">
+                            <span class="material-symbols-outlined text-lg">delete_forever</span>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm text-white">ยืนยันการลบหมุด</h3>
+                            <p class="text-[10px] text-rose-300">ลบหมุดและข้อมูลออกจาก Matrix ทันที</p>
+                        </div>
+                    </div>
+                    <button onclick="closeDeletePinModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-xs">close</span>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-4 space-y-3 text-slate-800 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1.5">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">สถานที่ / ป้ายชื่อ:</span>
+                            <span id="del-pin-matrix-badge" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Shop</span>
+                        </div>
+                        <h4 id="del-pin-name" class="font-black text-slate-900 text-sm break-words leading-tight">-</h4>
+                        <div class="pt-1 flex justify-between text-[11px] text-slate-500 border-t border-slate-200/60 font-mono">
+                            <span>ID: <b id="del-pin-id" class="text-slate-800">-</b></span>
+                            <span>พิกัด: <b id="del-pin-coords" class="text-slate-800">X: -, Y: -</b></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-50/70 p-2.5 rounded-xl border border-rose-200/80 flex items-start gap-2 text-rose-900 text-[11px] leading-snug">
+                        <span class="material-symbols-outlined text-rose-600 text-base shrink-0">warning</span>
+                        <span>หากลบแล้ว หมุดจะหายไปจากแผนที่และแถวข้อมูลใน Matrix จะถูกลบทันที</span>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeDeletePinModal()" class="px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-200 font-bold text-xs transition-colors cursor-pointer">
+                        ยกเลิก
+                    </button>
+                    <button type="button" id="confirm-delete-pin-btn" onclick="executeDeletePinConfirmed()" class="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 active:scale-95 text-white font-black py-2 px-4 rounded-xl shadow-md transition-all text-xs flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                        <span>ลบหมุดทันที</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHANGE STARTING POINT MODAL -->
+        <div id="change-start-modal" class="fixed inset-0 z-[200] bg-black/60 hidden items-center justify-center backdrop-blur-md p-4 transition-all">
+            <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200 flex flex-col animate-[scaleUp_0.2s_ease-out]">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-[#001a3d] via-[#0f2b5c] to-[#001a3d] p-4 text-white flex justify-between items-center border-b border-amber-400/40">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 text-slate-900 flex items-center justify-center shadow-md">
+                            <span class="material-symbols-outlined text-xl font-bold">trip_origin</span>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm text-white">ย้าย / เลือกจุดเริ่มต้น (Start Point)</h3>
+                            <p class="text-[11px] text-emerald-200/90 font-medium">เลือกตำแหน่งที่คุณยืนอยู่ เพื่อคำนวณเส้นทางและเวลาเดิน</p>
+                        </div>
+                    </div>
+                    <button onclick="closeChangeStartModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                </div>
+
+                <!-- Body (Scrollable) -->
+                <div class="p-4 overflow-y-auto space-y-3.5 text-slate-800 text-xs">
+                    <!-- Option 1: Pick on Map Direct Button -->
+                    <button onclick="startPickStartOnMap()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold p-3 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">touch_app</span>
+                        <span>แตะ / จิ้มเลือกตำแหน่งบนแผนผัง (Pick on Map)</span>
+                    </button>
+
+                    <!-- Option 2: Search Airport Location / Shop -->
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-blue-600">search</span>
+                            <span>ค้นหาร้านค้า / เกตเพื่อเป็นจุดเริ่มต้น</span>
+                        </label>
+                        <div class="relative">
+                            <input id="start-search-input" type="text" placeholder="พิมพ์ชื่อร้าน หรือ Concourse เช่น Panpuri, Jim Thompson..." class="w-full text-xs py-2 pl-3 pr-8 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#001a3d]" oninput="filterStartPointSuggestions(this.value)">
+                            <span class="material-symbols-outlined text-slate-400 absolute right-2.5 top-2 text-sm pointer-events-none">search</span>
+                        </div>
+                        <!-- Search Suggestions Dropdown List -->
+                        <div id="start-search-results" class="mt-1 max-h-36 overflow-y-auto space-y-1 hidden bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                        </div>
+                    </div>
+
+                    <!-- Option 3: Popular Airport Zones (Presets) -->
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-amber-500">near_me</span>
+                            <span>จุดหลักยอดนิยมในสนามบิน (Popular Landmarks)</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="setStartLocation(489, 227, 'จุดกึ่งกลาง Concourse D (Passport Control)'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px] flex items-center gap-1">
+                                    <span class="text-amber-500 font-black">★</span> จุดศูนย์กลาง (Passport)
+                                </div>
+                                <div class="text-[9px] text-slate-400">Concourse D Center (489, 227)</div>
+                            </button>
+                            <button onclick="setStartLocation(217, 223, 'จุดตรวจค้น East (Security East)'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🛂 จุดตรวจค้น East</div>
+                                <div class="text-[9px] text-slate-400">Security Check East (217, 223)</div>
+                            </button>
+                            <button onclick="setStartLocation(767, 223, 'จุดตรวจค้น West (Security West)'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🛂 จุดตรวจค้น West</div>
+                                <div class="text-[9px] text-slate-400">Security Check West (767, 223)</div>
+                            </button>
+                            <button onclick="setStartLocation(210, 195, 'Concourse A'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse A</div>
+                                <div class="text-[9px] text-slate-400">Gates A1-A6 (210, 195)</div>
+                            </button>
+                            <button onclick="setStartLocation(140, 250, 'Concourse B'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse B</div>
+                                <div class="text-[9px] text-slate-400">Gates B1-B9 (140, 250)</div>
+                            </button>
+                            <button onclick="setStartLocation(220, 240, 'Concourse C'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse C</div>
+                                <div class="text-[9px] text-slate-400">Gates C1-C10 (220, 240)</div>
+                            </button>
+                            <button onclick="setStartLocation(740, 240, 'Concourse E'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse E</div>
+                                <div class="text-[9px] text-slate-400">Gates E1-E10 (740, 240)</div>
+                            </button>
+                            <button onclick="setStartLocation(760, 250, 'Concourse F'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse F</div>
+                                <div class="text-[9px] text-slate-400">Gates F1-F6 (760, 250)</div>
+                            </button>
+                            <button onclick="setStartLocation(780, 220, 'Concourse G'); closeChangeStartModal();" class="p-2 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-slate-800 text-[11px]">🚪 Concourse G</div>
+                                <div class="text-[9px] text-slate-400">Gates G1-G5 (780, 220)</div>
+                            </button>
+                            <button onclick="setStartLocation(500, 250, 'SAT-1 อาคารเทียบเครื่องบินรอง'); switchFloor('SAT-1'); closeChangeStartModal();" class="p-2 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 text-left transition-all active:scale-95 cursor-pointer">
+                                <div class="font-bold text-blue-900 text-[11px]">🚆 SAT-1 Satellite</div>
+                                <div class="text-[9px] text-blue-600">สถานีรถไฟฟ้า APM (500, 250)</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                    <button type="button" onclick="resetStartPointToCenter(); closeChangeStartModal();" class="text-xs text-slate-500 hover:text-slate-800 font-bold flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">restart_alt</span>
+                        <span>รีเซ็ตเป็นจุดกึ่งกลาง</span>
+                    </button>
+                    <button type="button" onclick="closeChangeStartModal()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition-colors cursor-pointer">
+                        ปิด
                     </button>
                 </div>
             </div>
@@ -2235,7 +2419,7 @@
             });
         }
 
-        let currentMapCategory = 'shop'; // 'shop' | 'restaurants' | 'services' | 'lounge'
+        let currentMapCategory = localStorage.getItem('suvarnabhumi_active_category') || 'shop'; // 'all' | 'shop' | 'restaurants' | 'services' | 'lounge'
         let allPOIData = {
             shops: [],
             restaurants: [],
@@ -2245,8 +2429,9 @@
 
         function switchMapCategory(category) {
             currentMapCategory = category;
+            try { localStorage.setItem('suvarnabhumi_active_category', category); } catch(e) {}
 
-            const catKeys = ['shop', 'restaurants', 'services', 'lounge'];
+            const catKeys = ['all', 'shop', 'restaurants', 'services', 'lounge'];
             catKeys.forEach(k => {
                 const btn = document.getElementById(`map-cat-btn-${k}`);
                 if (!btn) return;
@@ -2292,87 +2477,96 @@
             if (!poiLayer) return;
             poiLayer.innerHTML = '';
 
-            let itemsToRender = [];
+            const mapShops = () => (allPOIData.shops || []).map(s => ({
+                id: s.shop_number,
+                name: getCleanStoreName(s),
+                x: parseFloat(s.x),
+                y: parseFloat(s.y),
+                floor: s.floor || '4',
+                type: 'shop',
+                icon: (s.icon && s.icon.trim()) ? s.icon.trim() : 'shopping_bag',
+                stroke: '#0284c7',
+                fill: '#0284c7',
+                raw: s
+            }));
 
-            if (currentMapCategory === 'shop') {
-                itemsToRender = (allPOIData.shops || []).map(s => ({
-                    id: s.shop_number,
-                    name: getCleanStoreName(s),
+            const mapRestaurants = () => (allPOIData.restaurants || []).map(r => ({
+                id: r.restaurant_id,
+                name: r.name,
+                x: parseFloat(r.x),
+                y: parseFloat(r.y),
+                floor: r.floor || '4',
+                type: 'restaurants',
+                icon: (r.icon && r.icon.trim()) ? r.icon.trim() : 'restaurant',
+                stroke: '#ea580c',
+                fill: '#ea580c',
+                raw: r
+            }));
+
+            const mapServices = () => (allPOIData.services || []).map(s => {
+                const cat = (s.category || '').toLowerCase();
+                let icon = (s.icon && s.icon.trim()) ? s.icon.trim() : 'info';
+                let stroke = '#0284c7';
+                let fill = '#0284c7';
+
+                if (!s.icon || !s.icon.trim()) {
+                    if (cat.includes('exchange') || cat.includes('currency')) {
+                        icon = 'currency_exchange';
+                        stroke = '#059669';
+                        fill = '#059669';
+                    } else if (cat.includes('vat')) {
+                        icon = 'receipt_long';
+                        stroke = '#7c3aed';
+                        fill = '#7c3aed';
+                    } else if (cat.includes('pharmacy')) {
+                        icon = 'local_pharmacy';
+                        stroke = '#059669';
+                        fill = '#059669';
+                    } else if (cat.includes('restroom') || cat.includes('wc')) {
+                        icon = 'wc';
+                        stroke = '#dc2626';
+                        fill = '#dc2626';
+                    }
+                }
+
+                return {
+                    id: s.service_id,
+                    name: s.name,
                     x: parseFloat(s.x),
                     y: parseFloat(s.y),
                     floor: s.floor || '4',
-                    type: 'shop',
-                    icon: (s.icon && s.icon.trim()) ? s.icon.trim() : 'shopping_bag',
-                    stroke: '#0284c7',
-                    fill: '#0284c7',
+                    type: 'services',
+                    icon: icon,
+                    stroke: stroke,
+                    fill: fill,
                     raw: s
-                }));
+                };
+            });
+
+            const mapLounges = () => (allPOIData.lounges || []).map(l => ({
+                id: l.lounge_id,
+                name: l.name,
+                x: parseFloat(l.x),
+                y: parseFloat(l.y),
+                floor: l.floor || '3',
+                type: 'lounge',
+                icon: (l.icon && l.icon.trim()) ? l.icon.trim() : 'weekend',
+                stroke: '#7c3aed',
+                fill: '#7c3aed',
+                raw: l
+            }));
+
+            let itemsToRender = [];
+            if (currentMapCategory === 'all') {
+                itemsToRender = [...mapShops(), ...mapRestaurants(), ...mapServices(), ...mapLounges()];
+            } else if (currentMapCategory === 'shop') {
+                itemsToRender = mapShops();
             } else if (currentMapCategory === 'restaurants') {
-                itemsToRender = (allPOIData.restaurants || []).map(r => ({
-                    id: r.restaurant_id,
-                    name: r.name,
-                    x: parseFloat(r.x),
-                    y: parseFloat(r.y),
-                    floor: r.floor || '4',
-                    type: 'restaurants',
-                    icon: (r.icon && r.icon.trim()) ? r.icon.trim() : 'restaurant',
-                    stroke: '#ea580c',
-                    fill: '#ea580c',
-                    raw: r
-                }));
+                itemsToRender = mapRestaurants();
             } else if (currentMapCategory === 'services') {
-                itemsToRender = (allPOIData.services || []).map(s => {
-                    const cat = (s.category || '').toLowerCase();
-                    let icon = (s.icon && s.icon.trim()) ? s.icon.trim() : 'info';
-                    let stroke = '#0284c7';
-                    let fill = '#0284c7';
-
-                    if (!s.icon || !s.icon.trim()) {
-                        if (cat.includes('exchange') || cat.includes('currency')) {
-                            icon = 'currency_exchange';
-                            stroke = '#059669';
-                            fill = '#059669';
-                        } else if (cat.includes('vat')) {
-                            icon = 'receipt_long';
-                            stroke = '#7c3aed';
-                            fill = '#7c3aed';
-                        } else if (cat.includes('pharmacy')) {
-                            icon = 'local_pharmacy';
-                            stroke = '#059669';
-                            fill = '#059669';
-                        } else if (cat.includes('restroom') || cat.includes('wc')) {
-                            icon = 'wc';
-                            stroke = '#dc2626';
-                            fill = '#dc2626';
-                        }
-                    }
-
-                    return {
-                        id: s.service_id,
-                        name: s.name,
-                        x: parseFloat(s.x),
-                        y: parseFloat(s.y),
-                        floor: s.floor || '4',
-                        type: 'services',
-                        icon: icon,
-                        stroke: stroke,
-                        fill: fill,
-                        raw: s
-                    };
-                });
+                itemsToRender = mapServices();
             } else if (currentMapCategory === 'lounge') {
-                itemsToRender = (allPOIData.lounges || []).map(l => ({
-                    id: l.lounge_id,
-                    name: l.name,
-                    x: parseFloat(l.x),
-                    y: parseFloat(l.y),
-                    floor: l.floor || '3',
-                    type: 'lounge',
-                    icon: (l.icon && l.icon.trim()) ? l.icon.trim() : 'weekend',
-                    stroke: '#7c3aed',
-                    fill: '#7c3aed',
-                    raw: l
-                }));
+                itemsToRender = mapLounges();
             }
 
             itemsToRender.forEach(item => {
@@ -2396,6 +2590,11 @@
                 pinEl.style.top = `${y}px`;
                 pinEl.style.zIndex = '12';
 
+                // Check floor visibility
+                const activeFloorStr = (currentFloor || '4').toString();
+                const itemFloorStr = (item.floor || '4').toString();
+                pinEl.style.display = (activeFloorStr === itemFloorStr) ? '' : 'none';
+
                 pinEl.innerHTML = `
                     <!-- Airport Standard Circular Badge Pin with Sharp Stalk Tip (Compact & Refined) -->
                     <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150 group-hover:scale-115 active:scale-90"
@@ -2405,6 +2604,15 @@
                                   fill="${pinFill}" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>
                         </svg>
                         <span class="material-symbols-outlined text-white text-[8.5px] absolute top-[2.5px] pointer-events-none select-none">${pinIcon}</span>
+
+                        ${isAdminMode ? `
+                        <!-- Admin Quick Delete Pin Button -->
+                        <button type="button" onclick="event.stopPropagation(); confirmDeletePinModal('${item.id}', '${item.type}', '${displayName.replace(/'/g, "\\'")}', ${item.x}, ${item.y})" 
+                                title="ลบหมุด ${displayName}"
+                                class="admin-pin-del-btn absolute -top-2.5 -right-2.5 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center shadow-md border border-white cursor-pointer transition-transform hover:scale-125 z-30">
+                            <span class="material-symbols-outlined text-[10px] font-bold">close</span>
+                        </button>
+                        ` : ''}
                     </div>
 
                     <!-- Crisp Floating Store Label with Clean White Vector Halo (No Overlap) -->
@@ -2424,9 +2632,18 @@
                         return;
                     }
                     if (isAdminMode) {
+                        confirmDeletePinModal(item.id, item.type, displayName, item.x, item.y);
                         return;
                     }
                     handlePOIClick(item);
+                };
+
+                pinEl.oncontextmenu = (e) => {
+                    if (isAdminMode) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        confirmDeletePinModal(item.id, item.type, displayName, item.x, item.y);
+                    }
                 };
 
                 // Attach drag & drop listeners for Admin Mode
@@ -2499,6 +2716,7 @@
             mapElem.parentElement.addEventListener('wheel', (e) => mapPanzoom.zoomWithWheel(e, { step: 0.45 }));
             setupMapRotationGestures();
             loadMapStoresPOIs();
+            switchMapCategory(currentMapCategory);
 
             document.getElementById('zoom-in').addEventListener('click', () => mapPanzoom.zoomIn({ step: 0.45 }));
             document.getElementById('zoom-out').addEventListener('click', () => mapPanzoom.zoomOut({ step: 0.45 }));
@@ -2693,6 +2911,7 @@
             // Clear previous paths & pins
             svg.innerHTML = '';
             document.querySelectorAll('.dynamic-map-pin').forEach(pin => pin.remove());
+            document.querySelectorAll('.dynamic-start-pin').forEach(pin => pin.remove());
             document.querySelectorAll('.escalator-anim').forEach(el => el.remove());
 
             // Reset Map to Level 4 by default
@@ -2728,10 +2947,10 @@
                         switchFloor(4);
                     }
 
-                    let startX = 489;
-                    let startY = 227;
+                    let startX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+                    let startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
                     
-                    if (isSat) {
+                    if (isSat && (!currentStartLocation || !currentStartLocation.isCustom)) {
                         // Start point for SAT map (e.g., Shuttle Train Arrival)
                         startX = 500;
                         startY = 250;
@@ -2803,6 +3022,32 @@
                         startDot.setAttribute('stroke', '#ffffff');
                         startDot.setAttribute('stroke-width', '2.5');
                         svg.appendChild(startDot);
+
+                        // Draggable Start Pin
+                        const startPin = document.createElement('div');
+                        startPin.className = 'dynamic-start-pin absolute z-30 transition-transform duration-150 flex flex-col items-center select-none cursor-grab group';
+                        startPin.style.left = `${startX}px`;
+                        startPin.style.top = `${startY}px`;
+                        startPin.style.transform = 'translate(-50%, -100%)';
+                        startPin.title = 'จุดเริ่มต้น (คลิกค้างแล้วลากเพื่อย้ายจุดเริ่มต้น)';
+                        startPin.innerHTML = `
+                            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-[8px] font-black text-white px-2 py-0.5 rounded-full shadow-lg mb-0.5 whitespace-nowrap border border-white/80 select-none flex items-center gap-1 group-hover:scale-105">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+                                <span>จุดเริ่มต้น</span>
+                            </div>
+                            <div class="relative w-5 h-7 flex items-center justify-center filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                                <svg viewBox="0 0 24 32" class="w-5 h-7 text-emerald-500 group-hover:text-emerald-400">
+                                    <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.8" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
+                                    <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
+                                </svg>
+                                <span class="material-symbols-outlined absolute text-[12px] text-emerald-700 top-[5px] pointer-events-none font-black">my_location</span>
+                            </div>
+                            <div class="w-2.5 h-1.5 bg-black/25 rounded-full blur-[1px]"></div>
+                        `;
+                        mapContainer.appendChild(startPin);
+                        if (typeof makeStartPinDraggable === 'function') {
+                            makeStartPinDraggable(startPin, mapContainer);
+                        }
                     } else {
                         // FLOOR 3 RENDERING
                         const createEscalator = (x, y, flip = false) => {
@@ -2834,7 +3079,16 @@
                     pin.style.transform = 'translate(-50%, -100%)';
 
                     if (isAdminMode) {
-                        makePinDraggable(pin, s.shop_number, mapContainer);
+                        pin.setAttribute('data-shop', s.shop_number);
+                        pin.setAttribute('data-type', s.is_amenity_node ? (s.category || 'services') : 'shop');
+                        if (typeof attachDragListenersToPin === 'function') {
+                            attachDragListenersToPin(pin);
+                        }
+                        pin.onclick = (e) => {
+                            e.stopPropagation();
+                            if (pin._wasDragged) { pin._wasDragged = false; return; }
+                            confirmDeletePinModal(s.shop_number, s.is_amenity_node ? (s.category || 'services') : 'shop', s.shop_name || s.shop_number, targetX, targetY);
+                        };
                     } else {
                         pin.onclick = () => selectStoreCard(s.shop_number);
                     }
@@ -2901,12 +3155,24 @@
                             </div>
                         `;
                     }
+                    if (isAdminMode) {
+                        const delBtn = document.createElement('button');
+                        delBtn.type = 'button';
+                        delBtn.title = `ลบหมุด ${s.shop_name || s.shop_number}`;
+                        delBtn.className = 'admin-pin-del-btn absolute -top-2.5 -right-2.5 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center shadow-md border border-white cursor-pointer transition-transform hover:scale-125 z-30';
+                        delBtn.innerHTML = '<span class="material-symbols-outlined text-[10px] font-bold">close</span>';
+                        delBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            confirmDeletePinModal(s.shop_number, s.is_amenity_node ? (s.category || 'services') : 'shop', s.shop_name || s.shop_number, targetX, targetY);
+                        };
+                        pin.appendChild(delBtn);
+                    }
                     mapContainer.appendChild(pin);
                     // Auto-zoom logic for selected route
                     if (isSelected && typeof mapPanzoom !== 'undefined' && mapPanzoom) {
                         setTimeout(() => {
-                            const startX = 489;
-                            const startY = 227;
+                            const startX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+                            const startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
                             const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
                             const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
                             
@@ -3054,25 +3320,38 @@
                 }
                 
                 if (nodeData.success && nodes && nodes.length > 0) {
+                    const startX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+                    const startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
                     // Always show results cards, even for a single result (matches Store Matrix behavior)
-                    const dummyStores = nodes.map(node => ({
-                        shop_name: node.name,
-                        shop_number: node.node_id,
-                        category: node.type || "Facility",
-                        brands_available: node.concourse ? `Concourse ${node.concourse}` : "Airport Facility",
-                        shop_image: node.image_url || (node.type === 'restroom' ? 'restroom.jpg' : 'default.jpg'),
-                        x: node.x,
-                        y: node.y,
-                        coordinates: { x: node.x, y: node.y },
-                        graph_node_id: node.node_id,
-                        icon: node.icon,
-                        is_amenity_node: true
-                    }));
+                    const dummyStores = nodes.map(node => {
+                        const distMeters = Math.round(Math.hypot(node.x - startX, node.y - startY) * 1.2);
+                        return {
+                            shop_name: node.name,
+                            shop_number: node.node_id,
+                            category: node.type || "Facility",
+                            brands_available: node.concourse ? `Concourse ${node.concourse}` : "Airport Facility",
+                            shop_image: node.image_url || (node.type === 'restroom' ? 'restroom.jpg' : 'default.jpg'),
+                            x: node.x,
+                            y: node.y,
+                            coordinates: { x: node.x, y: node.y },
+                            graph_node_id: node.node_id,
+                            icon: node.icon,
+                            is_amenity_node: true,
+                            distance_meters: distMeters,
+                            walk_time_mins: Math.max(1, Math.round(distMeters / 70))
+                        };
+                    });
                     activeStores = dummyStores;
                     selectedShopNumber = dummyStores.length === 1 ? dummyStores[0].shop_number : null;
 
                     const legacyGateRoute = document.getElementById('route-gate-c');
                     if (legacyGateRoute) legacyGateRoute.classList.add('hidden');
+
+                    const startBanner = document.getElementById('nav-start-point-pill');
+                    if (startBanner) {
+                        startBanner.classList.remove('hidden');
+                        startBanner.classList.add('flex');
+                    }
 
                     renderResultsCards(activeStores);
                     renderStoreRoutes(activeStores);
@@ -3101,9 +3380,27 @@
                     activeStores = result.results;
                     selectedShopNumber = null; // Do not auto-select store until user selects one
 
+                    const curStartX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+                    const curStartY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
+                    if (currentStartLocation && currentStartLocation.isCustom) {
+                        activeStores.forEach(s => {
+                            const tx = (s.coordinates && s.coordinates.x !== undefined) ? parseFloat(s.coordinates.x) : (s.x || 489);
+                            const ty = (s.coordinates && s.coordinates.y !== undefined) ? parseFloat(s.coordinates.y) : (s.y || 227);
+                            const dist = Math.round(Math.hypot(tx - curStartX, ty - curStartY) * 1.2);
+                            s.distance_meters = dist;
+                            s.walk_time_mins = Math.max(1, Math.round(dist / 70));
+                        });
+                    }
+
                     // Hide legacy flight path overlay
                     const legacyGateRoute = document.getElementById('route-gate-c');
                     if (legacyGateRoute) legacyGateRoute.classList.add('hidden');
+
+                    const startBanner = document.getElementById('nav-start-point-pill');
+                    if (startBanner) {
+                        startBanner.classList.remove('hidden');
+                        startBanner.classList.add('flex');
+                    }
 
                     renderResultsCards(activeStores);
                     renderStoreRoutes(activeStores);
@@ -3201,6 +3498,14 @@
             if (routeGateC) routeGateC.classList.add('hidden');
 
             document.querySelectorAll('.dynamic-map-pin').forEach(pin => pin.remove());
+            document.querySelectorAll('.dynamic-start-pin').forEach(pin => pin.remove());
+            
+            // Hide start point banner
+            const startBanner = document.getElementById('nav-start-point-pill');
+            if (startBanner) {
+                startBanner.classList.add('hidden');
+                startBanner.classList.remove('flex');
+            }
             
             // Hide train animation layer
             const trainLayer = document.getElementById('train-animation-layer');
@@ -3800,8 +4105,12 @@
                 }
             }
 
-            let startX = sMatch ? 500 : 489;
-            let startY = sMatch ? 250 : 227;
+            let startX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : (sMatch ? 500 : 489);
+            let startY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : (sMatch ? 250 : 227);
+            if (sMatch && (!currentStartLocation || !currentStartLocation.isCustom)) {
+                startX = 500;
+                startY = 250;
+            }
 
             // 4. Draw Path Line (Green dashed line) for D, C, E, F, G gates
             if (svg) {
@@ -3874,6 +4183,40 @@
                 </div>
             `;
             document.getElementById('map-image-container').appendChild(pin);
+
+            // Show start point banner
+            const startBanner = document.getElementById('nav-start-point-pill');
+            if (startBanner) {
+                startBanner.classList.remove('hidden');
+                startBanner.classList.add('flex');
+            }
+
+            // Add Draggable Start Pin
+            document.querySelectorAll('.dynamic-start-pin').forEach(p => p.remove());
+            const startPin = document.createElement('div');
+            startPin.className = 'dynamic-start-pin absolute z-30 transition-transform duration-150 flex flex-col items-center select-none cursor-grab group';
+            startPin.style.left = `${startX}px`;
+            startPin.style.top = `${startY}px`;
+            startPin.style.transform = 'translate(-50%, -100%)';
+            startPin.title = 'จุดเริ่มต้น (คลิกค้างแล้วลากเพื่อย้ายจุดเริ่มต้น)';
+            startPin.innerHTML = `
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-[8px] font-black text-white px-2 py-0.5 rounded-full shadow-lg mb-0.5 whitespace-nowrap border border-white/80 select-none flex items-center gap-1 group-hover:scale-105">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+                    <span>จุดเริ่มต้น</span>
+                </div>
+                <div class="relative w-5 h-7 flex items-center justify-center filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                    <svg viewBox="0 0 24 32" class="w-5 h-7 text-emerald-500 group-hover:text-emerald-400">
+                        <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.8" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
+                        <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
+                    </svg>
+                    <span class="material-symbols-outlined absolute text-[12px] text-emerald-700 top-[5px] pointer-events-none font-black">my_location</span>
+                </div>
+                <div class="w-2.5 h-1.5 bg-black/25 rounded-full blur-[1px]"></div>
+            `;
+            document.getElementById('map-image-container').appendChild(startPin);
+            if (typeof makeStartPinDraggable === 'function') {
+                makeStartPinDraggable(startPin, document.getElementById('map-image-container'));
+            }
 
             // Zoom and Pan to show both start and target locations
             if (mapPanzoom) {
@@ -4104,6 +4447,339 @@
                 recommendationsSection.classList.add('hidden');
             }
         }
+        // =========================================================================
+        // START POINT CONTROLLER & DYNAMIC NAVIGATION (REQUIREMENT 3)
+        // =========================================================================
+        let currentStartLocation = {
+            name: 'จุดกึ่งกลาง Concourse D (Passport Control)',
+            x: 489,
+            y: 227,
+            isCustom: false
+        };
+        let isPickingStartLocation = false;
+
+        function openChangeStartModal() {
+            const modal = document.getElementById('change-start-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    document.getElementById('start-search-input')?.focus();
+                }, 100);
+            }
+        }
+
+        function closeChangeStartModal() {
+            const modal = document.getElementById('change-start-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function setStartLocation(x, y, name = 'ตำแหน่งที่เลือก', isCustom = true) {
+            currentStartLocation = {
+                name: name,
+                x: Math.round(Number(x)),
+                y: Math.round(Number(y)),
+                isCustom: !!isCustom
+            };
+            
+            // Update UI label
+            const nameEl = document.getElementById('nav-start-name');
+            if (nameEl) nameEl.textContent = name;
+            
+            const banner = document.getElementById('nav-start-point-pill');
+            if (banner) {
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            }
+
+            const resetBtn = document.getElementById('nav-reset-start-btn');
+            if (resetBtn) {
+                if (isCustom) {
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    resetBtn.classList.add('hidden');
+                }
+            }
+
+            // Also live-update existing dynamic-start-pin on the map if visible
+            const existingStartPin = document.querySelector('.dynamic-start-pin');
+            if (existingStartPin) {
+                existingStartPin.style.left = `${Math.round(Number(x))}px`;
+                existingStartPin.style.top = `${Math.round(Number(y))}px`;
+            }
+
+            // Recalculate walking distance and time for all active search stores
+            if (activeStores && activeStores.length > 0) {
+                activeStores.forEach(s => {
+                    const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : (s.x || 489);
+                    const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : (s.y || 227);
+                    const distMeters = Math.round(Math.hypot(targetX - currentStartLocation.x, targetY - currentStartLocation.y) * 1.2);
+                    s.distance_meters = distMeters;
+                    s.walk_time_mins = Math.max(1, Math.round(distMeters / 70));
+                });
+                renderResultsCards(activeStores);
+                renderStoreRoutes(activeStores);
+            }
+
+            showToast(`📍 ตั้งจุดเริ่มต้นเป็น: ${name}`, 'info');
+        }
+
+        function resetStartPointToCenter() {
+            setStartLocation(489, 227, 'จุดกึ่งกลาง Concourse D (Passport Control)', false);
+        }
+
+        function startPickStartOnMap() {
+            closeChangeStartModal();
+            isPickingStartLocation = true;
+            showToast('👆 กรุณาคลิกเลือกตำแหน่งบนแผนผัง เพื่อตั้งเป็นจุดเริ่มต้นใหม่', 'info');
+            const container = document.getElementById('map-image-container');
+            if (container) container.style.cursor = 'crosshair';
+        }
+
+        function filterStartPointSuggestions(val) {
+            const list = document.getElementById('start-search-results');
+            if (!list) return;
+            const q = (val || '').trim().toLowerCase();
+            if (!q) {
+                list.innerHTML = '';
+                list.classList.add('hidden');
+                return;
+            }
+            
+            const matches = [];
+            const searchIn = [
+                ...(allPOIData.shops || []).map(s => ({ name: s.shop_name || s.brands_available, x: s.x, y: s.y, type: 'Shop ' + s.shop_number })),
+                ...(allPOIData.restaurants || []).map(r => ({ name: r.name, x: r.x, y: r.y, type: 'Restaurant' })),
+                ...(allPOIData.services || []).map(s => ({ name: s.name, x: s.x, y: s.y, type: 'Service' })),
+                ...(allPOIData.lounges || []).map(l => ({ name: l.name, x: l.x, y: l.y, type: 'Lounge' }))
+            ];
+            
+            searchIn.forEach(item => {
+                if (item.name && item.name.toLowerCase().includes(q) && matches.length < 8) {
+                    matches.push(item);
+                }
+            });
+
+            if (matches.length === 0) {
+                list.innerHTML = '<div class="p-3 text-xs text-slate-400 text-center font-bold">ไม่พบสถานที่ที่ตรงกัน</div>';
+                list.classList.remove('hidden');
+                return;
+            }
+
+            list.innerHTML = matches.map(m => `
+                <div onclick="setStartLocation(${m.x}, ${m.y}, '${(m.name || '').replace(/'/g, "\\'")}'); closeChangeStartModal();" class="p-2.5 hover:bg-blue-50 border-b border-slate-100 last:border-0 cursor-pointer flex items-center justify-between transition-colors">
+                    <div>
+                        <div class="text-xs font-bold text-slate-800">${m.name}</div>
+                        <div class="text-[10px] text-slate-500">${m.type} (X: ${m.x}, Y: ${m.y})</div>
+                    </div>
+                    <span class="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">เลือก</span>
+                </div>
+            `).join('');
+            list.classList.remove('hidden');
+        }
+
+        function makeStartPinDraggable(pinEl, container) {
+            let isDragging = false;
+            let startPointerX, startPointerY, pinStartX, pinStartY;
+            
+            pinEl.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                isDragging = true;
+                pinEl.setPointerCapture(e.pointerId);
+                e.stopPropagation();
+                
+                startPointerX = e.clientX;
+                startPointerY = e.clientY;
+                pinStartX = parseFloat(pinEl.style.left) || currentStartLocation.x;
+                pinStartY = parseFloat(pinEl.style.top) || currentStartLocation.y;
+                
+                pinEl.style.cursor = 'grabbing';
+                pinEl.classList.add('scale-110');
+            });
+
+            pinEl.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                e.stopPropagation();
+                
+                const deltaX = e.clientX - startPointerX;
+                const deltaY = e.clientY - startPointerY;
+                const scale = (mapPanzoom && mapPanzoom.getScale) ? mapPanzoom.getScale() : 1;
+                const rad = (currentMapRotation || 0) * Math.PI / 180;
+                const cos = Math.cos(-rad);
+                const sin = Math.sin(-rad);
+                
+                const rotX = (deltaX * cos - deltaY * sin) / scale;
+                const rotY = (deltaX * sin + deltaY * cos) / scale;
+                
+                const curX = Math.round(pinStartX + rotX);
+                const curY = Math.round(pinStartY + rotY);
+                
+                pinEl.style.left = `${curX}px`;
+                pinEl.style.top = `${curY}px`;
+                
+                // Live update start location
+                currentStartLocation.x = curX;
+                currentStartLocation.y = curY;
+                currentStartLocation.isCustom = true;
+                currentStartLocation.name = `ตำแหน่งที่ย้าย (${curX}, ${curY})`;
+                
+                const nameEl = document.getElementById('nav-start-name');
+                if (nameEl) nameEl.textContent = currentStartLocation.name;
+                
+                // Redraw route lines quickly
+                updateRouteLinesLive(curX, curY);
+            });
+
+            pinEl.addEventListener('pointerup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                try { pinEl.releasePointerCapture(e.pointerId); } catch(err) {}
+                e.stopPropagation();
+                
+                pinEl.style.cursor = 'grab';
+                pinEl.classList.remove('scale-110');
+                
+                // Recalculate distances & re-render cards
+                if (activeStores && activeStores.length > 0) {
+                    activeStores.forEach(s => {
+                        const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : (s.x || 489);
+                        const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : (s.y || 227);
+                        const distMeters = Math.round(Math.hypot(targetX - currentStartLocation.x, targetY - currentStartLocation.y) * 1.2);
+                        s.distance_meters = distMeters;
+                        s.walk_time_mins = Math.max(1, Math.round(distMeters / 70));
+                    });
+                    renderResultsCards(activeStores);
+                }
+            });
+
+            pinEl.addEventListener('pointercancel', () => { isDragging = false; });
+        }
+
+        function updateRouteLinesLive(newStartX, newStartY) {
+            if (!activeStores || activeStores.length === 0) return;
+            activeStores.forEach(s => {
+                if (selectedShopNumber !== null && selectedShopNumber !== s.shop_number) return;
+                const path = document.getElementById(`path-shop-${s.shop_number}`);
+                if (!path) return;
+                
+                const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : (s.x || 489);
+                const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : (s.y || 227);
+                
+                const dx = targetX - newStartX;
+                const dy = targetY - newStartY;
+                let d = "";
+                if (Math.abs(dx) < 5) {
+                    d = `M ${newStartX} ${newStartY} L ${targetX} ${targetY}`;
+                } else {
+                    const dirX = dx > 0 ? 1 : -1;
+                    const dirY = dy > 0 ? 1 : -1;
+                    const R = Math.min(6, Math.abs(dx) * 0.2, Math.abs(dy) * 0.2);
+                    const turnX = targetX - dirX * R;
+                    const turnY = newStartY + dirY * R;
+                    d = `M ${newStartX} ${newStartY} L ${turnX} ${newStartY} Q ${targetX} ${newStartY} ${targetX} ${turnY} L ${targetX} ${targetY}`;
+                }
+                path.setAttribute('d', d);
+            });
+        }
+
+        // =========================================================================
+        // DELETE PIN CONTROLLER (REQUIREMENT 2)
+        // =========================================================================
+        let pendingDeletePin = null;
+
+        function confirmDeletePinModal(id, type, name, x, y) {
+            pendingDeletePin = { id, type, name, x, y };
+            const modal = document.getElementById('delete-pin-modal');
+            if (!modal) {
+                if (confirm(`คุณต้องการลบหมุด [${name}] (ID: ${id}) ใช่หรือไม่?`)) {
+                    executeDeletePinConfirmed();
+                }
+                return;
+            }
+            const titleEl = document.getElementById('del-pin-name') || document.getElementById('del-pin-title');
+            if (titleEl) titleEl.textContent = name || id;
+            const typeEl = document.getElementById('del-pin-matrix-badge') || document.getElementById('del-pin-type');
+            if (typeEl) typeEl.textContent = (type || 'shop').toUpperCase();
+            const idEl = document.getElementById('del-pin-id');
+            if (idEl) idEl.textContent = id || '-';
+            const coordsEl = document.getElementById('del-pin-coords');
+            if (coordsEl) coordsEl.textContent = `X: ${Math.round(x)}, Y: ${Math.round(y)}`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeletePinModal() {
+            pendingDeletePin = null;
+            const modal = document.getElementById('delete-pin-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        async function executeDeletePinConfirmed() {
+            if (!pendingDeletePin) return;
+            const { id, type, name } = pendingDeletePin;
+            const pwd = sessionStorage.getItem('admin_password') || adminPin || '6515';
+            
+            let endpoint = '';
+            if (type === 'shop') {
+                endpoint = `/api/admin/stores/${encodeURIComponent(id)}`;
+            } else if (type === 'restaurants') {
+                endpoint = `/api/admin/restaurants/${encodeURIComponent(id)}`;
+            } else if (type === 'services') {
+                endpoint = `/api/admin/services/${encodeURIComponent(id)}`;
+            } else if (type === 'lounge') {
+                endpoint = `/api/admin/lounges/${encodeURIComponent(id)}`;
+            } else {
+                endpoint = `/api/admin/stores/${encodeURIComponent(id)}`;
+            }
+
+            const delBtn = document.getElementById('confirm-delete-pin-btn') || document.getElementById('del-pin-confirm-btn');
+            const origHtml = delBtn ? delBtn.innerHTML : '';
+            if (delBtn) {
+                delBtn.disabled = true;
+                delBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span><span>กำลังลบ...</span>';
+            }
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd })
+                });
+                const data = await res.json();
+                
+                if (data && (data.success || data.message)) {
+                    // Remove from local allPOIData
+                    if (allPOIData.shops) allPOIData.shops = allPOIData.shops.filter(s => s.shop_number !== id && s.store_id !== id && s.shop_name !== name);
+                    if (allPOIData.restaurants) allPOIData.restaurants = allPOIData.restaurants.filter(r => r.restaurant_id !== id && r.name !== name);
+                    if (allPOIData.services) allPOIData.services = allPOIData.services.filter(s => s.service_id !== id && s.name !== name);
+                    if (allPOIData.lounges) allPOIData.lounges = allPOIData.lounges.filter(l => l.lounge_id !== id && l.name !== name);
+                    allStorePOIs = allPOIData.shops || [];
+
+                    renderAmbientPOIs();
+                    enableAdminPinDragging();
+                    closeDeletePinModal();
+                    showToast(`🗑️ ลบหมุด [${name}] ออกจากระบบสำเร็จเรียบร้อยแล้ว`, 'success');
+                } else {
+                    alert(`ไม่สามารถลบหมุดได้: ${data.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error('Delete pin error:', err);
+                alert('เกิดข้อผิดพลาดในการลบหมุด');
+            } finally {
+                if (delBtn) {
+                    delBtn.disabled = false;
+                    delBtn.innerHTML = origHtml;
+                }
+            }
+        }
+
         // --- ADMIN PIN PLACEMENT & DRAG-AND-DROP SYSTEM ---
         // Note: isAdminMode is declared at top (line 1544)
         let adminPin = '6515';
@@ -4139,7 +4815,8 @@
                 toggleBtn.title = 'โหมด Admin เปิดอยู่ (คลิกเพื่อปิด)';
             }
             enableAdminPinDragging();
-            showToast('🛠️ เปิดโหมดปรับตำแหน่งหมุดแล้ว: คลิกค้างที่หมุดแล้วลากวางได้เลยครับ', 'info');
+            renderAmbientPOIs();
+            showToast('🛠️ เปิดโหมดปรับตำแหน่งหมุดแล้ว: คลิกค้างที่หมุดเพื่อย้าย หรือคลิกที่หมุดเพื่อลบ', 'info');
         }
 
         function exitAdminMode() {
@@ -4156,6 +4833,7 @@
                 toggleBtn.innerHTML = '<span class="material-symbols-outlined">lock</span>';
                 toggleBtn.title = 'Admin Mode (Click to edit pins)';
             }
+            renderAmbientPOIs();
             disableAdminPinDragging();
             showToast('ล็อคตำแหน่งหมุดแล้ว (ออกจากโหมด Admin)', 'info');
         }
@@ -4265,11 +4943,17 @@
                 try { item.releasePointerCapture(e.pointerId); } catch(ex) {}
                 e.stopPropagation();
 
-                if (!hasMoved) return;
-
                 const targetId = item.getAttribute('data-shop');
                 const targetType = item.getAttribute('data-type') || 'shop';
                 const name = item.querySelector('.poi-label span')?.innerText || targetId;
+
+                if (!hasMoved) {
+                    // Clicking on pin in admin mode opens delete confirmation modal
+                    if (isAdminMode) {
+                        confirmDeletePinModal(targetId, targetType, name, startPinX, startPinY);
+                    }
+                    return;
+                }
 
                 if (currentNewX !== startPinX || currentNewY !== startPinY) {
                     await saveStorePinCoordinates(targetId, currentNewX, currentNewY, name, targetType);
@@ -4740,6 +5424,17 @@
             e.preventDefault(); // Stop default browser context menu
             const coords = getMapCoordinatesFromEvent(e);
             openAddPinModal(coords.x, coords.y);
+        });
+
+        // Left-Click on map when user chooses "Pick on Map" for navigation start point
+        document.getElementById('map-image-container')?.addEventListener('click', function(e) {
+            if (isPickingStartLocation) {
+                isPickingStartLocation = false;
+                const container = document.getElementById('map-image-container');
+                if (container) container.style.cursor = '';
+                const coords = getMapCoordinatesFromEvent(e);
+                setStartLocation(coords.x, coords.y, `ตำแหน่งที่เลือก (${coords.x}, ${coords.y})`, true);
+            }
         });
 
         // =============================================
