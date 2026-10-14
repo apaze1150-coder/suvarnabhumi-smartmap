@@ -2647,32 +2647,60 @@
         }
 
         function handlePOIClick(item) {
-            if (item.type === 'shop') {
-                selectAmbientStore(item.id);
-            } else {
-                const formattedStore = {
-                    shop_number: item.id,
-                    shop_name: item.name,
-                    shop_image: item.raw.image_url || 'default.jpg',
-                    category: item.raw.category || item.type,
-                    x: item.x,
-                    y: item.y,
-                    concourse: item.raw.concourse || 'D',
-                    floor: item.raw.floor || '4',
-                    coordinates: { x: item.x, y: item.y }
-                };
-                activeStores = [formattedStore];
-                selectedShopNumber = item.id;
-                renderResultsCards(activeStores);
-                renderStoreRoutes(activeStores);
-                document.getElementById('results-container')?.classList.remove('hidden');
-                document.getElementById('clear-search-btn')?.classList.remove('hidden');
+            const curStartX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+            const curStartY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
+            const targetX = (item.x !== undefined && !isNaN(parseFloat(item.x))) ? parseFloat(item.x) : 489;
+            const targetY = (item.y !== undefined && !isNaN(parseFloat(item.y))) ? parseFloat(item.y) : 227;
+            const distMeters = Math.round(Math.hypot(targetX - curStartX, targetY - curStartY) * 1.2);
+            const walkMins = Math.max(1, Math.round(distMeters / 70));
+
+            let shopImage = 'default.jpg';
+            if (item.raw) {
+                shopImage = item.raw.shop_image || item.raw.image_url || 'default.jpg';
             }
+
+            const formattedStore = {
+                shop_number: item.id,
+                shop_name: item.name,
+                shop_image: shopImage,
+                category: item.raw?.category || (item.type === 'shop' ? 'Shop' : item.type),
+                x: targetX,
+                y: targetY,
+                concourse: item.raw?.concourse || 'D',
+                floor: item.floor || item.raw?.floor || '4',
+                coordinates: { x: targetX, y: targetY },
+                icon: item.icon,
+                fill: item.fill,
+                stroke: item.stroke,
+                type: item.type,
+                is_amenity_node: item.type !== 'shop',
+                distance_meters: distMeters,
+                walk_time_mins: walkMins,
+                brands_available: item.raw?.brands_available || ''
+            };
+
+            activeStores = [formattedStore];
+            selectedShopNumber = item.id;
+            renderResultsCards(activeStores);
+            renderStoreRoutes(activeStores);
+            document.getElementById('results-container')?.classList.remove('hidden');
+            document.getElementById('clear-search-btn')?.classList.remove('hidden');
         }
 
         function selectAmbientStore(shopNumber) {
             const store = allStorePOIs.find(s => s.shop_number === shopNumber);
             if (!store) return;
+
+            const curStartX = (currentStartLocation && currentStartLocation.x !== undefined) ? currentStartLocation.x : 489;
+            const curStartY = (currentStartLocation && currentStartLocation.y !== undefined) ? currentStartLocation.y : 227;
+            const tx = (store.x !== undefined && !isNaN(parseFloat(store.x))) ? parseFloat(store.x) : 489;
+            const ty = (store.y !== undefined && !isNaN(parseFloat(store.y))) ? parseFloat(store.y) : 227;
+            const dist = Math.round(Math.hypot(tx - curStartX, ty - curStartY) * 1.2);
+            store.distance_meters = dist;
+            store.walk_time_mins = Math.max(1, Math.round(dist / 70));
+            store.x = tx;
+            store.y = ty;
+            store.coordinates = { x: tx, y: ty };
 
             activeStores = [store];
             selectedShopNumber = store.shop_number;
@@ -2896,6 +2924,15 @@
             document.querySelectorAll('.dynamic-start-pin').forEach(pin => pin.remove());
             document.querySelectorAll('.escalator-anim').forEach(el => el.remove());
 
+            // Temporarily hide the matching ambient POI pin so the active destination pin replaces it seamlessly
+            document.querySelectorAll('.store-poi-item').forEach(el => {
+                if (selectedShopNumber && el.getAttribute('data-shop') === String(selectedShopNumber)) {
+                    el.style.opacity = '0';
+                } else {
+                    el.style.opacity = '1';
+                }
+            });
+
             // Reset Map to Level 4 by default
             switchFloor(4);
 
@@ -2938,9 +2975,13 @@
                         startY = 250;
                     }
 
-                    // Target coordinates from Store Matrix Column G (x) and Column H (y)
-                    const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
-                    const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
+                    // Target coordinates from store or POI
+                    const targetX = (s.x !== undefined && !isNaN(parseFloat(s.x))) 
+                        ? parseFloat(s.x) 
+                        : ((s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489);
+                    const targetY = (s.y !== undefined && !isNaN(parseFloat(s.y))) 
+                        ? parseFloat(s.y) 
+                        : ((s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227);
 
                     const dx = targetX - startX;
                     const dy = targetY - startY;
@@ -3048,17 +3089,22 @@
                     }
                 }
 
-                // 2. Draw Map Pin (Teardrop Location Pin with Sharp Tip at Target Coordinates)
+                // 2. Draw Destination Pin (Exact Matrix Icon, Category Color & Place Name - Never Red Teardrop/Red Badge)
                 if (!isHidden) {
+                    const targetX = (s.x !== undefined && !isNaN(parseFloat(s.x))) 
+                        ? parseFloat(s.x) 
+                        : ((s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489);
+                    const targetY = (s.y !== undefined && !isNaN(parseFloat(s.y))) 
+                        ? parseFloat(s.y) 
+                        : ((s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227);
+
                     const pin = document.createElement('div');
-                    pin.className = `dynamic-map-pin absolute z-10 transition-all duration-300 flex flex-col items-center select-none ${isAdminMode ? 'cursor-grab' : 'cursor-pointer'}`;
+                    pin.className = `dynamic-map-pin absolute z-30 transition-all duration-300 flex flex-col items-center select-none ${isAdminMode ? 'cursor-grab' : 'cursor-pointer'}`;
                     pin.id = `pin-shop-${s.shop_number}`;
                     if (s.floor) pin.setAttribute('data-floor', s.floor);
-                    const targetX = (s.coordinates && s.coordinates.x !== undefined && !isNaN(parseFloat(s.coordinates.x))) ? parseFloat(s.coordinates.x) : 489;
-                    const targetY = (s.coordinates && s.coordinates.y !== undefined && !isNaN(parseFloat(s.coordinates.y))) ? parseFloat(s.coordinates.y) : 227;
                     pin.style.left = `${targetX}px`;
                     pin.style.top = `${targetY}px`;
-                    pin.style.transform = 'translate(-50%, -100%)';
+                    pin.style.transform = 'translateX(-50%)';
 
                     if (isAdminMode) {
                         pin.setAttribute('data-shop', s.shop_number);
@@ -3075,80 +3121,86 @@
                         pin.onclick = () => selectStoreCard(s.shop_number);
                     }
 
-                    if (s.is_amenity_node) {
-                        let iconName = s.icon;
-                        if (['vat_refund', 'restaurant', 'wc', 'bank_transfer', 'lounge', 'Pharmacy', 'prayer-room', 'smoking-area', 'exchange-rate', 'information'].includes(iconName)) {
-                            let imgSrc = '';
-                            let borderColor = 'border-blue-700';
-                            
-                            if (iconName === 'vat_refund') { imgSrc = '/uploads/vat_refund.png'; }
-                            else if (iconName === 'restaurant') { imgSrc = '/uploads/cutlery.png'; borderColor = 'border-orange-500'; }
-                            else if (iconName === 'wc') { imgSrc = '/uploads/toilet-.png'; borderColor = 'border-red-600'; }
-                            else if (iconName === 'bank_transfer') { imgSrc = '/uploads/bank-transfer.png'; borderColor = 'border-emerald-500'; }
-                            else if (iconName === 'lounge') { imgSrc = '/uploads/lounge.png'; borderColor = 'border-purple-500'; }
-                            else if (iconName === 'Pharmacy') { imgSrc = '/uploads/medicine.png'; borderColor = 'border-emerald-600'; }
-                            else if (iconName === 'prayer-room') { imgSrc = '/uploads/prayer-room.png'; borderColor = 'border-indigo-500'; }
-                            else if (iconName === 'smoking-area') { imgSrc = '/uploads/smoking-area.png'; borderColor = 'border-gray-500'; }
-                            else if (iconName === 'exchange-rate') { imgSrc = '/uploads/exchange-rate.png'; borderColor = 'border-green-600'; }
-                            else if (iconName === 'information') { imgSrc = '/uploads/information.png'; borderColor = 'border-blue-500'; }
+                    // Contextual Icon & Color Mapping
+                    let pinIcon = (s.icon && s.icon.trim()) ? s.icon.trim() : '';
+                    let pinFill = s.fill || '#0284c7';
+                    const cat = ((s.category || '') + ' ' + (s.shop_name || '') + ' ' + (s.shop_number || '')).toLowerCase();
 
-                            pin.innerHTML = `
-                                <div class="animate-pulse flex flex-col items-center pb-1">
-                                    <div class="bg-white shadow-lg border-2 ${borderColor} flex items-center justify-center overflow-hidden" style="width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);">
-                                        <img src="${imgSrc}" onerror="this.src='/uploads/default.jpg'" alt="${iconName}" style="width: 14px; height: 14px; transform: rotate(45deg); object-fit: contain;" />
-                                    </div>
-                                </div>
-                                <div class="w-2 h-2 bg-black/30 rounded-full blur-[2px]"></div>
-                            `;
-                        } else if (iconName && iconName.trim() !== '') {
-                            let bgColor = "bg-blue-600";
-                            if (iconName === "account_balance") bgColor = "bg-emerald-500";
-                            else if (iconName === "shopping_cart") bgColor = "bg-blue-500";
-                            
-                            pin.innerHTML = `
-                                <div class="animate-pulse flex flex-col items-center">
-                                    <div class="${bgColor} text-white rounded-full p-2 shadow-lg border-2 border-white mb-1 flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[16px]">${iconName}</span>
-                                    </div>
-                                    <div class="w-3 h-3 ${bgColor} rotate-45 transform -mt-2.5 border-r-2 border-b-2 border-white shadow-lg"></div>
-                                </div>
-                                <div class="w-2 h-2 bg-black/30 rounded-full blur-[2px] mt-1"></div>
-                            `;
+                    if (!pinIcon || pinIcon === 'info' || pinIcon === 'place') {
+                        if (cat.includes('pharmacy') || cat.includes('ยา') || cat.includes('medicine') || cat.includes('boots')) {
+                            pinIcon = 'local_pharmacy';
+                            pinFill = '#059669';
+                        } else if (cat.includes('restroom') || cat.includes('wc') || cat.includes('toilet') || cat.includes('สุขา') || cat.includes('ห้องน้ำ')) {
+                            pinIcon = 'wc';
+                            pinFill = '#dc2626';
+                        } else if (cat.includes('smoking') || cat.includes('สูบบุหรี่')) {
+                            pinIcon = 'smoking_rooms';
+                            pinFill = '#64748b';
+                        } else if (cat.includes('exchange') || cat.includes('currency') || cat.includes('bank') || cat.includes('แลกเงิน')) {
+                            pinIcon = 'currency_exchange';
+                            pinFill = '#059669';
+                        } else if (cat.includes('vat') || cat.includes('ภาษี')) {
+                            pinIcon = 'receipt_long';
+                            pinFill = '#7c3aed';
+                        } else if (cat.includes('restaurant') || cat.includes('food') || cat.includes('cafe') || cat.includes('coffee') || cat.includes('อาหาร') || cat.includes('กิน')) {
+                            pinIcon = 'restaurant';
+                            pinFill = '#ea580c';
+                        } else if (cat.includes('lounge') || cat.includes('พักผ่อน')) {
+                            pinIcon = 'weekend';
+                            pinFill = '#7c3aed';
+                        } else if (cat.includes('gate') || (s.type === 'gate')) {
+                            pinIcon = 'flight_takeoff';
+                            pinFill = '#4f46e5';
                         } else {
-                            pin.innerHTML = `
-                                <div class="relative w-3.5 h-5 flex items-center justify-center filter drop-shadow-sm">
-                                    <svg viewBox="0 0 24 32" class="w-3.5 h-5 text-indigo-600">
-                                        <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
-                                        <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
-                                    </svg>
-                                </div>
-                            `;
+                            pinIcon = 'shopping_bag';
+                            pinFill = '#0284c7';
                         }
                     } else {
-                        pin.innerHTML = `
-                            <div class="bg-[#dc2626] text-[7.5px] font-black text-white px-1 py-0.25 rounded shadow-sm mb-0.5 whitespace-nowrap border border-white/40 select-none">
-                                SHOP ${s.shop_number}
-                            </div>
-                            <div class="relative w-3.5 h-5 flex items-center justify-center filter drop-shadow-sm">
-                                <svg viewBox="0 0 24 32" class="w-3.5 h-5 text-[#ef4444]">
-                                    <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
-                                    <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
-                                </svg>
-                            </div>
-                        `;
+                        if (pinIcon === 'local_pharmacy') pinFill = '#059669';
+                        else if (pinIcon === 'wc') pinFill = '#dc2626';
+                        else if (pinIcon === 'smoking_rooms') pinFill = '#64748b';
+                        else if (pinIcon === 'restaurant') pinFill = '#ea580c';
+                        else if (pinIcon === 'weekend') pinFill = '#7c3aed';
+                        else if (pinIcon === 'currency_exchange') pinFill = '#059669';
+                        else if (pinIcon === 'receipt_long') pinFill = '#7c3aed';
+                        else if (pinIcon === 'flight_takeoff') pinFill = '#4f46e5';
+                        else if (pinIcon === 'shopping_bag' || pinIcon === 'shopping_cart') pinFill = '#0284c7';
                     }
-                    if (isAdminMode) {
-                        const delBtn = document.createElement('button');
-                        delBtn.type = 'button';
-                        delBtn.title = `ลบหมุด ${s.shop_name || s.shop_number}`;
-                        delBtn.className = 'admin-pin-del-btn absolute -top-2.5 -right-2.5 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center shadow-md border border-white cursor-pointer transition-transform hover:scale-125 z-30';
-                        delBtn.innerHTML = '<span class="material-symbols-outlined text-[10px] font-bold">close</span>';
-                        delBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            confirmDeletePinModal(s.shop_number, s.is_amenity_node ? (s.category || 'services') : 'shop', s.shop_name || s.shop_number, targetX, targetY);
-                        };
-                        pin.appendChild(delBtn);
-                    }
+
+                    const displayName = (typeof getCleanStoreName === 'function' ? getCleanStoreName(s) : null) || s.shop_name || s.name || (s.shop_number && !s.shop_number.startsWith('SRV-') && !s.shop_number.startsWith('REST-') ? `Shop ${s.shop_number}` : 'Destination');
+
+                    pin.innerHTML = `
+                        <!-- Destination Pulsing Glow Ring centered at top tip -->
+                        <span class="absolute rounded-full animate-ping opacity-60 pointer-events-none" style="top: -23px; width: 22px; height: 22px; background-color: ${pinFill};"></span>
+                        
+                        <!-- Airport Standard Teardrop Stalk Pin with Tip exactly at (targetX, targetY) -->
+                        <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150 group-hover:scale-115"
+                             style="margin-top: -22px; transform-origin: 9px 22px; width: 18px; height: 22px;">
+                            <svg width="18" height="22" viewBox="0 0 16 20" fill="none" class="filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]">
+                                <path d="M8 19.5C8 19.5 14.5 12 14.5 6.5C14.5 2.91 11.59 0.7 8 0.7C4.41 0.7 1.5 2.91 1.5 6.5C1.5 12 8 19.5 8 19.5Z"
+                                      fill="${pinFill}" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="material-symbols-outlined text-white text-[9.5px] absolute top-[3px] pointer-events-none select-none font-bold">${pinIcon}</span>
+
+                            ${isAdminMode ? `
+                            <button type="button" onclick="event.stopPropagation(); confirmDeletePinModal('${s.shop_number}', '${s.is_amenity_node ? (s.category || 'services') : 'shop'}', '${displayName.replace(/'/g, "\\'")}', ${targetX}, ${targetY})" 
+                                    title="ลบหมุด ${displayName}"
+                                    class="admin-pin-del-btn absolute -top-2.5 -right-2.5 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center shadow-md border border-white cursor-pointer transition-transform hover:scale-125 z-30">
+                                <span class="material-symbols-outlined text-[10px] font-bold">close</span>
+                            </button>
+                            ` : ''}
+                        </div>
+
+                        <!-- Crisp Floating Store Label with Clean White Vector Halo (No Red Badge) -->
+                        <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-opacity duration-200"
+                             style="max-width: 85px; width: max-content; transform-origin: center top;">
+                            <span class="text-[8.5px] font-extrabold text-[#0f172a] leading-[1.1] block tracking-tight text-halo whitespace-normal"
+                                  style="font-family: 'Outfit', -apple-system, sans-serif;">
+                                ${displayName}
+                            </span>
+                        </div>
+                    `;
+
                     mapContainer.appendChild(pin);
                     // Auto-zoom logic for selected route
                     if (isSelected && typeof mapPanzoom !== 'undefined' && mapPanzoom) {
@@ -3286,6 +3338,36 @@
                 
                 let nodes = nodeData.nodes || [];
 
+                // Matrix Amenities Fallback (Services, Restaurants, Lounges)
+                if (nodes.length === 0) {
+                    const allAmenities = [
+                        ...(allPOIData.services || []).map(s => {
+                            const cat = (s.category || '').toLowerCase();
+                            let icon = (s.icon && s.icon.trim()) ? s.icon.trim() : 'info';
+                            if (!s.icon || !s.icon.trim()) {
+                                if (cat.includes('pharmacy')) icon = 'local_pharmacy';
+                                else if (cat.includes('exchange') || cat.includes('currency')) icon = 'currency_exchange';
+                                else if (cat.includes('vat')) icon = 'receipt_long';
+                                else if (cat.includes('restroom') || cat.includes('wc')) icon = 'wc';
+                                else if (cat.includes('smoking')) icon = 'smoking_rooms';
+                            }
+                            return { name: s.name, node_id: s.service_id, type: s.category || 'Service', concourse: s.concourse, icon: icon, image_url: s.image_url, x: parseFloat(s.x), y: parseFloat(s.y) };
+                        }),
+                        ...(allPOIData.restaurants || []).map(r => ({ name: r.name, node_id: r.restaurant_id, type: 'Restaurant', concourse: r.concourse, icon: r.icon || 'restaurant', image_url: r.image_url, x: parseFloat(r.x), y: parseFloat(r.y) })),
+                        ...(allPOIData.lounges || []).map(l => ({ name: l.name, node_id: l.lounge_id, type: 'Lounge', concourse: l.concourse, icon: l.icon || 'weekend', image_url: l.image_url, x: parseFloat(l.x), y: parseFloat(l.y) }))
+                    ];
+                    const q = queryText.toLowerCase();
+                    const matchedAmenities = allAmenities.filter(a => 
+                        (a.name && a.name.toLowerCase().includes(q)) || 
+                        (a.type && a.type.toLowerCase().includes(q)) ||
+                        (q.includes('pharmacy') && a.name.toLowerCase().includes('pharmacy'))
+                    );
+                    if (matchedAmenities.length > 0) {
+                        nodes = matchedAmenities;
+                        nodeData.success = true;
+                    }
+                }
+
                 // SAT Gate Fallback
                 const satMatch = queryText.match(/^(?:GATE\s+)?(S\d{3}[A-Z]?)$/i);
                 if (nodes.length === 0 && satMatch) {
@@ -3307,6 +3389,19 @@
                     // Always show results cards, even for a single result (matches Store Matrix behavior)
                     const dummyStores = nodes.map(node => {
                         const distMeters = Math.round(Math.hypot(node.x - startX, node.y - startY) * 1.2);
+                        let nodeIcon = node.icon;
+                        if (!nodeIcon || nodeIcon.trim() === '') {
+                            const t = (node.type || '').toLowerCase();
+                            if (t === 'restroom') nodeIcon = 'wc';
+                            else if (t.includes('pharmacy')) nodeIcon = 'local_pharmacy';
+                            else if (t.includes('smoking')) nodeIcon = 'smoking_rooms';
+                            else if (t.includes('bank') || t.includes('exchange')) nodeIcon = 'currency_exchange';
+                            else if (t.includes('vat')) nodeIcon = 'receipt_long';
+                            else if (t.includes('gate')) nodeIcon = 'flight_takeoff';
+                            else if (t.includes('restaurant')) nodeIcon = 'restaurant';
+                            else if (t.includes('lounge')) nodeIcon = 'weekend';
+                            else nodeIcon = 'place';
+                        }
                         return {
                             shop_name: node.name,
                             shop_number: node.node_id,
@@ -3317,7 +3412,7 @@
                             y: node.y,
                             coordinates: { x: node.x, y: node.y },
                             graph_node_id: node.node_id,
-                            icon: node.icon,
+                            icon: nodeIcon,
                             is_amenity_node: true,
                             distance_meters: distMeters,
                             walk_time_mins: Math.max(1, Math.round(distMeters / 70))
@@ -3505,6 +3600,9 @@
             activeStores = [];
             selectedShopNumber = null;
             
+            // Restore visibility of all ambient POI pins
+            document.querySelectorAll('.store-poi-item').forEach(el => el.style.opacity = '1');
+
             // Zoom back to fit screen when cancelling
             fitMapToScreen();
         }
@@ -3617,22 +3715,22 @@
 
                 let cardInner = '';
                 
-                if (s.is_amenity_node) {
-                    // Amenity Node Card (Restroom, Gate, etc.)
-                    const defaultIcon = 'place';
+                if (s.is_amenity_node || (s.shop_number && (s.shop_number.startsWith('SRV-') || s.shop_number.startsWith('REST-') || s.shop_number.startsWith('LNG-')))) {
+                    // Amenity / Service Node Card (Restroom, Pharmacy, Gate, etc.)
+                    const defaultIcon = s.icon || 'place';
                     cardInner = `
                         <div class="flex gap-4 items-center w-full cursor-pointer">
                             <div class="w-16 h-16 rounded-xl bg-indigo-50 shrink-0 overflow-hidden border border-indigo-100 flex items-center justify-center text-indigo-400">
-                                ${s.shop_image ? `<img src="${imgUrl}" onclick="event.stopPropagation(); openImagePreview('${imgUrl}')" class="w-full h-full object-cover" />` : `<span class="material-symbols-outlined text-3xl">${s.icon || defaultIcon}</span>`}
+                                ${(s.shop_image && s.shop_image !== 'default.jpg') ? `<img src="${imgUrl}" onclick="event.stopPropagation(); openImagePreview('${imgUrl}')" class="w-full h-full object-cover" />` : `<span class="material-symbols-outlined text-3xl text-indigo-600">${defaultIcon}</span>`}
                             </div>
                             <div class="flex-grow min-w-0">
                                 <div class="flex justify-between items-start">
                                     <span class="bg-indigo-100 text-indigo-600 font-extrabold text-[9px] px-2 py-0.5 rounded uppercase tracking-wider">${s.category || 'Facility'}</span>
-                                    <span class="text-[11px] font-black text-secondary whitespace-nowrap">${s.walk_time_mins} min walk</span>
+                                    <span class="text-[11px] font-black text-secondary whitespace-nowrap">${s.walk_time_mins || 1} min walk</span>
                                 </div>
                                 <h4 class="font-bold text-primary text-sm mt-1 truncate leading-tight">${s.shop_name}</h4>
                                 <p class="text-[10px] text-on-surface-variant/80 mt-1 font-medium flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">directions_walk</span> ${s.distance_meters} meters away
+                                    <span class="material-symbols-outlined text-[14px]">directions_walk</span> ${s.distance_meters || 50} meters away
                                 </p>
                             </div>
                         </div>
@@ -3640,6 +3738,10 @@
                     `;
                 } else {
                     // Regular Store Card
+                    const isRawId = s.shop_number && (s.shop_number.startsWith('SRV-') || s.shop_number.startsWith('REST-') || s.shop_number.startsWith('LNG-'));
+                    const badgeText = isRawId ? (s.category || 'Duty Free') : `Shop ${s.shop_number} • ${s.category || 'Shop'}`;
+                    const hasBrands = s.brands_available && s.brands_available !== 'undefined' && s.brands_available.trim() !== '';
+
                     cardInner = `
                         <div class="flex gap-4 items-center w-full cursor-pointer">
                             <div class="w-16 h-16 rounded-xl bg-surface-container-high shrink-0 overflow-hidden border border-outline-variant/30 flex items-center justify-center">
@@ -3647,11 +3749,11 @@
                             </div>
                             <div class="flex-grow min-w-0">
                                 <div class="flex justify-between items-start">
-                                    <span class="bg-[#B59115]/10 text-[#B59115] font-extrabold text-[9px] px-2 py-0.5 rounded uppercase tracking-wider">Shop ${s.shop_number} • ${s.category}</span>
-                                    <span class="text-[11px] font-black text-secondary whitespace-nowrap">${s.walk_time_mins} min walk</span>
+                                    <span class="bg-[#B59115]/10 text-[#B59115] font-extrabold text-[9px] px-2 py-0.5 rounded uppercase tracking-wider">${badgeText}</span>
+                                    <span class="text-[11px] font-black text-secondary whitespace-nowrap">${s.walk_time_mins || 1} min walk</span>
                                 </div>
                                 <h4 class="font-bold text-primary text-sm mt-1 truncate leading-tight">${s.shop_name}</h4>
-                                <p class="text-[10px] text-on-surface-variant/80 truncate mt-0.5 font-medium">Brands: ${s.brands_available}</p>
+                                ${hasBrands ? `<p class="text-[10px] text-on-surface-variant/80 truncate mt-0.5 font-medium">Brands: ${s.brands_available}</p>` : ''}
                                 <p class="text-[10px] text-[#B59115] font-bold mt-1 flex items-center gap-1 truncate">
                                     <span class="material-symbols-outlined text-xs shrink-0">local_activity</span>
                                     ${s.promotions ? s.promotions[0] : 'Special Tourist Offer'}
@@ -4149,21 +4251,33 @@
                 svg.appendChild(startDot);
             }
 
-            // 5. Draw Destination Pin (Red Teardrop Pin)
+            // 5. Draw Destination Pin (Airport Standard Stalk Pin with Flight Takeoff Icon)
             const pin = document.createElement('div');
-            pin.className = `dynamic-map-pin absolute z-10 transition-all duration-300 flex flex-col items-center select-none cursor-pointer map-pulse`;
+            pin.className = `dynamic-map-pin absolute z-30 transition-all duration-300 flex flex-col items-center select-none cursor-pointer`;
             pin.style.left = `${targetX}px`;
             pin.style.top = `${targetY}px`;
-            pin.style.transform = 'translate(-50%, -100%)';
+            pin.style.transform = 'translateX(-50%)';
             pin.innerHTML = `
-                <div class="bg-[#dc2626] text-[8px] font-black text-white px-1.5 py-0.5 rounded shadow-sm mb-0.5 whitespace-nowrap border border-white/40 select-none uppercase">
-                    GATE ${cleanGate}
-                </div>
-                <div class="relative w-4 h-6 flex items-center justify-center filter drop-shadow-sm">
-                    <svg viewBox="0 0 24 32" class="w-4 h-6 text-[#ef4444]">
-                        <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
-                        <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
+                <!-- Destination Pulsing Glow Ring -->
+                <span class="absolute rounded-full animate-ping opacity-60 pointer-events-none" style="top: -23px; width: 22px; height: 22px; background-color: #4f46e5;"></span>
+                
+                <!-- Airport Standard Teardrop Stalk Pin -->
+                <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150"
+                     style="margin-top: -22px; transform-origin: 9px 22px; width: 18px; height: 22px;">
+                    <svg width="18" height="22" viewBox="0 0 16 20" fill="none" class="filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]">
+                        <path d="M8 19.5C8 19.5 14.5 12 14.5 6.5C14.5 2.91 11.59 0.7 8 0.7C4.41 0.7 1.5 2.91 1.5 6.5C1.5 12 8 19.5 8 19.5Z"
+                              fill="#4f46e5" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
                     </svg>
+                    <span class="material-symbols-outlined text-white text-[9.5px] absolute top-[3px] pointer-events-none select-none font-bold">flight_takeoff</span>
+                </div>
+
+                <!-- Crisp Floating Gate Label with Clean White Vector Halo (No Red Badge) -->
+                <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-opacity duration-200"
+                     style="max-width: 85px; width: max-content; transform-origin: center top;">
+                    <span class="text-[8.5px] font-extrabold text-[#0f172a] leading-[1.1] block tracking-tight text-halo whitespace-normal"
+                          style="font-family: 'Outfit', -apple-system, sans-serif;">
+                        Gate ${cleanGate}
+                    </span>
                 </div>
             `;
             document.getElementById('map-image-container').appendChild(pin);

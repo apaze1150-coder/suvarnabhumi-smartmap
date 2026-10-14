@@ -1983,15 +1983,34 @@
                             `;
                         }
                     } else {
+                        let pinIcon = (s.icon && s.icon.trim()) ? s.icon.trim() : 'shopping_bag';
+                        let pinFill = s.fill || '#0284c7';
+                        const cat = ((s.category || '') + ' ' + (s.shop_name || '')).toLowerCase();
+                        if (cat.includes('pharmacy') || cat.includes('ยา') || cat.includes('boots')) { pinIcon = 'local_pharmacy'; pinFill = '#059669'; }
+                        else if (cat.includes('restroom') || cat.includes('wc') || cat.includes('สุขา')) { pinIcon = 'wc'; pinFill = '#dc2626'; }
+                        else if (cat.includes('smoking') || cat.includes('สูบบุหรี่')) { pinIcon = 'smoking_rooms'; pinFill = '#64748b'; }
+                        else if (cat.includes('exchange') || cat.includes('currency')) { pinIcon = 'currency_exchange'; pinFill = '#059669'; }
+                        else if (cat.includes('vat')) { pinIcon = 'receipt_long'; pinFill = '#7c3aed'; }
+                        else if (cat.includes('restaurant') || cat.includes('food')) { pinIcon = 'restaurant'; pinFill = '#ea580c'; }
+                        else if (cat.includes('lounge')) { pinIcon = 'weekend'; pinFill = '#7c3aed'; }
+
+                        const displayName = (typeof getCleanStoreName === 'function' ? getCleanStoreName(s) : null) || s.shop_name || s.name || (s.shop_number && !s.shop_number.startsWith('SRV-') && !s.shop_number.startsWith('REST-') ? `Shop ${s.shop_number}` : 'Destination');
+
                         pin.innerHTML = `
-                            <div class="bg-[#dc2626] text-[7.5px] font-black text-white px-1 py-0.25 rounded shadow-sm mb-0.5 whitespace-nowrap border border-white/40 select-none">
-                                SHOP ${s.shop_number}
-                            </div>
-                            <div class="relative w-3.5 h-5 flex items-center justify-center filter drop-shadow-sm">
-                                <svg viewBox="0 0 24 32" class="w-3.5 h-5 text-[#ef4444]">
-                                    <path fill="currentColor" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20c0-6.63-5.37-12-12-12z"/>
-                                    <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
+                            <span class="absolute rounded-full animate-ping opacity-60 pointer-events-none" style="top: -23px; width: 22px; height: 22px; background-color: ${pinFill};"></span>
+                            <div class="poi-pin-wrapper relative flex flex-col items-center transition-transform duration-150"
+                                 style="margin-top: -22px; transform-origin: 9px 22px; width: 18px; height: 22px;">
+                                <svg width="18" height="22" viewBox="0 0 16 20" fill="none" class="filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]">
+                                    <path d="M8 19.5C8 19.5 14.5 12 14.5 6.5C14.5 2.91 11.59 0.7 8 0.7C4.41 0.7 1.5 2.91 1.5 6.5C1.5 12 8 19.5 8 19.5Z"
+                                          fill="${pinFill}" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
                                 </svg>
+                                <span class="material-symbols-outlined text-white text-[9.5px] absolute top-[3px] pointer-events-none select-none font-bold">${pinIcon}</span>
+                            </div>
+                            <div class="poi-label pointer-events-none select-none mt-0.5 text-center transition-opacity duration-200"
+                                 style="max-width: 85px; width: max-content; transform-origin: center top;">
+                                <span class="text-[8.5px] font-extrabold text-[#0f172a] leading-[1.1] block tracking-tight text-halo whitespace-normal">
+                                    ${displayName}
+                                </span>
                             </div>
                         `;
                     }
