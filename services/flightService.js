@@ -178,7 +178,7 @@ async function fetchFlightStatus(flight_id, custom_gate) {
 
   // 1. Check DB Override
   try {
-    const res = await db.query('SELECT * FROM flight_override WHERE flight_id = $1 OR flight_id = $2', [cleanFlightId, cleanFlightId.replace('TG', 'THA')]); // simplified for logic
+    const res = await db.query('SELECT flight_id, gate, boarding_time, updated_at FROM flight_override WHERE flight_id = $1 OR flight_id = $2', [cleanFlightId, cleanFlightId.replace('TG', 'THA')]); // simplified for logic
     if (res.rows.length > 0 && !custom_gate) {
       const override = res.rows[0];
       const walkTimes = await readCsv(WALK_TIME_CSV);

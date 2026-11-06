@@ -238,6 +238,29 @@ router.get('/api/navigation-path', (req, res) => {
 });
 
 
+// --- PUBLIC FEATURE: Get All Map Nodes for Browser Cache ---
+router.get('/api/map/nodes', async (req, res) => {
+  try {
+    const nodes = await readCsv(MAP_NODES_CSV);
+    // Return only display & routing columns needed by frontend
+    const slimNodes = nodes.map(n => ({
+      node_id: n.node_id,
+      name: n.name,
+      x: n.x,
+      y: n.y,
+      concourse: n.concourse,
+      type: n.type,
+      icon: n.icon,
+      image_url: n.image_url,
+      floor: n.floor
+    }));
+    return res.json({ success: true, nodes: slimNodes });
+  } catch (error) {
+    console.error('Error in /api/map/nodes:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch nodes.' });
+  }
+});
+
 // --- PUBLIC FEATURE: Search Map Nodes ---
 router.get('/api/search-node', async (req, res) => {
   const query = req.query.q || req.query.query;
@@ -248,6 +271,10 @@ router.get('/api/search-node', async (req, res) => {
   try {
     const nodes = await readCsv(MAP_NODES_CSV);
     const searchQuery = query.trim().toLowerCase();
+
+    if (searchQuery === 'all' || searchQuery === '*') {
+      return res.json({ success: true, nodes });
+    }
     
     // Thai keyword mapping
     let mappedType = '';

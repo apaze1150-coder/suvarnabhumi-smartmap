@@ -8,8 +8,36 @@ const MAP_NODES_CSV = path.join(__dirname, '../airport_map_nodes.csv');
 const PRODUCT_MATRIX_CSV = path.join(__dirname, '../product_matrix.csv');
 const PRODUCTS_CSV = path.join(__dirname, '../panpuri_products.csv');
 
+const PRODUCT_HEADERS = ['Code','Description','Reference','Category','Sub-Category','Scent','Price','Image','Qty_Branch1','Qty_Branch2','Qty_Branch3','Description_Customer','Scent_Notes','How_to_Use','Size'];
+const ORDER_HEADERS = ['order_id','order_number','store_id','customer_name','flight_number','items_json','total_price','status','created_at','updated_at','staff_note'];
+
+// Explicit column selection per table (no SELECT *) to minimize Supabase Egress Bandwidth
+const TABLE_COLUMNS = {
+  walk_time_matrix: 'gate_zone, walk_time_mins, description',
+  store_matrix: 'shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS", icon',
+  airport_map_nodes: 'node_id, name, x, y, concourse, type, connections, icon, image_url, floor',
+  product_matrix: '"PRODUCT_ID", "SHOP_NUMBER", "PRODUCT_NAME", "PRODUCT_IMAGE_FILENAME", "PRICE_THB", "TARGET_TAGS", "IS_TOP_SELLER"',
+  panpuri_products: '"Code", "Description", "Reference", "Category", "Sub-Category", "Scent", "Price", "Image", "Qty_Branch1", "Qty_Branch2", "Qty_Branch3", "Description_Customer", "Scent_Notes", "How_to_Use", "Size", sort_order',
+  panpuri_orders: 'order_id, order_number, store_id, customer_name, flight_number, items_json, total_price, status, created_at, updated_at, staff_note',
+  panpuri_stock_logs: 'log_id, timestamp, performed_by, transaction_type, ref_no, product_code, product_name, qty',
+  flight_matrix: 'gate_zone, walk_time_mins, description',
+  flight_override: 'flight_id, gate, boarding_time, updated_at'
+};
+
+// In-memory server-side cache to further reduce Supabase Egress Bandwidth
+const tableCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
+
+function invalidateCache(table) {
+  if (table) {
+    tableCache.delete(table);
+  } else {
+    tableCache.clear();
+  }
+}
+
 // --- CSV Helper Functions ---
-async function readCsv(filePath) {
+async function readCsv(filePath, forceRefresh = false) {
   let table = null;
   if (filePath.includes('walk_time_matrix')) table = 'walk_time_matrix';
   else if (filePath.includes('store_matrix')) table = 'store_matrix';
@@ -23,11 +51,21 @@ async function readCsv(filePath) {
   else if (filePath.includes('flight_override')) table = 'flight_override';
   
   if (!table) return [];
+
+  if (!forceRefresh && tableCache.has(table)) {
+    const cached = tableCache.get(table);
+    if (Date.now() - cached.ts < CACHE_TTL_MS) {
+      return cached.rows.map(r => ({ ...r }));
+    }
+  }
+
   try {
+    const cols = TABLE_COLUMNS[table] || 'id';
     // Order panpuri_products by sort_order to preserve insertion order
     const orderClause = (table === 'panpuri_products') ? ' ORDER BY sort_order ASC NULLS LAST' : '';
-    const res = await db.query('SELECT * FROM ' + table + orderClause);
-    return res.rows;
+    const res = await db.query(`SELECT ${cols} FROM ${table}${orderClause}`);
+    tableCache.set(table, { rows: res.rows, ts: Date.now() });
+    return res.rows.map(r => ({ ...r }));
   } catch(e) {
     console.error('DB Error reading', table, e);
     return [];
@@ -42,7 +80,6 @@ function hashString(str) {
   }
   return hash;
 }
-
 
 // --- CSV write helper for orders & products ---
 async function writeCsvGeneric(filePath, rows, headers) {
@@ -81,6 +118,7 @@ async function writeCsvGeneric(filePath, rows, headers) {
     await client.query('TRUNCATE ' + table);
     if (!dedupedRows || dedupedRows.length === 0) {
       await client.query('COMMIT');
+      invalidateCache(table);
       return;
     }
     const cols = headers.map(h => '"' + h + '"').join(', ');
@@ -116,6 +154,7 @@ async function writeCsvGeneric(filePath, rows, headers) {
       );
     }
     await client.query('COMMIT');
+    invalidateCache(table);
   } catch(e) { 
     await client.query('ROLLBACK');
     console.error('Error writing to table (Transaction Rolled Back) ' + table, e); 
@@ -124,8 +163,4 @@ async function writeCsvGeneric(filePath, rows, headers) {
   }
 }
 
-const PRODUCT_HEADERS = ['Code','Description','Reference','Category','Sub-Category','Scent','Price','Image','Qty_Branch1','Qty_Branch2','Qty_Branch3','Description_Customer','Scent_Notes','How_to_Use','Size'];
-const ORDER_HEADERS = ['order_id','order_number','store_id','customer_name','flight_number','items_json','total_price','status','created_at','updated_at','staff_note'];
-
-module.exports = { readCsv, hashString, writeCsvGeneric, WALK_TIME_CSV, STORE_CSV, MAP_NODES_CSV, PRODUCT_MATRIX_CSV, PRODUCTS_CSV, PRODUCT_HEADERS };
-
+module.exports = { readCsv, hashString, writeCsvGeneric, invalidateCache, TABLE_COLUMNS, WALK_TIME_CSV, STORE_CSV, MAP_NODES_CSV, PRODUCT_MATRIX_CSV, PRODUCTS_CSV, PRODUCT_HEADERS };

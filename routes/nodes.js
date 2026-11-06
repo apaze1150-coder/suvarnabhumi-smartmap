@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const router = express.Router();
-const { readCsv, MAP_NODES_CSV } = require('../services/dataService');
+const { readCsv, invalidateCache, MAP_NODES_CSV } = require('../services/dataService');
 const fs = require('fs');
 const db = require('../db');
 const { loadNavigationGraph } = require('./navigation');
@@ -14,6 +14,7 @@ async function saveNodesToCsvSync(nodes) {
     for (let row of nodes) {
       await db.query('INSERT INTO airport_map_nodes (node_id, name, x, y, concourse, type, connections, icon, image_url, floor) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [row.node_id, row.name, Number(row.x)||0, Number(row.y)||0, row.concourse, row.type, row.connections, row.icon, row.image_url, row.floor]);
     }
+    invalidateCache('airport_map_nodes');
   } catch(e) { console.error('Error saving nodes to DB:', e); }
 }
 

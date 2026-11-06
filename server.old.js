@@ -154,9 +154,20 @@ async function readCsv(filePath) {
   
   if (!table) return [];
   try {
+    const TABLE_COLUMNS = {
+      walk_time_matrix: 'gate_zone, walk_time_mins, description',
+      store_matrix: 'shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS", icon',
+      airport_map_nodes: 'node_id, name, x, y, concourse, type, connections, icon, image_url, floor',
+      product_matrix: '"PRODUCT_ID", "SHOP_NUMBER", "PRODUCT_NAME", "PRODUCT_IMAGE_FILENAME", "PRICE_THB", "TARGET_TAGS", "IS_TOP_SELLER"',
+      panpuri_products: '"Code", "Description", "Reference", "Category", "Sub-Category", "Scent", "Price", "Image", "Qty_Branch1", "Qty_Branch2", "Qty_Branch3", "Description_Customer", "Scent_Notes", "How_to_Use", "Size", sort_order',
+      panpuri_orders: 'order_id, order_number, store_id, customer_name, flight_number, items_json, total_price, status, created_at, updated_at, staff_note',
+      panpuri_stock_logs: 'log_id, timestamp, performed_by, transaction_type, ref_no, product_code, product_name, qty',
+      flight_matrix: 'gate_zone, walk_time_mins, description'
+    };
+    const cols = TABLE_COLUMNS[table] || 'id';
     // Order panpuri_products by sort_order to preserve insertion order
     const orderClause = (table === 'panpuri_products') ? ' ORDER BY sort_order ASC NULLS LAST' : '';
-    const res = await db.query('SELECT * FROM ' + table + orderClause);
+    const res = await db.query('SELECT ' + cols + ' FROM ' + table + orderClause);
     return res.rows;
   } catch(e) {
     console.error('DB Error reading', table, e);

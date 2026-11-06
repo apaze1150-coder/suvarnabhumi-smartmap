@@ -2,6 +2,28 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+const RESTAURANT_COLS = 'id, restaurant_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon';
+const SERVICE_COLS = 'id, service_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon';
+const LOUNGE_COLS = 'id, lounge_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon';
+
+// Server-side in-memory cache for amenities & map POIs to reduce Supabase Egress Bandwidth
+const amenitiesCache = {
+  restaurants: null,
+  services: null,
+  lounges: null,
+  allPois: null,
+  ts: 0
+};
+const AMENITIES_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function invalidateAmenitiesCache() {
+  amenitiesCache.restaurants = null;
+  amenitiesCache.services = null;
+  amenitiesCache.lounges = null;
+  amenitiesCache.allPois = null;
+  amenitiesCache.ts = 0;
+}
+
 function checkPassword(pass) {
   return !pass || pass === '6515';
 }
@@ -13,7 +35,12 @@ function checkPassword(pass) {
 // GET /api/restaurants (Public)
 router.get('/api/restaurants', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM restaurant_matrix ORDER BY id ASC');
+    if (amenitiesCache.restaurants && (Date.now() - amenitiesCache.ts < AMENITIES_TTL_MS)) {
+      return res.json({ success: true, restaurants: amenitiesCache.restaurants });
+    }
+    const result = await db.query(`SELECT ${RESTAURANT_COLS} FROM restaurant_matrix ORDER BY id ASC`);
+    amenitiesCache.restaurants = result.rows;
+    amenitiesCache.ts = Date.now();
     return res.json({ success: true, restaurants: result.rows });
   } catch (err) {
     console.error('Error fetching restaurants:', err);
@@ -28,7 +55,7 @@ router.get('/api/admin/restaurants', async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    const result = await db.query('SELECT * FROM restaurant_matrix ORDER BY id ASC');
+    const result = await db.query(`SELECT ${RESTAURANT_COLS} FROM restaurant_matrix ORDER BY id ASC`);
     return res.json(result.rows);
   } catch (err) {
     console.error('Admin restaurants error:', err);
@@ -47,9 +74,10 @@ router.post('/api/admin/restaurants', async (req, res) => {
     const result = await db.query(
       `INSERT INTO restaurant_matrix (restaurant_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING *`,
+       RETURNING ${RESTAURANT_COLS}`,
       [idVal, name || 'New Restaurant', image_url || 'cutlery.png', category || 'Restaurant', concourse || 'D', floor || '4', Number(x) || 500, Number(y) || 250, graph_node_id || '', description || '', icon || 'restaurant']
     );
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Create restaurant error:', err);
@@ -84,8 +112,9 @@ router.put('/api/admin/restaurants/:id', async (req, res) => {
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE restaurant_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(restaurant_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
+    const query = `UPDATE restaurant_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(restaurant_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING ${RESTAURANT_COLS}`;
     const result = await db.query(query, values);
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Update restaurant error:', err);
@@ -102,6 +131,7 @@ router.delete('/api/admin/restaurants/:id', async (req, res) => {
   }
   try {
     await db.query('DELETE FROM restaurant_matrix WHERE LOWER(TRIM(restaurant_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
+    invalidateAmenitiesCache();
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete restaurant error:', err);
@@ -116,7 +146,12 @@ router.delete('/api/admin/restaurants/:id', async (req, res) => {
 // GET /api/services (Public)
 router.get('/api/services', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM service_matrix ORDER BY id ASC');
+    if (amenitiesCache.services && (Date.now() - amenitiesCache.ts < AMENITIES_TTL_MS)) {
+      return res.json({ success: true, services: amenitiesCache.services });
+    }
+    const result = await db.query(`SELECT ${SERVICE_COLS} FROM service_matrix ORDER BY id ASC`);
+    amenitiesCache.services = result.rows;
+    amenitiesCache.ts = Date.now();
     return res.json({ success: true, services: result.rows });
   } catch (err) {
     console.error('Error fetching services:', err);
@@ -131,7 +166,7 @@ router.get('/api/admin/services', async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    const result = await db.query('SELECT * FROM service_matrix ORDER BY id ASC');
+    const result = await db.query(`SELECT ${SERVICE_COLS} FROM service_matrix ORDER BY id ASC`);
     return res.json(result.rows);
   } catch (err) {
     console.error('Admin services error:', err);
@@ -150,9 +185,10 @@ router.post('/api/admin/services', async (req, res) => {
     const result = await db.query(
       `INSERT INTO service_matrix (service_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING *`,
+       RETURNING ${SERVICE_COLS}`,
       [idVal, name || 'New Service', image_url || 'information.png', category || 'Airport information', concourse || 'D', floor || '4', Number(x) || 500, Number(y) || 250, graph_node_id || '', description || '', icon || 'info']
     );
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Create service error:', err);
@@ -187,8 +223,9 @@ router.put('/api/admin/services/:id', async (req, res) => {
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE service_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
+    const query = `UPDATE service_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING ${SERVICE_COLS}`;
     const result = await db.query(query, values);
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Update service error:', err);
@@ -205,6 +242,7 @@ router.delete('/api/admin/services/:id', async (req, res) => {
   }
   try {
     await db.query('DELETE FROM service_matrix WHERE LOWER(TRIM(service_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
+    invalidateAmenitiesCache();
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete service error:', err);
@@ -219,7 +257,12 @@ router.delete('/api/admin/services/:id', async (req, res) => {
 // GET /api/lounges (Public)
 router.get('/api/lounges', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM lounge_matrix ORDER BY id ASC');
+    if (amenitiesCache.lounges && (Date.now() - amenitiesCache.ts < AMENITIES_TTL_MS)) {
+      return res.json({ success: true, lounges: amenitiesCache.lounges });
+    }
+    const result = await db.query(`SELECT ${LOUNGE_COLS} FROM lounge_matrix ORDER BY id ASC`);
+    amenitiesCache.lounges = result.rows;
+    amenitiesCache.ts = Date.now();
     return res.json({ success: true, lounges: result.rows });
   } catch (err) {
     console.error('Error fetching lounges:', err);
@@ -234,7 +277,7 @@ router.get('/api/admin/lounges', async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   try {
-    const result = await db.query('SELECT * FROM lounge_matrix ORDER BY id ASC');
+    const result = await db.query(`SELECT ${LOUNGE_COLS} FROM lounge_matrix ORDER BY id ASC`);
     return res.json(result.rows);
   } catch (err) {
     console.error('Admin lounges error:', err);
@@ -253,9 +296,10 @@ router.post('/api/admin/lounges', async (req, res) => {
     const result = await db.query(
       `INSERT INTO lounge_matrix (lounge_id, name, image_url, category, concourse, floor, x, y, graph_node_id, description, icon)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING *`,
+       RETURNING ${LOUNGE_COLS}`,
       [idVal, name || 'New Lounge', image_url || 'lounge.png', category || 'Lounge', concourse || 'D', floor || '4', Number(x) || 500, Number(y) || 250, graph_node_id || '', description || '', icon || 'weekend']
     );
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Create lounge error:', err);
@@ -290,8 +334,9 @@ router.put('/api/admin/lounges/:id', async (req, res) => {
     if (updates.length === 0) return res.json({ success: true });
 
     values.push(targetId);
-    const query = `UPDATE lounge_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING *`;
+    const query = `UPDATE lounge_matrix SET ${updates.join(', ')} WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($${idx})) OR id::text = $${idx} OR LOWER(TRIM(name)) = LOWER(TRIM($${idx})) RETURNING ${LOUNGE_COLS}`;
     const result = await db.query(query, values);
+    invalidateAmenitiesCache();
     return res.json({ success: true, item: result.rows[0] });
   } catch (err) {
     console.error('Update lounge error:', err);
@@ -308,6 +353,7 @@ router.delete('/api/admin/lounges/:id', async (req, res) => {
   }
   try {
     await db.query('DELETE FROM lounge_matrix WHERE LOWER(TRIM(lounge_id)) = LOWER(TRIM($1)) OR id::text = $1 OR LOWER(TRIM(name)) = LOWER(TRIM($1))', [targetId]);
+    invalidateAmenitiesCache();
     return res.json({ success: true });
   } catch (err) {
     console.error('Delete lounge error:', err);
@@ -320,6 +366,10 @@ router.delete('/api/admin/lounges/:id', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/api/map/all-pois', async (req, res) => {
   try {
+    if (!req.query.refresh && amenitiesCache.allPois && (Date.now() - amenitiesCache.ts < AMENITIES_TTL_MS)) {
+      return res.json(amenitiesCache.allPois);
+    }
+
     const [shopsRes, restRes, srvRes, lngRes] = await Promise.all([
       db.query('SELECT shop_number, shop_name, shop_image, category, x, y, graph_node_id, store_id, icon FROM store_matrix'),
       db.query('SELECT restaurant_id, name, image_url, category, x, y, floor, concourse, icon FROM restaurant_matrix'),
@@ -327,17 +377,23 @@ router.get('/api/map/all-pois', async (req, res) => {
       db.query('SELECT lounge_id, name, image_url, category, x, y, floor, concourse, icon FROM lounge_matrix')
     ]);
 
-    return res.json({
+    const payload = {
       success: true,
       shops: shopsRes.rows,
       restaurants: restRes.rows,
       services: srvRes.rows,
       lounges: lngRes.rows
-    });
+    };
+
+    amenitiesCache.allPois = payload;
+    amenitiesCache.ts = Date.now();
+
+    return res.json(payload);
   } catch (err) {
     console.error('Error fetching all map POIs:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
+router.invalidateAmenitiesCache = invalidateAmenitiesCache;
 module.exports = router;

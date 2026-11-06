@@ -251,13 +251,51 @@
       window.location.href = '/?boutiqueStore=' + encodeURIComponent(storeId);
   }
 
+  const StoreSelectionCache = {
+      TTL: 15 * 60 * 1000,
+      get(key) {
+          try {
+              const raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+              if (!raw) return null;
+              const parsed = JSON.parse(raw);
+              if (!parsed || !parsed.ts || (Date.now() - parsed.ts > this.TTL)) return null;
+              return parsed.data;
+          } catch (e) {
+              return null;
+          }
+      },
+      set(key, data) {
+          try {
+              const payload = JSON.stringify({ ts: Date.now(), data });
+              sessionStorage.setItem(key, payload);
+              localStorage.setItem(key, payload);
+          } catch (e) {}
+      }
+  };
+
   document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Load store matrix images dynamically from backend
+      // 1. Load store matrix images from browser cache first, or fetch once
       try {
-          const storeRes = await fetch('/api/stores?t=' + Date.now(), { cache: 'no-store' });
-          const storeData = await storeRes.json();
-          if (storeData.success && Array.isArray(storeData.stores)) {
-              storeData.stores.forEach(s => {
+          let stores = null;
+          const cachedPois = StoreSelectionCache.get('kp_cache_all_pois');
+          if (cachedPois && Array.isArray(cachedPois.shops) && cachedPois.shops.length > 0) {
+              stores = cachedPois.shops;
+          } else {
+              const cachedStores = StoreSelectionCache.get('kp_cache_stores');
+              if (cachedStores && Array.isArray(cachedStores)) {
+                  stores = cachedStores;
+              }
+          }
+          if (!stores) {
+              const storeRes = await fetch('/api/stores');
+              const storeData = await storeRes.json();
+              if (storeData.success && Array.isArray(storeData.stores)) {
+                  stores = storeData.stores;
+                  StoreSelectionCache.set('kp_cache_stores', stores);
+              }
+          }
+          if (Array.isArray(stores)) {
+              stores.forEach(s => {
                   const sId = (s.shop_number || s.store_id || '').trim();
                   if (!sId || !s.shop_image) return;
                   const img = document.getElementById('img-' + sId);
@@ -275,11 +313,17 @@
           console.error('Failed to load store images:', e);
       }
 
-      // 2. Load store settings (open/closed)
+      // 2. Load store settings (open/closed) from browser cache first, or fetch once
       try {
-          const res = await fetch('/api/store/settings');
-          const data = await res.json();
-          if (data.success && data.settings) {
+          let data = StoreSelectionCache.get('kp_cache_store_settings');
+          if (!data || !data.settings) {
+              const res = await fetch('/api/store/settings');
+              data = await res.json();
+              if (data && data.settings) {
+                  StoreSelectionCache.set('kp_cache_store_settings', data);
+              }
+          }
+          if (data && data.success && data.settings) {
               const settings = data.settings;
               
               const oldToNewStoreId = {

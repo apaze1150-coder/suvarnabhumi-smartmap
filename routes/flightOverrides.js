@@ -8,7 +8,7 @@ const { parse } = require('csv-parser');
 // 1. Get all overrides
 router.get('/api/admin/flight-overrides', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM flight_override ORDER BY updated_at DESC');
+        const result = await db.query('SELECT flight_id, gate, boarding_time, updated_at FROM flight_override ORDER BY updated_at DESC');
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching flight overrides:', error);
@@ -29,7 +29,7 @@ router.post('/api/admin/flight-overrides', async (req, res) => {
             VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
             ON CONFLICT (flight_id) 
             DO UPDATE SET gate = EXCLUDED.gate, boarding_time = EXCLUDED.boarding_time, updated_at = CURRENT_TIMESTAMP
-            RETURNING *;
+            RETURNING flight_id, gate, boarding_time, updated_at;
         `;
         const result = await db.query(query, [flight_id.trim().toUpperCase(), gate.trim(), boarding_time || null]);
         res.json({ success: true, data: result.rows[0] });
@@ -90,7 +90,7 @@ router.post('/api/admin/flight-overrides/csv', upload.single('csv_file'), (req, 
 router.delete('/api/admin/flight-overrides/:flight_id', async (req, res) => {
     const flight_id = req.params.flight_id;
     try {
-        const result = await db.query('DELETE FROM flight_override WHERE flight_id = $1 RETURNING *', [flight_id.toUpperCase()]);
+        const result = await db.query('DELETE FROM flight_override WHERE flight_id = $1 RETURNING flight_id', [flight_id.toUpperCase()]);
         if (result.rowCount > 0) {
             res.json({ success: true, message: 'Override deleted' });
         } else {

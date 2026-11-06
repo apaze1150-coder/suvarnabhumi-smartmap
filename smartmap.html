@@ -891,7 +891,7 @@
                     <div class="flex items-center gap-sm">
                         <div class="hidden md:flex bg-surface-container rounded-full px-4 py-2 items-center gap-2">
                             <span class="material-symbols-outlined text-on-surface-variant">search</span>
-                            <input class="bg-transparent border-none focus:ring-0 text-body-sm w-48"
+                            <input id="boutique-search-input" oninput="filterBoutiqueSearch(this.value)" class="bg-transparent border-none focus:ring-0 text-body-sm w-48"
                                 placeholder="Search collection..." type="text" />
                         </div>
                         <button class="p-2 relative haptic-active" onclick="checkoutBoutique()">
@@ -2127,6 +2127,188 @@
             await searchMapLive(categoryName);
         }
 
+        // =============================================
+        // BROWSER CACHE SYSTEM (sessionStorage + localStorage)
+        // Reduces Supabase Egress Bandwidth by caching stores, POIs, nodes, and products
+        // =============================================
+        const SmartMapCache = {
+            TTL: 15 * 60 * 1000, // 15 minutes
+            get(key) {
+                try {
+                    const raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+                    if (!raw) return null;
+                    const parsed = JSON.parse(raw);
+                    if (!parsed || !parsed.ts || (Date.now() - parsed.ts > this.TTL)) return null;
+                    return parsed.data;
+                } catch (e) {
+                    return null;
+                }
+            },
+            set(key, data) {
+                try {
+                    const payload = JSON.stringify({ ts: Date.now(), data });
+                    sessionStorage.setItem(key, payload);
+                    localStorage.setItem(key, payload);
+                } catch (e) {}
+            },
+            invalidate(key) {
+                try {
+                    sessionStorage.removeItem(key);
+                    localStorage.removeItem(key);
+                } catch (e) {}
+            },
+            async getAllPOIs(forceRefresh = false) {
+                const key = 'kp_cache_all_pois';
+                if (!forceRefresh) {
+                    const cached = this.get(key);
+                    if (cached) return cached;
+                }
+                const res = await fetch('/api/map/all-pois');
+                const data = await res.json();
+                if (data && data.success) {
+                    this.set(key, data);
+                    return data;
+                }
+                return { shops: [], restaurants: [], services: [], lounges: [] };
+            },
+            async getNodes(forceRefresh = false) {
+                const key = 'kp_cache_nodes';
+                if (!forceRefresh) {
+                    const cached = this.get(key);
+                    if (cached) return cached;
+                }
+                const res = await fetch('/api/map/nodes');
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.nodes)) {
+                    this.set(key, data.nodes);
+                    return data.nodes;
+                }
+                return [];
+            },
+            async getProducts(forceRefresh = false) {
+                const key = 'kp_cache_products';
+                if (!forceRefresh) {
+                    const cached = this.get(key);
+                    if (cached) return cached;
+                }
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                if (data && Array.isArray(data.products)) {
+                    this.set(key, data.products);
+                    return data.products;
+                }
+                return [];
+            },
+            async getStoreSettings(forceRefresh = false) {
+                const key = 'kp_cache_store_settings';
+                if (!forceRefresh) {
+                    const cached = this.get(key);
+                    if (cached) return cached;
+                }
+                const res = await fetch('/api/store/settings');
+                const data = await res.json();
+                if (data && data.settings) {
+                    this.set(key, data);
+                    return data;
+                }
+                return { settings: {} };
+            },
+            async searchNodesLocal(queryText) {
+                if (!queryText) return [];
+                const nodes = await this.getNodes();
+                const q = queryText.trim().toLowerCase();
+                let searchType = null;
+                if (['ห้องน้ำ', 'สุขา', 'wc', 'toilet', 'restroom'].some(k => q.includes(k))) searchType = 'restroom';
+                else if (['ร้านอาหาร', 'ของกิน', 'ข้าว', 'หิว', 'food', 'restaurant', 'cafe', 'กาแฟ', 'ชา', 'เครื่องดื่ม'].some(k => q.includes(k))) searchType = 'restaurant';
+                else if (['แลกเงิน', 'ธนาคาร', 'กดเงิน', 'atm', 'bank', 'exchange', 'currency'].some(k => q.includes(k))) searchType = 'bank_exchange';
+                else if (['คืนภาษี', 'ภาษี', 'vat', 'refund', 'tax'].some(k => q.includes(k))) searchType = 'vat_refund';
+                else if (['เลานจ์', 'พักผ่อน', 'ที่นั่งพัก', 'lounge', 'vip'].some(k => q.includes(k))) searchType = 'lounge';
+                else if (['ขายยา', 'ยา', 'ป่วย', 'หมอ', 'คลินิก', 'pharmacy', 'medical', 'drug', 'clinic', 'first aid'].some(k => q.includes(k))) searchType = 'pharmacy';
+                else if (['ละหมาด', 'ศาสนสถาน', 'ห้องพระ', 'สมาธิ', 'สวดมนต์', 'prayer', 'muslim', 'mosque', 'meditation', 'chapel'].some(k => q.includes(k))) searchType = 'prayer_room';
+                else if (['สูบบุหรี่', 'บุหรี่', 'ซิการ์', 'smoking', 'smoke', 'cigar'].some(k => q.includes(k))) searchType = 'smoking_area';
+                else if (['ประชาสัมพันธ์', 'สอบถาม', 'ติดต่อ', 'ช่วยเหลือ', 'information', 'info', 'help', 'counter', 'desk'].some(k => q.includes(k))) searchType = 'information';
+                const cleanGateQuery = q.replace(/^gate\s+/i, '').trim();
+
+                return nodes.filter(n => {
+                    const nodeType = n.type ? n.type.toLowerCase() : '';
+                    const nodeIcon = n.icon ? n.icon.toLowerCase() : '';
+                    const nodeName = n.name ? n.name.toLowerCase() : '';
+                    const nodeId = n.node_id ? n.node_id.toLowerCase() : '';
+                    if (searchType === 'restroom' && (nodeType === 'restroom' || nodeIcon === 'wc')) return true;
+                    if (searchType === 'restaurant' && (nodeType === 'restaurant' || nodeIcon === 'restaurant')) return true;
+                    if (searchType === 'bank_exchange' && (nodeType.includes('bank') || nodeType.includes('exchange') || nodeIcon === 'bank_transfer' || nodeIcon === 'exchange-rate')) return true;
+                    if (searchType === 'vat_refund' && (nodeType.includes('vat') || nodeIcon === 'vat_refund')) return true;
+                    if (searchType === 'lounge' && (nodeType === 'lounge' || nodeIcon === 'lounge')) return true;
+                    if (searchType === 'pharmacy' && (nodeType.includes('pharmacy') || nodeIcon === 'pharmacy' || nodeName.includes('pharmacy'))) return true;
+                    if (searchType === 'prayer_room' && (nodeType.includes('prayer') || nodeIcon === 'prayer-room')) return true;
+                    if (searchType === 'smoking_area' && (nodeType.includes('smoking') || nodeIcon === 'smoking-area')) return true;
+                    if (searchType === 'information' && (nodeType.includes('info') || nodeIcon === 'information')) return true;
+                    if (nodeType === 'gate' && (nodeName === `gate ${cleanGateQuery}` || nodeId === `node_gate_${cleanGateQuery}`)) return true;
+                    if (nodeName.includes(q) || nodeId.includes(q) || (nodeType && nodeType.includes(q)) || (nodeIcon && nodeIcon.includes(q))) return true;
+                    return false;
+                });
+            },
+            async searchStoresLocal(queryText, startX = 489, startY = 227) {
+                if (!queryText) return [];
+                const [poiData, products] = await Promise.all([this.getAllPOIs(), this.getProducts()]);
+                const stores = poiData.shops || [];
+                const q = queryText.trim().toLowerCase();
+
+                const matchingProducts = (products || []).filter(p => {
+                    const nameMatch = (p.scent || p.Scent || p.PRODUCT_NAME || '').toLowerCase().includes(q);
+                    const catMatch = (p.category || p.Category || '').toLowerCase().includes(q);
+                    const subMatch = (p.sub_category || p['Sub-Category'] || '').toLowerCase().includes(q);
+                    const descMatch = (p.description || p.Description || '').toLowerCase().includes(q);
+                    return nameMatch || catMatch || subMatch || descMatch;
+                });
+
+                const matchedStores = stores.filter(s => {
+                    const numMatch = s.shop_number && s.shop_number.toLowerCase() === q;
+                    const nameMatch = s.shop_name && s.shop_name.toLowerCase().includes(q);
+                    const catMatch = s.category && s.category.toLowerCase().includes(q);
+                    const brandMatch = s.brands_available && s.brands_available.toLowerCase().includes(q);
+                    const aiMatch = s.AI_KEYWORDS && s.AI_KEYWORDS.toLowerCase().includes(q);
+                    const heroMatch = s.TOP_HERO_PRODUCTS && s.TOP_HERO_PRODUCTS.toLowerCase().includes(q);
+                    const isPanpuriStore = (s.shop_name || '').toLowerCase().includes('panpuri') || (s.brands_available || '').toLowerCase().includes('panpuri');
+                    const prodMatch = isPanpuriStore && matchingProducts.length > 0;
+                    return numMatch || nameMatch || catMatch || brandMatch || aiMatch || heroMatch || prodMatch;
+                });
+
+                return matchedStores.map(store => {
+                    const tx = (store.x !== undefined && !isNaN(parseFloat(store.x))) ? parseFloat(store.x) : 489;
+                    const ty = (store.y !== undefined && !isNaN(parseFloat(store.y))) ? parseFloat(store.y) : 227;
+                    const distMeters = Math.round(Math.hypot(tx - startX, ty - startY) * 1.2);
+                    const walkMins = Math.max(1, Math.round(distMeters / 70));
+                    const isPanpuriStore = (store.shop_name || '').toLowerCase().includes('panpuri') || (store.brands_available || '').toLowerCase().includes('panpuri');
+                    const storeProds = isPanpuriStore ? matchingProducts.slice(0, 10).map(p => ({
+                        PRODUCT_NAME: p.scent || p.Scent || p.PRODUCT_NAME,
+                        PRICE_THB: p.price || p.Price || 0,
+                        PRODUCT_IMAGE_FILENAME: p.image || p.Image || 'default_product.jpg',
+                        SHOP_NUMBER: store.shop_number,
+                        IS_TOP_SELLER: p.is_bestseller ? 'true' : 'false'
+                    })) : [];
+
+                    return {
+                        shop_number: store.shop_number,
+                        shop_name: store.shop_name,
+                        shop_image: store.shop_image || 'default.jpg',
+                        category: store.category,
+                        brands_available: store.brands_available,
+                        distance_meters: distMeters,
+                        walk_time_mins: walkMins,
+                        graph_node_id: store.graph_node_id,
+                        x: tx,
+                        y: ty,
+                        coordinates: { x: tx, y: ty },
+                        path: [{ x: startX, y: startY }, { x: tx, y: ty }],
+                        products: storeProds,
+                        hero_products: store.TOP_HERO_PRODUCTS ? store.TOP_HERO_PRODUCTS.split(',').map(i => i.trim()) : [],
+                        promotions: store.PROMOTION_TAGS ? store.PROMOTION_TAGS.split(',').map(i => i.trim()) : []
+                    };
+                }).sort((a, b) => a.walk_time_mins - b.walk_time_mins);
+            }
+        };
+
         async function searchMapLive(overrideQuery = null) {
             let queryText = overrideQuery || document.getElementById('map-search-input').value.trim();
             if (!queryText) return;
@@ -2160,13 +2342,11 @@
             }
 
             try {
-                // 1. Try to search for a Gate/Node first
-                const nodeRes = await fetch(`/api/search-node?q=${encodeURIComponent(queryText)}`);
-                const nodeData = await nodeRes.json();
+                // 1. Search cached Gate/Nodes locally in browser first
+                const matchedNodes = await SmartMapCache.searchNodesLocal(queryText);
 
-                if (nodeData.success && nodeData.nodes && nodeData.nodes.length > 0) {
-                    // Always show results cards, even for a single result (matches Store Matrix behavior)
-                    const dummyStores = nodeData.nodes.map(node => ({
+                if (matchedNodes && matchedNodes.length > 0) {
+                    const dummyStores = matchedNodes.map(node => ({
                         shop_name: node.name,
                         shop_number: node.node_id,
                         category: node.type || "Facility",
@@ -2199,15 +2379,20 @@
             }
 
             try {
-                const response = await fetch('/api/search-store', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: queryText, from_node: "Node_Intersection_D" })
-                });
-                const result = await response.json();
+                // 2. Search cached stores & products locally in browser first
+                let results = await SmartMapCache.searchStoresLocal(queryText);
+                if (!results || results.length === 0) {
+                    const response = await fetch('/api/search-store', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: queryText, from_node: "Node_Intersection_D" })
+                    });
+                    const result = await response.json();
+                    results = (result && result.results) ? result.results : [];
+                }
 
-                if (result && result.results && result.results.length > 0) {
-                    activeStores = result.results;
+                if (results && results.length > 0) {
+                    activeStores = results;
                     selectedShopNumber = null; // Do not auto-select store until user selects one
 
                     // Hide legacy flight path overlay
@@ -2477,11 +2662,15 @@
         async function searchAndNavigateToGate(searchQuery) {
             if (!searchQuery) return;
             try {
-                const response = await fetch(`/api/search-node?q=${encodeURIComponent(searchQuery)}`);
-                const data = await response.json();
+                let matchedNodes = await SmartMapCache.searchNodesLocal(searchQuery);
+                if (!matchedNodes || matchedNodes.length === 0) {
+                    const response = await fetch(`/api/search-node?q=${encodeURIComponent(searchQuery)}`);
+                    const data = await response.json();
+                    matchedNodes = (data && data.nodes) ? data.nodes : [];
+                }
 
-                if (data.success && data.nodes && data.nodes.length > 0) {
-                    const matchedGateNode = data.nodes[0]; // just navigate to the first one
+                if (matchedNodes && matchedNodes.length > 0) {
+                    const matchedGateNode = matchedNodes[0]; // just navigate to the first one
                     // 2. Extract X, Y coordinates
                     const targetX = matchedGateNode.x;
                     const targetY = matchedGateNode.y;
@@ -2888,13 +3077,12 @@
                 knowledgeFound = true;
             }
 
-            // Check for specific node search (e.g., Gate D4)
+            // Check for specific node search (e.g., Gate D4) using local browser cache
             let nodeFound = null;
             try {
-                const nodeRes = await fetch(`/api/search-node?q=${encodeURIComponent(query)}`);
-                const nodeData = await nodeRes.json();
-                if (nodeData.success && nodeData.node) {
-                    nodeFound = nodeData.node;
+                const matchedNodes = await SmartMapCache.searchNodesLocal(query);
+                if (matchedNodes && matchedNodes.length > 0) {
+                    nodeFound = matchedNodes[0];
                     document.getElementById('ai-knowledge-title').innerText = `Location: ${nodeFound.name}`;
                     document.getElementById('ai-knowledge-text').innerHTML = `
                         We found ${nodeFound.name} on the map.
@@ -2913,10 +3101,13 @@
             }
 
             try {
-                // We use the existing endpoint to find products/stores
-                const response = await fetch(`/api/search-store?q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-                const stores = data.results || [];
+                // Search stores and products from local browser cache first
+                let stores = await SmartMapCache.searchStoresLocal(query);
+                if (!stores || stores.length === 0) {
+                    const response = await fetch(`/api/search-store?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    stores = data.results || [];
+                }
 
                 let allProducts = [];
                 let matchedStores = [];
@@ -3098,7 +3289,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: '6515', x: finalX.toString(), y: finalY.toString() })
                 }).then(r => r.json()).then(data => {
-                    if (data.success) console.log('[Admin] Saved pin [' + identifier + '] to X=' + finalX + ', Y=' + finalY);
+                    if (data.success) {
+                        SmartMapCache.invalidate('kp_cache_all_pois');
+                        console.log('[Admin] Saved pin [' + identifier + '] to X=' + finalX + ', Y=' + finalY);
+                    }
                 }).catch(err => console.error('[Admin] Error saving pin:', err));
 
                 setTimeout(() => {
@@ -3133,7 +3327,13 @@
         let preorderStoreName = '';
         let currentProductCategory = 'all';
         let currentProductSubCategory = null;
+        let currentBoutiqueSearchQuery = '';
         let lastCompletedOrderNumber = '';
+
+        function filterBoutiqueSearch(query) {
+            currentBoutiqueSearchQuery = (query || '').trim().toLowerCase();
+            renderProductGrid();
+        }
 
         async function initPreorder() {
             preorderCart = {};
@@ -3148,8 +3348,7 @@
             const container = document.getElementById('preorder-store-list');
             container.innerHTML = '<div class="text-center text-gray-400 text-sm py-8">กำลังโหลด...</div>';
             try {
-                const res = await fetch('/api/store/settings');
-                const data = await res.json();
+                const data = await SmartMapCache.getStoreSettings();
                 const stores = [
                     { id: 'DE40', name: 'PANPURI Concourse D East', sub: 'บริเวณ Gate D1-D4', icon: 'location_on' },
                     { id: 'DE12', name: 'PANPURI Concourse D East 2', sub: 'บริเวณ Gate D1-D2', icon: 'location_on' },
@@ -3197,9 +3396,8 @@
             const grid = document.getElementById('product-grid');
             if (grid) grid.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-sm py-8">กำลังโหลดสินค้า...</div>';
             try {
-                const res = await fetch('/api/products');
-                const data = await res.json();
-                allProducts = data.products || [];
+                const products = await SmartMapCache.getProducts();
+                allProducts = products || [];
                 renderCategoriesUI();
                 // We don't renderProductGrid() here because filterProducts('all') will handle it.
             } catch (e) {
@@ -3320,6 +3518,17 @@
             }
             if (currentProductSubCategory) {
                 filtered = filtered.filter(p => p.sub_category && p.sub_category.trim() === currentProductSubCategory);
+            }
+            if (currentBoutiqueSearchQuery) {
+                const q = currentBoutiqueSearchQuery;
+                filtered = filtered.filter(p =>
+                    (p.scent && p.scent.toLowerCase().includes(q)) ||
+                    (p.Scent && p.Scent.toLowerCase().includes(q)) ||
+                    (p.sub_category && p.sub_category.toLowerCase().includes(q)) ||
+                    (p.category && p.category.toLowerCase().includes(q)) ||
+                    (p.description && p.description.toLowerCase().includes(q)) ||
+                    (p.product_id && p.product_id.toLowerCase().includes(q))
+                );
             }
 
             // Determine which QTY field to use based on preorderStoreId
@@ -3515,6 +3724,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
+                    SmartMapCache.invalidate('kp_cache_products');
                     lastCompletedOrderNumber = data.order_number;
 
                     let ordersArray = [];

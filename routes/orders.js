@@ -65,9 +65,10 @@ router.post('/api/orders', async (req, res) => {
 // GET /api/orders/track/:order_number - customer track order
 router.get('/api/orders/track/:order_number', async (req, res) => {
   try {
-    let orders = [];
-    try { orders = await readCsv(ORDERS_CSV); } catch(e) { orders = []; }
-    const order = orders.find(o => o.order_number === req.params.order_number);
+    const orderNum = (req.params.order_number || '').trim();
+    const cols = 'order_id, order_number, store_id, customer_name, flight_number, items_json, total_price, status, created_at, updated_at, staff_note';
+    const dbRes = await db.query(`SELECT ${cols} FROM panpuri_orders WHERE order_number = $1 LIMIT 1`, [orderNum]);
+    const order = dbRes.rows[0];
     if (!order) return res.json({ success: false, error: 'ไม่พบหมายเลข Order นี้' });
     let itemsParsed = [];
     try { itemsParsed = typeof order.items_json === 'string' ? JSON.parse(order.items_json) : (order.items_json || []); } catch(e) {}

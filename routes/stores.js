@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { readCsv, STORE_CSV } = require('../services/dataService');
+const { readCsv, invalidateCache, STORE_CSV } = require('../services/dataService');
 const upload = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
 const { loadNavigationGraph } = require('./navigation');
+const amenitiesRouter = require('./amenities');
+
+const STORE_COLS = 'shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, icon, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS"';
 
 
 // --- ADMIN FEATURE: CRUD Operations on store_matrix.csv ---
@@ -81,6 +84,8 @@ async function saveStoresToCsvSync(stores) {
     for (let row of stores) {
       await db.query('INSERT INTO store_matrix (shop_number, shop_name, shop_image, category, brands_available, graph_node_id, x, y, parent_node_id, store_id, "AI_KEYWORDS", "TOP_HERO_PRODUCTS", "PROMOTION_TAGS") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)', [row.shop_number, row.shop_name, row.shop_image, row.category, row.brands_available, row.graph_node_id, Number(row.x)||0, Number(row.y)||0, row.parent_node_id, row.store_id, row.AI_KEYWORDS, row.TOP_HERO_PRODUCTS, row.PROMOTION_TAGS]);
     }
+    invalidateCache('store_matrix');
+    if (amenitiesRouter.invalidateAmenitiesCache) amenitiesRouter.invalidateAmenitiesCache();
 
     // Also write back to store_matrix.csv so local file copy stays synced
     try {
@@ -203,7 +208,7 @@ router.post('/api/admin/stores', async (req, res) => {
         x = EXCLUDED.x,
         y = EXCLUDED.y,
         icon = EXCLUDED.icon
-      RETURNING *
+      RETURNING ${STORE_COLS}
     `;
 
     const result = await db.query(insertQuery, [
@@ -212,12 +217,14 @@ router.post('/api/admin/stores', async (req, res) => {
       sKw, sHero, sPromo
     ]);
 
+    invalidateCache('store_matrix');
+    if (amenitiesRouter.invalidateAmenitiesCache) amenitiesRouter.invalidateAmenitiesCache();
     const createdStore = result.rows[0];
     console.log(`[Admin] Created Shop ${resolvedShopNum}: ${createdStore.shop_name}`);
 
     // Sync CSV synchronously
     try {
-      const allRows = await db.query('SELECT * FROM store_matrix');
+      const allRows = await db.query(`SELECT ${STORE_COLS} FROM store_matrix`);
       const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
       const escapeCsv = (v) => {
         if (v === null || v === undefined) return '""';
@@ -282,13 +289,13 @@ router.put('/api/admin/stores/:shop_number', async (req, res) => {
       WHERE LOWER(TRIM(shop_number)) = LOWER(TRIM($${idx})) 
          OR LOWER(TRIM(store_id)) = LOWER(TRIM($${idx}))
          OR LOWER(TRIM(shop_name)) = LOWER(TRIM($${idx}))
-      RETURNING *
+      RETURNING ${STORE_COLS}
     `;
     const result = await db.query(query, values);
 
     if (result.rows.length === 0) {
       // Fallback: match by graph_node_id
-      const fallbackQuery = `UPDATE store_matrix SET ${updates.join(', ')} WHERE graph_node_id = $${idx} RETURNING *`;
+      const fallbackQuery = `UPDATE store_matrix SET ${updates.join(', ')} WHERE graph_node_id = $${idx} RETURNING ${STORE_COLS}`;
       const fallbackResult = await db.query(fallbackQuery, values);
       if (fallbackResult.rows.length === 0) {
         return res.status(404).json({ error: `Shop number "${shopNumStr}" not found in database.` });
@@ -296,13 +303,15 @@ router.put('/api/admin/stores/:shop_number', async (req, res) => {
       result.rows = fallbackResult.rows;
     }
 
+    invalidateCache('store_matrix');
+    if (amenitiesRouter.invalidateAmenitiesCache) amenitiesRouter.invalidateAmenitiesCache();
     const updatedStore = result.rows[0];
     console.log(`[Admin] Updated Shop ${shopNumStr}:`, updatedStore.shop_name, `(x=${updatedStore.x}, y=${updatedStore.y})`);
 
     // Asynchronously sync local store_matrix.csv in background
     (async () => {
       try {
-        const allRows = await db.query('SELECT * FROM store_matrix');
+        const allRows = await db.query(`SELECT ${STORE_COLS} FROM store_matrix`);
         const headers = ['shop_number','shop_name','shop_image','category','brands_available','graph_node_id','x','y','parent_node_id','store_id','AI_KEYWORDS','TOP_HERO_PRODUCTS','PROMOTION_TAGS'];
         const escapeCsv = (v) => {
           if (v === null || v === undefined) return '""';

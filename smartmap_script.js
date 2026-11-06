@@ -9,6 +9,29 @@ const FLOOR_4_MAP = "/uploads/4.svg";
 const FLOOR_3_MAP = "/uploads/3.svg";
 const SAT1_MAP = "/uploads/5.svg";
 
+// Browser Cache Utility (sessionStorage + localStorage) to minimize Supabase Egress
+const SmartMapScriptCache = {
+    TTL: 15 * 60 * 1000,
+    get(key) {
+        try {
+            const raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!parsed || !parsed.ts || (Date.now() - parsed.ts > this.TTL)) return null;
+            return parsed.data;
+        } catch (e) {
+            return null;
+        }
+    },
+    set(key, data) {
+        try {
+            const payload = JSON.stringify({ ts: Date.now(), data });
+            sessionStorage.setItem(key, payload);
+            localStorage.setItem(key, payload);
+        } catch (e) {}
+    }
+};
+
 function switchFloor(floor) {
     currentFloor = floor;
     const img = document.getElementById('map-image-element');
@@ -81,8 +104,15 @@ async function trackFlightLive(forcedFlightId = null, isUserAction = false) {
     }
 
     try {
-        const response = await fetch(`/api/flight-status?flight_id=${inputVal}`);
-        const data = await response.json();
+        const cacheKey = `kp_cache_flight_${inputVal}`;
+        let data = !isUserAction ? SmartMapScriptCache.get(cacheKey) : null;
+        if (!data) {
+            const response = await fetch(`/api/flight-status?flight_id=${inputVal}`);
+            data = await response.json();
+            if (data && data.gate) {
+                SmartMapScriptCache.set(cacheKey, data);
+            }
+        }
 
         if (!data || !data.gate) {
             alert("ไม่พบข้อมูลเที่ยวบินระหว่างประเทศดังกล่าว");
